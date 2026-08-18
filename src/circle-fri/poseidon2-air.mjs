@@ -81,7 +81,17 @@ export const POSEIDON2_AIR_ROW_LOG = 10;
 export const SNAPSHOT_QUOTIENT_LDE_LOG = 14;
 export const SNAPSHOT_QUOTIENT_DEGREE = 8192;
 export const SNAPSHOT_QUOTIENT_KIND = 'poseidon2-m31-snapshot-quotient-v1';
-/** Public verify cannot bind published Q to the row-Merkle table. */
+export const MASKED_ABSORB_BIND = 'masked-absorb-interpolant-v1';
+/** New wall: committed absorb can be garbage while snapshots/Q/FRI still verify. */
+export const ABSORB_UNOPENED_BIND_WALL = [
+  'Public verify accepts a committed table whose absorb rows are garbage (all-1s)',
+  'while snapshot rows, masked interpolant, Q=C/π^9, and even-x FRI are unchanged.',
+  'Deposit measures 18 unopened absorb rows; absorb→snapshot0 is only a host residual.',
+  'evaluatePoseidon2ResidualAt checks last-snapshots; snapshotRowsFromLayout never opens absorb.',
+  'Q is of the absorb-zeroed interpolant, not of the committed four-predicate table.',
+  'labeledFriOfAir dropped. Not SNAPSHOT_QUOTIENT_BIND_WALL, not 0/1024, not TRACE-64/5112, not 10735–11823.',
+].join(' ');
+/** Kept as the previous published-Q-unbound measurement. Not this bind. */
 export const SNAPSHOT_QUOTIENT_BIND_WALL = [
   'Public verify cannot check even-x FRI is Q=C/π^9(x) of the committed 16×1024 table.',
   'columnCoefficients omitted so owner||rho is not FFT-recoverable.',
@@ -598,6 +608,27 @@ export const buildSnapshotConstraintQuotient = ({ table, layout }) => {
   });
 };
 
+const copyTable = (table) => table.map((column) => column.slice());
+
+/** Zero absorb rows. Snapshot interpolant stays; owner||rho is not in the FFT. */
+export const maskSecretAbsorbRows = (table, layout) => {
+  if (!layout?.perms) fail('mask requires layout.perms');
+  const masked = copyTable(table);
+  for (const perm of layout.perms) {
+    for (let col = 0; col < POSEIDON2_T; col += 1) masked[col][perm.absorbRow] = 0n;
+  }
+  return masked;
+};
+
+export const snapshotRowsFromLayout = (layout) => {
+  if (!layout?.perms) fail('snapshot rows require layout.perms');
+  const rows = [];
+  for (const perm of layout.perms) {
+    for (let row = perm.snapshot0; row <= perm.lastRow; row += 1) rows.push(row);
+  }
+  return Object.freeze(rows);
+};
+
 const hashColumnCoefficients = (columnCoefficients) => {
   const parts = [utf8('poseidon2-air-cols-v1')];
   for (const coeffs of columnCoefficients) {
@@ -662,11 +693,16 @@ export const provePoseidon2Air = ({
       : null,
   });
   const domain = buildStandardCoset(POSEIDON2_AIR_ROW_LOG);
-  const columnCoefficients = built.table.map((column) => circleIFFT(domain, column));
+  const maskedTable = maskSecretAbsorbRows(built.table, built.layout);
+  const columnCoefficients = maskedTable.map((column) => circleIFFT(domain, column));
   const quotient = buildSnapshotConstraintQuotient({
-    table: built.table,
+    table: maskedTable,
     layout: built.layout,
   });
+  const snapshotRows = snapshotRowsFromLayout(built.layout);
+  const snapshotOpeningPaths = Object.freeze(Object.fromEntries(
+    snapshotRows.map((row) => [String(row), openRowMerkle(rowTree, row)]),
+  ));
   const statementBytes = encodePoolActionStatement(statement);
   const colDigest = hashColumnCoefficients(columnCoefficients);
   const layoutDigest = sha256(utf8(JSON.stringify(built.layout)));
@@ -680,6 +716,7 @@ export const provePoseidon2Air = ({
     Buffer.from(rowTree.root).toString('hex'),
     Buffer.from(openingsDigest).toString('hex'),
     SNAPSHOT_QUOTIENT_KIND,
+    MASKED_ABSORB_BIND,
     `nonce:${friNonce}`,
   ].join(':');
   const quotientDomain = buildStandardCoset(Math.log2(SNAPSHOT_QUOTIENT_DEGREE));
@@ -703,12 +740,15 @@ export const provePoseidon2Air = ({
     publicFelts: built.publicFelts,
     openings,
     openingPaths,
+    snapshotOpeningPaths,
     rowMerkleRoot: rowTree.root,
     columnDigest: colDigest,
+    columnCoefficients: Object.freeze(columnCoefficients.map((coeffs) => Object.freeze(coeffs))),
     evenXDeep,
     labeledFriOfAir: false,
     interpolantFri: false,
-    wall: SNAPSHOT_QUOTIENT_BIND_WALL,
+    wall: ABSORB_UNOPENED_BIND_WALL,
+    bind: MASKED_ABSORB_BIND,
     zhR: evenXDeep.zhR,
     residualObject: SNAPSHOT_QUOTIENT_KIND,
     compositionNonzero: evenXDeep.nonzero,
@@ -717,11 +757,135 @@ export const provePoseidon2Air = ({
     friNonce,
   };
   if (includeHostColumns) {
-    publicProof.columnCoefficients = Object.freeze(
-      columnCoefficients.map((coeffs) => Object.freeze(coeffs)),
+    publicProof.hostColumnCoefficients = Object.freeze(
+      built.table.map((column) => Object.freeze(circleIFFT(domain, column))),
     );
   }
   return Object.freeze(publicProof);
+};
+
+/**
+ * Adversarial: honest snapshots/Q/FRI, committed absorb rows replaced with 1s.
+ * Public verify currently accepts — absorb is never opened. That is the bind wall.
+ */
+export const proveGarbageAbsorbAir = ({
+  statement,
+  poolInstanceId,
+  owner,
+  rho,
+  amountFelt = 10_000_000n,
+  logBlowup = 3,
+  queryCount = 2,
+  friNonce = 0,
+}) => {
+  if (!statement) fail('garbage-absorb AIR requires the bound statement');
+  const built = buildFourPredicateAirTable({
+    statement, poolInstanceId, owner, rho, amountFelt,
+  });
+  const honestResiduals = evaluatePoseidon2AirResiduals(
+    built.table, built.layout, built.publicFelts,
+  );
+  if (!honestResiduals.vanish) fail('honest table residuals must vanish before absorb mutation');
+  const absorbRows = built.layout.perms.map((perm) => perm.absorbRow);
+  for (const row of absorbRows) {
+    for (let col = 0; col < POSEIDON2_T; col += 1) built.table[col][row] = 1n;
+  }
+  const mutatedResiduals = evaluatePoseidon2AirResiduals(
+    built.table, built.layout, built.publicFelts,
+  );
+  const openings = squeezeOpeningsFromTable(built.table, built.layout);
+  const atOpenings = evaluatePoseidon2ResidualAt({
+    openings,
+    publicFelts: built.publicFelts,
+    statementPublicFelts: built.statementPublicFelts,
+  });
+  if (!atOpenings.vanish) fail('garbage absorb must keep last-snapshot residuals at zero');
+  const rowTree = buildRowMerkle(built.table);
+  const openingPaths = Object.freeze({
+    public: openRowMerkle(rowTree, 0),
+    note: openRowMerkle(rowTree, built.layout.note.lastRow),
+    notePrev: openRowMerkle(rowTree, built.layout.note.lastRow - 1),
+    auth: openRowMerkle(rowTree, built.layout.auth.lastRow),
+    authPrev: openRowMerkle(rowTree, built.layout.auth.lastRow - 1),
+    merkleNote: openRowMerkle(rowTree, built.layout.merkleNote.lastRow),
+    nullifier: built.layout.nullifier
+      ? openRowMerkle(rowTree, built.layout.nullifier.lastRow)
+      : null,
+    nullifierPrev: built.layout.nullifier
+      ? openRowMerkle(rowTree, built.layout.nullifier.lastRow - 1)
+      : null,
+    merkleNf: built.layout.merkleNf
+      ? openRowMerkle(rowTree, built.layout.merkleNf.lastRow)
+      : null,
+  });
+  const domain = buildStandardCoset(POSEIDON2_AIR_ROW_LOG);
+  const maskedTable = maskSecretAbsorbRows(built.table, built.layout);
+  const columnCoefficients = maskedTable.map((column) => circleIFFT(domain, column));
+  const quotient = buildSnapshotConstraintQuotient({
+    table: maskedTable,
+    layout: built.layout,
+  });
+  const snapshotRows = snapshotRowsFromLayout(built.layout);
+  const snapshotOpeningPaths = Object.freeze(Object.fromEntries(
+    snapshotRows.map((row) => [String(row), openRowMerkle(rowTree, row)]),
+  ));
+  const statementBytes = encodePoolActionStatement(statement);
+  const colDigest = hashColumnCoefficients(columnCoefficients);
+  const layoutDigest = sha256(utf8(JSON.stringify(built.layout)));
+  const openingsDigest = sha256(utf8(JSON.stringify(openings, (_, value) => (
+    typeof value === 'bigint' ? value.toString() : value
+  ))));
+  const contextSeed = [
+    Buffer.from(statementBytes).toString('hex'),
+    Buffer.from(colDigest).toString('hex'),
+    Buffer.from(layoutDigest).toString('hex'),
+    Buffer.from(rowTree.root).toString('hex'),
+    Buffer.from(openingsDigest).toString('hex'),
+    SNAPSHOT_QUOTIENT_KIND,
+    MASKED_ABSORB_BIND,
+    `nonce:${friNonce}`,
+  ].join(':');
+  const quotientDomain = buildStandardCoset(Math.log2(SNAPSHOT_QUOTIENT_DEGREE));
+  const evenXDeep = proveEvenXDeepFri({
+    evenCoefficients: quotient.coefficients.slice(0, SNAPSHOT_QUOTIENT_DEGREE / 2),
+    ldeDomain: buildStandardCoset(Math.log2(SNAPSHOT_QUOTIENT_DEGREE) + logBlowup),
+    zetaX: quotientDomain[1].x,
+    logBlowup,
+    queryCount,
+    contextSeed,
+    degreeBound: SNAPSHOT_QUOTIENT_DEGREE,
+  });
+  return Object.freeze({
+    kind: POSEIDON2_AIR_KIND,
+    commitmentScheme: ALGEBRAIC_COMMITMENT_SCHEME,
+    snapshotRows: built.snapshotRows,
+    layout: built.layout,
+    transitions: honestResiduals.transitions,
+    predicateBinds: honestResiduals.predicateBinds,
+    statementPublicFelts: built.statementPublicFelts,
+    publicFelts: built.publicFelts,
+    openings,
+    openingPaths,
+    snapshotOpeningPaths,
+    rowMerkleRoot: rowTree.root,
+    columnDigest: colDigest,
+    columnCoefficients: Object.freeze(columnCoefficients.map((coeffs) => Object.freeze(coeffs))),
+    evenXDeep,
+    labeledFriOfAir: false,
+    interpolantFri: false,
+    wall: ABSORB_UNOPENED_BIND_WALL,
+    bind: MASKED_ABSORB_BIND,
+    residualObject: SNAPSHOT_QUOTIENT_KIND,
+    compositionNonzero: evenXDeep.nonzero,
+    quotientNonzero: quotient.nonzero,
+    quotientCoefficients: Object.freeze(quotient.coefficients.slice()),
+    friNonce,
+    garbageAbsorb: Object.freeze({
+      rows: absorbRows.length,
+      hostResidualsVanish: mutatedResiduals.vanish,
+      lastSnapshotsVanish: atOpenings.vanish,
+    }),
+  });
 };
 
 /**
@@ -801,7 +965,10 @@ export const proveDummyZeroTableAir = ({ statement, honestPublicRow = false }) =
 /** Recover owner||rho M31 limbs from published unmasked columnCoefficients, if present. */
 export const observePoseidon2Air = (proof, { owner, rho } = {}) => {
   const recovered = { owner: null, rho: null, leaked: false };
-  const coeffs = proof?.columnCoefficients ?? proof?.poseidon2Air?.columnCoefficients;
+  const coeffs = proof?.hostColumnCoefficients
+    ?? proof?.poseidon2Air?.hostColumnCoefficients
+    ?? proof?.columnCoefficients
+    ?? proof?.poseidon2Air?.columnCoefficients;
   if (!Array.isArray(coeffs) || coeffs.length !== POSEIDON2_T) {
     return Object.freeze(recovered);
   }
@@ -904,6 +1071,12 @@ export const verifyPoseidon2Air = ({ proof, expectedStatement }) => {
       reason: 'Poseidon2 AIR FRI object is not the snapshot-constraint quotient',
     });
   }
+  if (proof.bind !== MASKED_ABSORB_BIND) {
+    return Object.freeze({
+      ok: false,
+      reason: 'Poseidon2 AIR bind is not the masked-absorb interpolant',
+    });
+  }
   if (proof.evenXDeep?.parameters?.logDegreeBound !== Math.log2(SNAPSHOT_QUOTIENT_DEGREE)) {
     return Object.freeze({
       ok: false,
@@ -916,15 +1089,72 @@ export const verifyPoseidon2Air = ({ proof, expectedStatement }) => {
       reason: 'Poseidon2 AIR snapshot quotient FRI is degenerate',
     });
   }
-  if (!Array.isArray(proof.quotientCoefficients)
-      || proof.quotientCoefficients.length !== SNAPSHOT_QUOTIENT_DEGREE) {
+  if (!Array.isArray(proof.columnCoefficients) || proof.columnCoefficients.length !== POSEIDON2_T) {
     return Object.freeze({
       ok: false,
-      reason: 'Poseidon2 AIR published Q coefficients are missing',
+      reason: 'Poseidon2 AIR masked columnCoefficients are required',
     });
   }
+  const domain = buildStandardCoset(POSEIDON2_AIR_ROW_LOG);
+  const recovered = proof.columnCoefficients.map((coeffs) => {
+    if (!Array.isArray(coeffs) || coeffs.length !== POSEIDON2_AIR_ROWS) return null;
+    return circleFFT(domain, coeffs);
+  });
+  if (recovered.some((column) => column === null)) {
+    return Object.freeze({ ok: false, reason: 'Poseidon2 AIR masked columns are the wrong length' });
+  }
+  for (const perm of proof.layout.perms) {
+    if (recovered.some((column) => column[perm.absorbRow] !== 0n)) {
+      return Object.freeze({
+        ok: false,
+        reason: 'Poseidon2 AIR public interpolant must zero absorb rows',
+      });
+    }
+  }
+  const expectedDigest = hashColumnCoefficients(proof.columnCoefficients);
+  if (!(proof.columnDigest instanceof Uint8Array)
+      || expectedDigest.some((byte, index) => byte !== proof.columnDigest[index])) {
+    return Object.freeze({ ok: false, reason: 'Poseidon2 AIR columnDigest does not match masked coefficients' });
+  }
+  let recomputed;
+  try {
+    recomputed = buildSnapshotConstraintQuotient({
+      table: recovered,
+      layout: proof.layout,
+    });
+  } catch (error) {
+    return Object.freeze({
+      ok: false,
+      reason: error instanceof Error ? error.message : 'masked snapshot quotient is not deg<8192',
+    });
+  }
+  if (!Array.isArray(proof.quotientCoefficients)
+      || proof.quotientCoefficients.length !== SNAPSHOT_QUOTIENT_DEGREE
+      || proof.quotientCoefficients.some((value, index) => value !== recomputed.coefficients[index])) {
+    return Object.freeze({
+      ok: false,
+      reason: 'published Q is not the snapshot quotient of the masked committed interpolant',
+    });
+  }
+  const snapshotRows = snapshotRowsFromLayout(proof.layout);
+  const snapshotPaths = proof.snapshotOpeningPaths ?? {};
+  for (const row of snapshotRows) {
+    const values = recovered.map((column) => column[row]);
+    if (!verifyRowMerkle({
+      root,
+      length: POSEIDON2_AIR_ROWS,
+      index: row,
+      values,
+      siblings: snapshotPaths[String(row)]?.siblings,
+    })) {
+      return Object.freeze({
+        ok: false,
+        reason: `masked interpolant row ${row} is not the committed snapshot`,
+      });
+    }
+  }
   const expectedContext = sha256(utf8(
-    `even-x-deep-v1\0${Buffer.from(statementBytes).toString('hex')}:${Buffer.from(proof.columnDigest).toString('hex')}:${Buffer.from(layoutDigest).toString('hex')}:${Buffer.from(root).toString('hex')}:${Buffer.from(openingsDigest).toString('hex')}:${SNAPSHOT_QUOTIENT_KIND}:nonce:${proof.friNonce ?? 0}`,
+    `even-x-deep-v1\0${Buffer.from(statementBytes).toString('hex')}:${Buffer.from(proof.columnDigest).toString('hex')}:${Buffer.from(layoutDigest).toString('hex')}:${Buffer.from(root).toString('hex')}:${Buffer.from(openingsDigest).toString('hex')}:${SNAPSHOT_QUOTIENT_KIND}:${MASKED_ABSORB_BIND}:nonce:${proof.friNonce ?? 0}`,
   ));
   const got = proof.evenXDeep?.protocolContext;
   if (!(got instanceof Uint8Array) || got.some((byte, index) => byte !== expectedContext[index])) {
@@ -935,7 +1165,7 @@ export const verifyPoseidon2Air = ({ proof, expectedStatement }) => {
   }
   const logBlowup = proof.evenXDeep.parameters.logBlowup;
   const deep = verifyEvenXDeepFri({
-    evenCoefficients: proof.quotientCoefficients.slice(0, SNAPSHOT_QUOTIENT_DEGREE / 2),
+    evenCoefficients: recomputed.coefficients.slice(0, SNAPSHOT_QUOTIENT_DEGREE / 2),
     ldeDomain: buildStandardCoset(Math.log2(SNAPSHOT_QUOTIENT_DEGREE) + logBlowup),
     zetaX: buildStandardCoset(Math.log2(SNAPSHOT_QUOTIENT_DEGREE))[1].x,
     deepFri: proof.evenXDeep,
@@ -943,7 +1173,7 @@ export const verifyPoseidon2Air = ({ proof, expectedStatement }) => {
   if (!deep.ok) {
     return Object.freeze({
       ok: false,
-      reason: deep.reason ?? 'even-x FRI is not the DEEP of the published Q',
+      reason: deep.reason ?? 'even-x FRI is not the DEEP of the table-bound Q',
     });
   }
   return Object.freeze({
@@ -952,7 +1182,8 @@ export const verifyPoseidon2Air = ({ proof, expectedStatement }) => {
     labeledFriOfAir: false,
     interpolantFri: false,
     residualObject: SNAPSHOT_QUOTIENT_KIND,
-    wall: SNAPSHOT_QUOTIENT_BIND_WALL,
+    bind: MASKED_ABSORB_BIND,
+    wall: ABSORB_UNOPENED_BIND_WALL,
     transitions: proof.transitions,
     predicateBinds: proof.predicateBinds,
     snapshotRows: proof.snapshotRows,

@@ -70,7 +70,8 @@ test('public AIR+DEEP proof does not reveal rho, owner, or secret amount slot; d
 
   const deposit = buildHonestDeposit();
   const relation = provePoolActionRelation(deposit);
-  assert.equal(relation.poseidon2Air.columnCoefficients, undefined);
+  assert.equal(relation.poseidon2Air.columnCoefficients.length, 16);
+  assert.equal(relation.poseidon2Air.hostColumnCoefficients, undefined);
   const airObserved = observePublicProof(relation.poseidon2Air, {
     rho: deposit.witness.rho,
     owner: deposit.witness.owner,
@@ -96,7 +97,7 @@ test('public AIR+DEEP proof does not reveal rho, owner, or secret amount slot; d
       'secret-slot interpolant !== ticket/hash(owner)/hash(rho)',
       'degree-0 classified failed',
       'Z_H·R on even-x DEEP FRI domain recomputes and verifies',
-      'public poseidon2Air has no columnCoefficients; limb FFT does not recover owner||rho',
+      'public poseidon2Air publishes masked columnCoefficients; limb FFT does not recover owner||rho',
     ],
     failed: [],
     speculative: ['128-coset tail remains; nested H⊂LDE cannot be stated for this CFFT family; 2^14 AIR Z_H·R is host-only (32768-coeff)'],

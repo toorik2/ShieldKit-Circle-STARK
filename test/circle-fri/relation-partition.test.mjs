@@ -19,13 +19,13 @@ const runPartition = (label, bundle) => {
   assert.equal(evaluated.host.ok, true, evaluated.host.reason);
   assert.equal(evaluated.proof.deepFriCompatible, false);
   assert.equal(evaluated.proof.evenXDeep?.labeledFriOfDeep, true);
-  assert.equal(evaluated.chainObject, 'air-snapshot-quotient-even-x');
+  assert.equal(evaluated.chainObject, 'air-masked-snapshot-quotient-even-x');
   assert.ok((evaluated.compositionNonzero ?? 0) > 0);
   assert.equal(evaluated.airStatedInHoldingLane, true);
   assert.equal(evaluated.airStatedInLane, false);
   assert.equal(evaluated.host.poseidon2Air.ok, true);
   assert.equal(evaluated.host.poseidon2Air.labeledFriOfAir, false);
-  assert.match(evaluated.airWall ?? '', /unbound from the row-Merkle table/i);
+  assert.match(evaluated.airWall ?? '', /18 unopened absorb rows/u);
   assert.notEqual(evaluated.chainObject, 'even-x-deep-fri');
   assert.equal(evaluated.commitmentScheme, 'poseidon2-m31-rate8-v1');
   assert.equal(evaluated.envelope.miss.txBytes, 174794);

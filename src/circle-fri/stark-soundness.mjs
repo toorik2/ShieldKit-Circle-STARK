@@ -23,6 +23,12 @@ export const SOUNDNESS_ROLES = Object.freeze([
   'B', 'D', 'E', 'F_batch', 'F_fri', 'F_deep', 'Q_deep', 'H_outer', 'grind', 'S_total',
 ]);
 
+/** 47-bit conjectural union cannot reach 128 without selecting or dropping queries. */
+export const SOUNDNESS_128_WALL = [
+  'Unselected S_total floor is 47 bits (3/2^49). Reaching 128 requires selecting a tuple',
+  'or dropping queries. Neither is allowed. 36×4=144 is not this union. Not production.',
+].join(' ');
+
 export const SOUNDNESS_EVENT_FAMILIES = Object.freeze([
   'air', 'deep', 'fri', 'hash-binding', 'grinding', 'parser-canonicality',
 ]);
@@ -64,10 +70,11 @@ export const computeStarkSoundnessArtifactDigests = () => {
     reimWall: 'circle-deep-re-im-v1',
     algebraicAir: 'poseidon2-m31-four-predicate-air-v1',
     residualObject: 'poseidon2-m31-snapshot-quotient-v1',
+    bind: 'masked-absorb-interpolant-v1',
     fri: 'j-then-pi-query-v3',
     relation: 'pool-action-hash256-merkle-v1',
     zk: 'zh-r-even-x-deep-v1',
-    partition: 'air-snapshot-quotient-even-x',
+    partition: 'air-masked-snapshot-quotient-even-x',
     logDegreeBound: 13,
     logBlowup: 3,
     queryCount: 4,

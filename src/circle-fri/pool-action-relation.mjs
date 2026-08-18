@@ -303,6 +303,7 @@ export const provePoolActionRelation = ({
     interpolantFri: false,
     wall: poseidon2Air?.wall ?? algebraicAir.wall,
     airKind: poseidon2Air?.kind ?? null,
+    bind: poseidon2Air?.bind ?? null,
     transitions: poseidon2Air?.transitions ?? null,
   });
   return Object.freeze({

@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  SOUNDNESS_128_WALL,
   SOUNDNESS_EVENT_FAMILIES,
   SOUNDNESS_EVEN_X_NEIGHBORS,
   SOUNDNESS_ROLES,
@@ -31,6 +32,10 @@ test('unselected soundness DAG names every role and six event families', () => {
   assert.equal(inspection.conjecturalSTotal.denominator, '562949953421312');
   assert.equal(inspection.floorSecurityBits, 47);
   assert.notEqual(inspection.floorSecurityBits, 128);
+  assert.match(SOUNDNESS_128_WALL, /47 bits/u);
+  assert.match(SOUNDNESS_128_WALL, /selecting a tuple or dropping queries/u);
+  assert.match(artifact.worksheet.conclusion.reason, /47 bits/u);
+  assert.match(artifact.worksheet.conclusion.reason, /selecting a tuple or dropping queries/u);
   const digests = computeStarkSoundnessArtifactDigests();
   assert.equal(artifact.worksheet.candidateTupleDigest, digests.candidateTuple);
   assert.equal(artifact.worksheet.artifactDigests.relation, digests.relation);
@@ -62,7 +67,7 @@ test('unselected soundness DAG names every role and six event families', () => {
       'S_total=3/2^49 floor 47',
       'F_deep/Q_deep digest even-x DEEP/AIR/partition artifacts',
     ],
-    failed: [],
+    failed: [SOUNDNESS_128_WALL],
     speculative: ['all event bounds are conjectural 2^-50 slots'],
     selected: false,
     systemic128: false,

@@ -114,7 +114,8 @@ test('DEEP is pinned; FRI-of-DEEP is a named wall, not a relabel', () => {
   assert.equal(air.labeledFriOfAir, false);
   assert.equal(air.interpolantFri, false);
   assert.equal(air.residualObject, 'poseidon2-m31-snapshot-quotient-v1');
-  assert.match(air.wall ?? '', /unbound from the row-Merkle table/i);
+  assert.equal(air.bind, 'masked-absorb-interpolant-v1');
+  assert.match(air.wall ?? '', /18 unopened absorb rows/u);
   assert.ok((air.quotientNonzero ?? 0) > 0);
   assert.equal(air.evenXDeep.parameters.logDegreeBound, 13);
   assert.ok(air.transitions > 0);
@@ -124,7 +125,7 @@ test('DEEP is pinned; FRI-of-DEEP is a named wall, not a relabel', () => {
       'J-then-π FRI prove/verify accepts that codeword',
       'labeledFriOfDeep true',
       'TRACE-64 even-x FRI remains of the bound interpolant',
-      'Poseidon2-M31 four-predicate AIR snapshot-quotient even-x FRI',
+      'Poseidon2-M31 masked interpolant even-x FRI of snapshot quotient',
     ],
     failed: [
       `Re/Im still dense: ${proof.deepFriWall}`,

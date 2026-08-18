@@ -9,11 +9,14 @@ import {
 } from '../../src/circle-fri/pool-action-relation.mjs';
 
 import {
-  SNAPSHOT_QUOTIENT_BIND_WALL,
+  ABSORB_UNOPENED_BIND_WALL,
+  MASKED_ABSORB_BIND,
   SNAPSHOT_QUOTIENT_KIND,
   forgeUnboundQuotientFri,
   measureGarbageMiddleQuotientWall,
+  observePoseidon2Air,
   proveDummyZeroTableAir,
+  proveGarbageAbsorbAir,
   verifyPoseidon2Air,
 } from '../../src/circle-fri/poseidon2-air.mjs';
 
@@ -45,16 +48,24 @@ test('honest deposit and withdrawal relation proofs accept', () => {
   assert.equal(depositProof.algebraicAir.statedInHoldingLane, true);
   assert.equal(depositProof.algebraicAir.labeledFriOfAir, false);
   assert.equal(depositProof.algebraicAir.productionLock, false);
-  assert.equal(depositProof.algebraicAir.wall, SNAPSHOT_QUOTIENT_BIND_WALL);
+  assert.equal(depositProof.algebraicAir.wall, ABSORB_UNOPENED_BIND_WALL);
   assert.equal(depositProof.algebraicAir.interpolantFri, false);
   assert.ok(depositProof.poseidon2Air.transitions > 0);
   assert.equal(depositOk.statedInHoldingLane, true);
   assert.equal(depositOk.poseidon2Air.ok, true);
   assert.equal(depositOk.poseidon2Air.labeledFriOfAir, false);
   assert.equal(depositProof.poseidon2Air.labeledFriOfAir, false);
-  assert.match(depositProof.poseidon2Air.wall ?? '', /unbound from the row-Merkle table/i);
-  assert.equal(depositProof.poseidon2Air.columnCoefficients, undefined);
+  assert.equal(depositProof.poseidon2Air.wall, ABSORB_UNOPENED_BIND_WALL);
+  assert.match(depositProof.poseidon2Air.wall, /18 unopened absorb rows/u);
+  assert.equal(depositProof.poseidon2Air.bind, MASKED_ABSORB_BIND);
+  assert.equal(depositProof.poseidon2Air.columnCoefficients.length, 16);
+  assert.equal(depositProof.poseidon2Air.hostColumnCoefficients, undefined);
   assert.equal(depositProof.poseidon2Air.residualObject, SNAPSHOT_QUOTIENT_KIND);
+  const publicLimbs = observePoseidon2Air(depositProof.poseidon2Air, {
+    owner: deposit.witness.owner,
+    rho: deposit.witness.rho,
+  });
+  assert.equal(publicLimbs.leaked, false);
   assert.ok((depositProof.poseidon2Air.quotientNonzero ?? 0) > 0);
   assert.equal(depositProof.poseidon2Air.evenXDeep.parameters.logDegreeBound, 13);
   assert.equal(depositProof.poseidon2Air.evenXDeep.zhR.onChain, false);
@@ -64,6 +75,8 @@ test('honest deposit and withdrawal relation proofs accept', () => {
   });
   assert.equal(withoutSecrets.ok, true, withoutSecrets.reason);
   assert.equal(withoutSecrets.labeledFriOfAir, false);
+  assert.equal(withoutSecrets.wall, ABSORB_UNOPENED_BIND_WALL);
+  assert.equal(withoutSecrets.bind, MASKED_ABSORB_BIND);
   const wrongStatement = verifyPoseidon2Air({
     proof: depositProof.poseidon2Air,
     expectedStatement: buildHonestWithdrawal().statement,
@@ -97,9 +110,10 @@ test('honest deposit and withdrawal relation proofs accept', () => {
       'Poseidon2-M31 four-predicate AIR absorb/squeeze + snapshot constraints vanish',
       'public residual-at-openings uses publicFelts.note',
       'AIR verify without owner||rho re-execution',
+      'masked interpolant + snapshot Merkle + published-Q FRI verify',
     ],
-    failed: [SNAPSHOT_QUOTIENT_BIND_WALL],
-    speculative: ['published Q is FRI-bound; Q is not bound to the committed table'],
+    failed: [ABSORB_UNOPENED_BIND_WALL],
+    speculative: [],
     offChainForever: OFF_CHAIN_FOREVER,
     algebraicAir: {
       statedInLane: depositProof.algebraicAir.statedInLane,
@@ -193,8 +207,31 @@ test('fake note, fake nullifier, and garbage coefficients reject', () => {
     expectedStatement: deposit.statement,
   });
   assert.equal(forgedQVerdict.ok, false, 'forged random Q even-x must not verify');
-  assert.match(forgedQVerdict.reason ?? '', /published Q|DEEP|coefficient/i);
+  assert.match(forgedQVerdict.reason ?? '', /published Q|DEEP|coefficient|quotient/i);
   assert.equal(forgedQVerdict.labeledFriOfAir ?? false, false);
+  const tamperedCols = structuredClone(honestProof.poseidon2Air);
+  tamperedCols.columnCoefficients[0][8] = (tamperedCols.columnCoefficients[0][8] + 1n) % 2147483647n;
+  const tamperedColsVerdict = verifyPoseidon2Air({
+    proof: tamperedCols,
+    expectedStatement: deposit.statement,
+  });
+  assert.equal(tamperedColsVerdict.ok, false);
+  assert.match(tamperedColsVerdict.reason ?? '', /columnDigest|quotient|committed snapshot|absorb/i);
+  const garbageAbsorb = proveGarbageAbsorbAir({
+    statement: deposit.statement,
+    poolInstanceId: hexToBytes(deposit.statement.poolInstanceIdHex, 'pool'),
+    owner: deposit.witness.owner,
+    rho: deposit.witness.rho,
+  });
+  assert.equal(garbageAbsorb.garbageAbsorb.hostResidualsVanish, false);
+  assert.equal(garbageAbsorb.garbageAbsorb.rows, 18);
+  const garbageAbsorbVerdict = verifyPoseidon2Air({
+    proof: garbageAbsorb,
+    expectedStatement: deposit.statement,
+  });
+  assert.equal(garbageAbsorbVerdict.ok, true, garbageAbsorbVerdict.reason);
+  assert.equal(garbageAbsorbVerdict.labeledFriOfAir, false);
+  assert.equal(garbageAbsorbVerdict.wall, ABSORB_UNOPENED_BIND_WALL);
   console.log('AIR_RELATION_FALSIFIERS', {
     proven: [
       'fake note reject',
@@ -202,8 +239,12 @@ test('fake note, fake nullifier, and garbage coefficients reject', () => {
       'garbage coefficients reject',
       'dummy last-snapshot reject',
       'forgedRandomQ reject (even-x is not DEEP of published Q)',
+      'tampered masked interpolant reject',
     ],
-    failed: [SNAPSHOT_QUOTIENT_BIND_WALL],
+    failed: [
+      'garbage absorb (18 rows, all-1s) still verifies — Q is of the masked interpolant',
+      ABSORB_UNOPENED_BIND_WALL,
+    ],
     speculative: [],
     fakeNote: fakeNoteVerdict.reason,
     fakeNullifier: fakeNf.reason,
