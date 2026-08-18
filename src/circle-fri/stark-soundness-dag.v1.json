@@ -1,0 +1,218 @@
+{
+  "selected": false,
+  "ethStark144ClaimedAsSystemic": false,
+  "label": "conjectural-unselected",
+  "roles": {
+    "B": "M31 working convention for this component; not selected",
+    "D": "half-step-shifted standard coset; TRACE 64 / LDE 512 for this worksheet",
+    "E": "M31 code alphabet; CM31 used only for the still-dense Re/Im wall, not for even-x Q_deep",
+    "F_batch": "single-constraint batching over M31",
+    "F_fri": "M31 FRI fold challenges",
+    "F_deep": "M31 even-x DEEP ζ_x sampled from the labeled SHA-256 transcript",
+    "Q_deep": "circle-deep-even-x-quotient-v1",
+    "H_outer": "domain-separated HASH256 Merkle + labeled SHA-256 transcript",
+    "grind": "no grinding in this component; role reserved so the DAG is not silent on PoW",
+    "S_total": "conjectural union of the six families below; not systemic 128-bit"
+  },
+  "worksheet": {
+    "schema": "shieldkit-labs/security/soundness-worksheet/v2",
+    "qualificationBoundary": "prequalification-only",
+    "worksheetId": "worksheet:air-deep-component",
+    "status": "partial",
+    "candidateTupleRef": "tuple:air-deep-component-unselected",
+    "candidateTupleDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "relationRef": "relation:pool-action-fv1",
+    "profileRef": "profile:fixed-ticket-serial-pool",
+    "sourceCommits": [
+      {
+        "repository": "ShieldKit-Circle-STARK",
+        "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "dirty": true,
+        "paths": ["src/circle-fri/stark-air.mjs", "src/circle-fri/stark-soundness.mjs"]
+      }
+    ],
+    "toolchain": {
+      "runtime": "node test",
+      "checker": "soundness-event-dag.mjs",
+      "lockfileDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "artifactDigests": {
+      "relation": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "candidateTuple": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "derivation": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+    },
+    "assumptions": [
+      {
+        "assumptionId": "assumption:random-oracle",
+        "statement": "Labeled SHA-256 transcript is modeled as a random oracle for this conjectural worksheet only.",
+        "status": "open",
+        "evidenceRefs": ["evidence:derivation"]
+      }
+    ],
+    "eventDag": {
+      "nodes": [
+        {
+          "eventId": "event:air-batch",
+          "kind": "air",
+          "accounting": {
+            "mode": "systemic-summand",
+            "eventKey": "bad-event:air-batch",
+            "opportunitySetId": "opportunities:air-batch",
+            "samplerRefs": ["sampler:air-batch"]
+          },
+          "roleRefs": ["F_batch", "B"],
+          "dependsOn": [],
+          "bound": {
+            "status": "derived",
+            "form": "exact-rational",
+            "exactUpperBound": { "numerator": "1", "denominator": "1125899906842624" },
+            "expression": "conjectural AIR batching 2^-50; not measured",
+            "multiplicity": 1,
+            "multiplicityIncludedInBound": true,
+            "assumptionRefs": ["assumption:random-oracle"],
+            "evidenceRefs": ["evidence:derivation"]
+          }
+        },
+        {
+          "eventId": "event:deep-opening",
+          "kind": "deep",
+          "accounting": {
+            "mode": "systemic-summand",
+            "eventKey": "bad-event:deep-opening",
+            "opportunitySetId": "opportunities:deep-opening",
+            "samplerRefs": ["sampler:deep-opening"]
+          },
+          "roleRefs": ["F_deep", "Q_deep"],
+          "dependsOn": [],
+          "bound": {
+            "status": "derived",
+            "form": "exact-rational",
+            "exactUpperBound": { "numerator": "1", "denominator": "1125899906842624" },
+            "expression": "conjectural even-x DEEP q=(even(x)-even(ζx))/(x-ζx) 2^-50; Re/Im remains a named wall; not a Lean bound",
+            "multiplicity": 1,
+            "multiplicityIncludedInBound": true,
+            "assumptionRefs": ["assumption:random-oracle"],
+            "evidenceRefs": ["evidence:derivation"]
+          }
+        },
+        {
+          "eventId": "event:fri-query",
+          "kind": "fri",
+          "accounting": {
+            "mode": "systemic-summand",
+            "eventKey": "bad-event:fri-query",
+            "opportunitySetId": "opportunities:fri-query",
+            "samplerRefs": ["sampler:fri-query"]
+          },
+          "roleRefs": ["F_fri", "D", "E"],
+          "dependsOn": [],
+          "bound": {
+            "status": "derived",
+            "form": "exact-rational",
+            "exactUpperBound": { "numerator": "1", "denominator": "1125899906842624" },
+            "expression": "conjectural FRI proximity 2^-50; 36x4=144 is not this number and is not S_total",
+            "multiplicity": 1,
+            "multiplicityIncludedInBound": true,
+            "assumptionRefs": ["assumption:random-oracle"],
+            "evidenceRefs": ["evidence:derivation"]
+          }
+        },
+        {
+          "eventId": "event:hash-binding",
+          "kind": "hash-binding",
+          "accounting": {
+            "mode": "systemic-summand",
+            "eventKey": "bad-event:hash-binding",
+            "opportunitySetId": "opportunities:hash-binding",
+            "samplerRefs": ["sampler:hash-binding"]
+          },
+          "roleRefs": ["H_outer"],
+          "dependsOn": [],
+          "bound": {
+            "status": "derived",
+            "form": "exact-rational",
+            "exactUpperBound": { "numerator": "1", "denominator": "1125899906842624" },
+            "expression": "conjectural HASH256 collision/binding 2^-50",
+            "multiplicity": 1,
+            "multiplicityIncludedInBound": true,
+            "assumptionRefs": ["assumption:random-oracle"],
+            "evidenceRefs": ["evidence:derivation"]
+          }
+        },
+        {
+          "eventId": "event:grinding",
+          "kind": "grinding",
+          "accounting": {
+            "mode": "systemic-summand",
+            "eventKey": "bad-event:grinding",
+            "opportunitySetId": "opportunities:grinding",
+            "samplerRefs": ["sampler:grinding"]
+          },
+          "roleRefs": ["H_outer"],
+          "dependsOn": [],
+          "bound": {
+            "status": "derived",
+            "form": "exact-rational",
+            "exactUpperBound": { "numerator": "1", "denominator": "1125899906842624" },
+            "expression": "no grind in this component; slot reserved at 2^-50 so grinding is not omitted from the DAG",
+            "multiplicity": 1,
+            "multiplicityIncludedInBound": true,
+            "assumptionRefs": ["assumption:random-oracle"],
+            "evidenceRefs": ["evidence:derivation"]
+          }
+        },
+        {
+          "eventId": "event:parser-canonicality",
+          "kind": "parser-canonicality",
+          "accounting": {
+            "mode": "systemic-summand",
+            "eventKey": "bad-event:parser-canonicality",
+            "opportunitySetId": "opportunities:parser-canonicality",
+            "samplerRefs": ["sampler:parser-canonicality"]
+          },
+          "roleRefs": ["H_outer"],
+          "dependsOn": [],
+          "bound": {
+            "status": "derived",
+            "form": "exact-rational",
+            "exactUpperBound": { "numerator": "1", "denominator": "1125899906842624" },
+            "expression": "conjectural parser/codec 2^-50",
+            "multiplicity": 1,
+            "multiplicityIncludedInBound": true,
+            "assumptionRefs": ["assumption:random-oracle"],
+            "evidenceRefs": ["evidence:derivation"]
+          }
+        }
+      ],
+      "systemicUnion": {
+        "status": "derived",
+        "summandRefs": [
+          "event:air-batch",
+          "event:deep-opening",
+          "event:fri-query",
+          "event:hash-binding",
+          "event:grinding",
+          "event:parser-canonicality"
+        ],
+        "method": "union-bound",
+        "boundExpression": "min(1,sum(unique systemic summands))",
+        "exactUpperBound": { "numerator": "3", "denominator": "562949953421312" },
+        "floorSecurityBits": 47,
+        "evidenceRefs": ["evidence:derivation"]
+      }
+    },
+    "completeTransactions": { "deposit": null, "withdrawal": null },
+    "conclusion": {
+      "qualification": "not-qualified",
+      "targetBits": 128,
+      "minimumBits": 100,
+      "selectionAllowed": false,
+      "fallbackAuthorized": false,
+      "reason": "Conjectural unselected even-x + Poseidon2 snapshot-quotient worksheet. S_total floor 47 bits. ethSTARK 36x4=144 is not systemic 128-bit and is not this union. Snapshot Q=C/π^9(x) is deg<8192; not 128-bit."
+    },
+    "notes": [
+      "36/1024 is a measured query-kernel schedule, not this tuple and not a selection.",
+      "S_total is conjectural. Proven vs conjectural: only the rational arithmetic of the union is checked."
+    ]
+  }
+}

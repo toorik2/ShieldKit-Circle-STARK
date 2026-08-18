@@ -203,7 +203,7 @@ export const circleFFT = (domain, coefficients) => {
   return result;
 };
 
-const evaluateXPolynomial = (coefficients, x) => {
+export const evaluateXPolynomial = (coefficients, x) => {
   if (coefficients.length === 1) return coefficients[0];
   const half = coefficients.length / 2;
   return add(

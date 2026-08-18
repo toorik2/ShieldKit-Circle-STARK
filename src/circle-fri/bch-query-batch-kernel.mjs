@@ -3,9 +3,10 @@
  *
  * Each unlocking bytecode is exactly three pushes: the public transcript
  * digest, the unchanged q2 witness codec, and this fixed-parameter redeem.
- * Two consecutive inputs cover the public q4 schedule in batches [0,1] and
- * [2,3]. The redeem derives both batch ordinals from OP_INPUTINDEX and binds
- * the public transcript digest across both input bytecodes.
+ * Consecutive identical P2SH32 inputs cover the public schedule in aligned
+ * q2 batches. The redeem derives every public query index, selects the active
+ * pair from OP_INPUTINDEX, and binds the public transcript digest across
+ * every input bytecode.
  */
 
 import {
@@ -71,9 +72,19 @@ import {
 } from './bytes.mjs';
 
 const BATCH_SIZE = 2;
-const TRANSACTION_BATCH_COUNT = 2;
-const QUERY_COUNT = BATCH_SIZE * TRANSACTION_BATCH_COUNT;
 const ZERO_BYTE = Uint8Array.of(0);
+
+const assertEvenPublicQueryCount = (parameters) => {
+  require(
+    Number.isSafeInteger(parameters.queryCount)
+      && parameters.queryCount >= BATCH_SIZE
+      && parameters.queryCount % BATCH_SIZE === 0,
+    'q2 batch kernel requires an even public queryCount of at least 2',
+  );
+  return parameters.queryCount;
+};
+
+const publicBatchCount = (parameters) => assertEvenPublicQueryCount(parameters) / BATCH_SIZE;
 const TWO_TO_32 = 0x1_0000_0000;
 const HALF = (M31_MODULUS + 1n) / 2n;
 
@@ -709,14 +720,14 @@ const derivePublicProofDigest = ({ witness, parameters, protocolContext }) => {
   );
 };
 
-/** Validate and freeze one exact q2 operand for the fixed q4 transaction. */
+/** Validate and freeze one exact q2 operand for the public query schedule. */
 export const createBchCircleFriQ2BatchFixture = ({
   witness,
   expected,
   protocolContext = new Uint8Array(),
 }) => {
   const parameters = assertCircleFriParameters(expected);
-  require(parameters.queryCount === QUERY_COUNT, 'batch kernel requires the public q4 schedule');
+  const batchCount = publicBatchCount(parameters);
   require(witness !== null && typeof witness === 'object', 'q2 witness is required');
   require(
     Array.isArray(witness.queryOrdinals)
@@ -726,7 +737,10 @@ export const createBchCircleFriQ2BatchFixture = ({
     'q2 witness must cover one aligned consecutive query batch',
   );
   const batchOrdinal = witness.queryOrdinals[0] / BATCH_SIZE;
-  require(batchOrdinal === 0 || batchOrdinal === 1, 'q2 witness batch ordinal is out of range');
+  require(
+    Number.isInteger(batchOrdinal) && batchOrdinal >= 0 && batchOrdinal < batchCount,
+    'q2 witness batch ordinal is out of range',
+  );
   const verdict = verifyCircleFriQ2BatchWitness({
     witness,
     expected: parameters,
@@ -746,7 +760,7 @@ export const createBchCircleFriQ2BatchFixture = ({
     kind: 'bch-circle-fri-q2-batch-component-v1',
     proofVersion: 3,
     queryBatchSize: BATCH_SIZE,
-    transactionBatchCount: TRANSACTION_BATCH_COUNT,
+    transactionBatchCount: batchCount,
     batchOrdinal,
     parameters,
     protocolContext: new Uint8Array(protocolContext),
@@ -760,35 +774,62 @@ export const createBchCircleFriQ2BatchFixture = ({
 
 const assertBatchFixture = (fixture) => {
   require(fixture?.kind === 'bch-circle-fri-q2-batch-component-v1', 'q2 batch fixture is required');
-  require(fixture.parameters.queryCount === QUERY_COUNT, 'q2 batch fixture must bind q4');
+  publicBatchCount(fixture.parameters);
   require(fixture.publicProofDigest instanceof Uint8Array && fixture.publicProofDigest.length === 32, 'public proof digest must be 32 bytes');
   require(fixture.encodedWitness instanceof Uint8Array, 'encoded q2 witness is required');
   return fixture;
 };
 
-const buildCrossInputProofDigestBinding = () => [
-  OP.OP_TXINPUTCOUNT,
-  OP.OP_2,
-  OP.OP_NUMEQUALVERIFY,
-  OP.OP_INPUTINDEX,
-  OP.OP_0,
-  OP.OP_2,
-  OP.OP_WITHIN,
-  OP.OP_VERIFY,
-  ...[0, 1].flatMap((inputIndex) => [
-    ...pushNumber(inputIndex),
-    OP.OP_INPUTBYTECODE,
-    ...pushNumber(33),
-    OP.OP_SPLIT,
-    OP.OP_DROP,
-    OP.OP_1,
-    OP.OP_SPLIT,
-    OP.OP_SWAP,
-    ...encodeMinimalDataPush(Uint8Array.of(0x20)),
-    OP.OP_EQUALVERIFY,
-  ]),
+const extractInputProofDigestPrefix = (inputIndex) => [
+  ...pushNumber(inputIndex),
+  OP.OP_INPUTBYTECODE,
+  ...pushNumber(33),
+  OP.OP_SPLIT,
+  OP.OP_DROP,
+  OP.OP_1,
+  OP.OP_SPLIT,
+  OP.OP_SWAP,
+  ...encodeMinimalDataPush(Uint8Array.of(0x20)),
   OP.OP_EQUALVERIFY,
 ];
+
+const buildCrossInputProofDigestBinding = (batchCount) => {
+  require(Number.isSafeInteger(batchCount) && batchCount >= 1, 'batchCount must be a positive integer');
+  if (batchCount === 2) {
+    return [
+      OP.OP_TXINPUTCOUNT,
+      OP.OP_2,
+      OP.OP_NUMEQUALVERIFY,
+      OP.OP_INPUTINDEX,
+      OP.OP_0,
+      OP.OP_2,
+      OP.OP_WITHIN,
+      OP.OP_VERIFY,
+      ...[0, 1].flatMap((inputIndex) => extractInputProofDigestPrefix(inputIndex)),
+      OP.OP_EQUALVERIFY,
+    ];
+  }
+  const script = [
+    OP.OP_TXINPUTCOUNT,
+    ...pushNumber(batchCount),
+    OP.OP_NUMEQUALVERIFY,
+    OP.OP_INPUTINDEX,
+    OP.OP_0,
+    ...pushNumber(batchCount),
+    OP.OP_WITHIN,
+    OP.OP_VERIFY,
+    ...extractInputProofDigestPrefix(0),
+  ];
+  for (let inputIndex = 1; inputIndex < batchCount; inputIndex += 1) {
+    script.push(
+      ...extractInputProofDigestPrefix(inputIndex),
+      OP.OP_OVER,
+      OP.OP_EQUALVERIFY,
+    );
+  }
+  script.push(OP.OP_DROP);
+  return script;
+};
 
 const buildCanonicalQueryDerivationAll = (parameters) => {
   const script = [];
@@ -842,44 +883,134 @@ const buildCanonicalQueryDerivationAll = (parameters) => {
   return script;
 };
 
-const buildTranscriptReplay = (fixture, offsets) => {
-  const script = [
-    OP.OP_0,
-    ...buildTranscriptInitialization({
-      protocolContext: fixture.protocolContext,
-      parameters: fixture.parameters,
-    }),
+/** Byte length of the unrolled uniqueness schedule actually used by the q4 redeem. */
+export const measureBchCircleFriQ2UnrolledQueryDerivationBytes = (parameters) => (
+  compileScript(
+    buildCanonicalQueryDerivationAll(assertCircleFriParameters(parameters)),
+    'unrolled query derivation',
+  ).length
+);
+
+/**
+ * Packed uniqueness loop: same transcript and first-fold-pair rejection as
+ * the unrolled q4 schedule, with redeem size independent of queryCount.
+ * Input: transcript state. Output: packed u32le indices, state.
+ *
+ * Loop ABI: [state, packedIndices, count] and altstack [packedPairs].
+ */
+const buildPackedUniqueQueryDerivation = (parameters) => {
+  const { queryCount, domainLength, firstFoldPairCount } = parameters;
+  const firstFoldTop = () => [
+    OP.OP_DUP,
+    OP.OP_DUP,
+    ...pushNumber(firstFoldPairCount),
+    OP.OP_LESSTHAN,
+    OP.OP_IF,
+    OP.OP_ELSE,
+    ...pushNumber(domainLength - 1),
+    OP.OP_SWAP,
+    OP.OP_SUB,
+    OP.OP_ENDIF,
   ];
-  for (let round = 0; round < fixture.parameters.logDegreeBound; round += 1) {
-    script.push(
-      ...pushNumber(2),
-      OP.OP_PICK,
-      ...extractTopBytes(offsets.roots + round * 32, 32),
-      ...buildTranscriptAbsorbRuntime(`fri-layer-root-${round}`, 32),
-      ...buildTranscriptChallenge({
-        label: `fri-fold-beta-${round}`,
-        upperBound: Number(M31_MODULUS),
-      }),
-      ...pushNumber(4),
-      OP.OP_NUM2BIN,
-      OP.OP_TOALTSTACK,
-      OP.OP_SWAP,
-      OP.OP_FROMALTSTACK,
-      OP.OP_CAT,
-      OP.OP_SWAP,
-    );
-  }
-  script.push(
+  return [
+    ...encodeMinimalDataPush(new Uint8Array()),
+    OP.OP_TOALTSTACK,
+    ...encodeMinimalDataPush(new Uint8Array()),
+    OP.OP_0,
+    OP.OP_BEGIN,
     ...pushNumber(2),
-    OP.OP_PICK,
-    ...extractTopBytes(offsets.finalCodeword, fixture.parameters.blowup * 4),
-    ...buildTranscriptAbsorbRuntime('fri-final-codeword', fixture.parameters.blowup * 4),
+    OP.OP_ROLL,
+    ...buildTranscriptChallenge({
+      label: CIRCLE_FRI_QUERY_CANDIDATE_LABEL,
+      upperBound: domainLength,
+    }),
+    ...firstFoldTop(),
+    OP.OP_FROMALTSTACK,
+    OP.OP_SIZE,
+    OP.OP_0,
+    OP.OP_NUMEQUAL,
+    OP.OP_IF,
+    OP.OP_1,
+    OP.OP_ELSE,
+    OP.OP_0,
+    OP.OP_BEGIN,
     OP.OP_DUP,
     ...pushNumber(4),
+    OP.OP_MUL,
+    ...pushNumber(2),
     OP.OP_PICK,
-    OP.OP_EQUALVERIFY,
-    ...buildCanonicalQueryDerivationAll(fixture.parameters),
+    OP.OP_SWAP,
+    OP.OP_SPLIT,
+    OP.OP_NIP,
+    ...pushNumber(4),
+    OP.OP_SPLIT,
+    OP.OP_DROP,
+    ...decodeUnsignedTop(),
+    ...pushNumber(3),
+    OP.OP_PICK,
+    OP.OP_NUMEQUAL,
+    OP.OP_IF,
+    OP.OP_DROP,
+    OP.OP_0,
+    OP.OP_1,
+    OP.OP_ELSE,
+    OP.OP_1ADD,
+    OP.OP_DUP,
+    ...pushNumber(6),
+    OP.OP_PICK,
+    OP.OP_LESSTHAN,
+    OP.OP_IF,
+    OP.OP_0,
+    OP.OP_ELSE,
+    OP.OP_DROP,
+    OP.OP_1,
+    OP.OP_1,
+    OP.OP_ENDIF,
+    OP.OP_ENDIF,
+    OP.OP_UNTIL,
+    OP.OP_ENDIF,
+    OP.OP_IF,
+    OP.OP_SWAP,
+    ...pushNumber(4),
+    OP.OP_NUM2BIN,
+    OP.OP_CAT,
+    OP.OP_TOALTSTACK,
+    OP.OP_SWAP,
+    OP.OP_TOALTSTACK,
+    ...pushNumber(2),
+    OP.OP_ROLL,
+    OP.OP_OVER,
+    ...pushNumber(4),
+    OP.OP_NUM2BIN,
+    OP.OP_CAT,
+    OP.OP_NIP,
+    OP.OP_SWAP,
+    OP.OP_1ADD,
+    OP.OP_FROMALTSTACK,
+    ...pushNumber(2),
+    OP.OP_ROLL,
+    ...pushNumber(2),
+    OP.OP_ROLL,
+    OP.OP_ELSE,
+    OP.OP_TOALTSTACK,
+    OP.OP_2DROP,
+    ...pushNumber(2),
+    OP.OP_ROLL,
+    ...pushNumber(2),
+    OP.OP_ROLL,
+    OP.OP_ENDIF,
+    OP.OP_DUP,
+    ...pushNumber(queryCount),
+    OP.OP_NUMEQUAL,
+    OP.OP_UNTIL,
+    OP.OP_DROP,
+    OP.OP_FROMALTSTACK,
+    OP.OP_DROP,
+    OP.OP_SWAP,
+  ];
+};
 
+const buildQ4TranscriptQuerySelection = (offsets) => [
     // The codec's two ordinals are fixed by this active input's batch ordinal.
     ...pushNumber(6),
     OP.OP_PICK,
@@ -927,6 +1058,96 @@ const buildTranscriptReplay = (fixture, offsets) => {
     OP.OP_2DROP,
     OP.OP_2DROP,
     OP.OP_FROMALTSTACK,
+];
+
+const buildPackedTranscriptQuerySelection = (offsets, queryCount) => [
+    ...pushNumber(3),
+    OP.OP_PICK,
+    ...extractTopBytes(offsets.queryOrdinals, 4),
+    OP.OP_INPUTINDEX,
+    OP.OP_DUP,
+    OP.OP_2,
+    OP.OP_MUL,
+    ...pushNumber(2),
+    OP.OP_NUM2BIN,
+    OP.OP_SWAP,
+    OP.OP_2,
+    OP.OP_MUL,
+    OP.OP_1ADD,
+    ...pushNumber(2),
+    OP.OP_NUM2BIN,
+    OP.OP_CAT,
+    OP.OP_EQUALVERIFY,
+    OP.OP_DROP,
+    ...pushNumber(2),
+    OP.OP_PICK,
+    ...extractTopBytes(offsets.queryIndices, 8),
+    OP.OP_TOALTSTACK,
+    OP.OP_DUP,
+    OP.OP_SIZE,
+    ...pushNumber(queryCount * 4),
+    OP.OP_NUMEQUALVERIFY,
+    OP.OP_DROP,
+    OP.OP_INPUTINDEX,
+    ...pushNumber(8),
+    OP.OP_MUL,
+    OP.OP_SPLIT,
+    OP.OP_NIP,
+    ...pushNumber(8),
+    OP.OP_SPLIT,
+    OP.OP_DROP,
+    OP.OP_DUP,
+    OP.OP_FROMALTSTACK,
+    OP.OP_EQUALVERIFY,
+    OP.OP_TOALTSTACK,
+    OP.OP_FROMALTSTACK,
+];
+
+const buildTranscriptReplay = (fixture, offsets) => {
+  const script = [
+    OP.OP_0,
+    ...buildTranscriptInitialization({
+      protocolContext: fixture.protocolContext,
+      parameters: fixture.parameters,
+    }),
+  ];
+  for (let round = 0; round < fixture.parameters.logDegreeBound; round += 1) {
+    script.push(
+      ...pushNumber(2),
+      OP.OP_PICK,
+      ...extractTopBytes(offsets.roots + round * 32, 32),
+      ...buildTranscriptAbsorbRuntime(`fri-layer-root-${round}`, 32),
+      ...buildTranscriptChallenge({
+        label: `fri-fold-beta-${round}`,
+        upperBound: Number(M31_MODULUS),
+      }),
+      ...pushNumber(4),
+      OP.OP_NUM2BIN,
+      OP.OP_TOALTSTACK,
+      OP.OP_SWAP,
+      OP.OP_FROMALTSTACK,
+      OP.OP_CAT,
+      OP.OP_SWAP,
+    );
+  }
+  script.push(
+    ...pushNumber(2),
+    OP.OP_PICK,
+    ...extractTopBytes(offsets.finalCodeword, fixture.parameters.blowup * 4),
+    ...buildTranscriptAbsorbRuntime('fri-final-codeword', fixture.parameters.blowup * 4),
+    OP.OP_DUP,
+    ...pushNumber(4),
+    OP.OP_PICK,
+    OP.OP_EQUALVERIFY,
+    ...(fixture.parameters.queryCount === 4
+      ? [
+          ...buildCanonicalQueryDerivationAll(fixture.parameters),
+          ...buildQ4TranscriptQuerySelection(offsets),
+        ]
+      : [
+          ...buildPackedUniqueQueryDerivation(fixture.parameters),
+          ...buildPackedTranscriptQuerySelection(offsets, fixture.parameters.queryCount),
+        ]),
   );
   return script;
 };
@@ -1276,8 +1497,7 @@ const buildLayerInvocation = (fixture, round) => {
   ];
 };
 
-/** Compile the one fixed-parameter redeem shared by both q2 batch inputs. */
-export const buildBchCircleFriQ2BatchRedeemBytecode = (fixture) => {
+const compileQ2RedeemScript = (fixture, digestBinding) => {
   assertBatchFixture(fixture);
   const parameters = fixture.parameters;
   const offsets = Object.freeze({
@@ -1298,14 +1518,12 @@ export const buildBchCircleFriQ2BatchRedeemBytecode = (fixture) => {
   const script = [
     ...FUNCTION_DEFINITIONS,
     ...defineFunction(FUNCTION.VERIFY_LAYER, VERIFY_LAYER_FUNCTION),
-    ...buildCrossInputProofDigestBinding(),
+    ...digestBinding,
     OP.OP_DUP,
     ...extractTopBytes(0, fixedHeader.length),
     ...encodeMinimalDataPush(fixedHeader),
     OP.OP_EQUALVERIFY,
     ...buildTranscriptReplay(fixture, offsets),
-
-    // Extract final constant, roots, and both topology records from the codec.
     ...pushNumber(2),
     OP.OP_PICK,
     ...extractTopBytes(offsets.finalCodeword, parameters.blowup * 4),
@@ -1364,9 +1582,243 @@ export const buildBchCircleFriQ2BatchRedeemBytecode = (fixture) => {
     OP.OP_1,
   );
   const redeem = compileScript(script, 'q2 batch redeem');
-  require(redeem.length <= 10_000, 'q2 batch redeem exceeds the BCH script limit');
+  require(
+    redeem.length <= 10_000,
+    `q2 batch redeem exceeds the BCH script limit: ${redeem.length} bytes`,
+  );
   return redeem;
 };
+
+/** Compile the one fixed-parameter redeem shared by both q2 batch inputs. */
+export const buildBchCircleFriQ2BatchRedeemBytecode = (fixture) => compileQ2RedeemScript(
+  fixture,
+  buildCrossInputProofDigestBinding(publicBatchCount(fixture.parameters)),
+);
+
+const buildInput0OnlyDigestBinding = (batchCount) => [
+  OP.OP_TXINPUTCOUNT,
+  ...pushNumber(batchCount),
+  OP.OP_NUMEQUALVERIFY,
+  OP.OP_INPUTINDEX,
+  OP.OP_0,
+  ...pushNumber(batchCount),
+  OP.OP_WITHIN,
+  OP.OP_VERIFY,
+  OP.OP_DROP,
+  OP.OP_OVER,
+  ...extractInputProofDigestPrefix(0),
+  OP.OP_EQUALVERIFY,
+];
+
+export const PARTITION_UNLOCKING_FLOOR = 10_000;
+export const OP_INPUTBYTECODE = 0xca;
+
+/** Count OP_INPUTBYTECODE opcodes, skipping push-data payloads. */
+export const countOpInputBytecode = (bytecode) => {
+  require(bytecode instanceof Uint8Array, 'bytecode must be a Uint8Array');
+  let count = 0;
+  let offset = 0;
+  while (offset < bytecode.length) {
+    const opcode = bytecode[offset];
+    if (opcode === 0) {
+      offset += 1;
+      continue;
+    }
+    if (opcode <= 75) {
+      offset += 1 + opcode;
+      continue;
+    }
+    if (opcode === 0x4c) {
+      if (offset + 1 >= bytecode.length) break;
+      offset += 2 + bytecode[offset + 1];
+      continue;
+    }
+    if (opcode === 0x4d) {
+      if (offset + 2 >= bytecode.length) break;
+      offset += 3 + bytecode[offset + 1] + bytecode[offset + 2] * 256;
+      continue;
+    }
+    if (opcode === 0x4e) {
+      if (offset + 4 >= bytecode.length) break;
+      const length = bytecode[offset + 1]
+        + bytecode[offset + 2] * 256
+        + bytecode[offset + 3] * 65536
+        + bytecode[offset + 4] * 16777216;
+      offset += 5 + length;
+      continue;
+    }
+    if (opcode === OP.OP_INPUTBYTECODE) count += 1;
+    offset += 1;
+  }
+  return count;
+};
+
+export const buildBchCircleFriQ2PartitionRedeemBytecode = (fixture) => compileQ2RedeemScript(
+  fixture,
+  buildInput0OnlyDigestBinding(publicBatchCount(fixture.parameters)),
+);
+
+const encodeUnlockingWithPad = ({ operand, redeem, floor }) => {
+  const redeemPush = encodeMinimalDataPush(redeem);
+  const unpadded = concat(operand, encodeMinimalDataPush(new Uint8Array(0)), redeemPush);
+  if (unpadded.length > floor) {
+    return { unlockingBytecode: unpadded, padLength: 0 };
+  }
+  for (let padLength = 0; padLength <= floor; padLength += 1) {
+    const padPush = encodeMinimalDataPush(new Uint8Array(padLength));
+    const unlocking = concat(operand, padPush, redeemPush);
+    if (unlocking.length === floor) return { unlockingBytecode: unlocking, padLength };
+    if (unlocking.length > floor) break;
+  }
+  throw new TypeError('partition unlocking cannot be padded to the density floor');
+};
+
+export const materializeBchCircleFriQ2PartitionP2sh32 = (
+  fixture,
+  { unlockingFloor = PARTITION_UNLOCKING_FLOOR } = {},
+) => {
+  assertBatchFixture(fixture);
+  const redeemBytecode = buildBchCircleFriQ2PartitionRedeemBytecode(fixture);
+  const operandUnlockingBytecode = buildBchCircleFriQ2BatchOperandUnlockingBytecode(fixture);
+  const { unlockingBytecode, padLength } = encodeUnlockingWithPad({
+    operand: operandUnlockingBytecode,
+    redeem: redeemBytecode,
+    floor: unlockingFloor,
+  });
+  const lockingBytecode = encodeLockingBytecodeP2sh32(hash256(redeemBytecode));
+  return Object.freeze({
+    ...fixture,
+    redeemBytecode,
+    operandUnlockingBytecode,
+    unlockingBytecode,
+    lockingBytecode,
+    padLength,
+    unlockingFloor,
+  });
+};
+
+const encodeP2sUnlockingWithPad = ({ operand, floor }) => {
+  const unpadded = concat(operand, encodeMinimalDataPush(new Uint8Array(0)));
+  if (unpadded.length > floor) {
+    return { unlockingBytecode: unpadded, padLength: 0 };
+  }
+  for (let padLength = 0; padLength <= floor; padLength += 1) {
+    const unlocking = concat(operand, encodeMinimalDataPush(new Uint8Array(padLength)));
+    if (unlocking.length === floor) return { unlockingBytecode: unlocking, padLength };
+    if (unlocking.length > floor) break;
+  }
+  throw new TypeError('P2S unlocking cannot be padded to the density floor');
+};
+
+export const materializeBchCircleFriQ2PartitionP2s = (
+  fixture,
+  { unlockingFloor = PARTITION_UNLOCKING_FLOOR } = {},
+) => {
+  assertBatchFixture(fixture);
+  const redeemBytecode = buildBchCircleFriQ2PartitionRedeemBytecode(fixture);
+  const operandUnlockingBytecode = buildBchCircleFriQ2BatchOperandUnlockingBytecode(fixture);
+  const { unlockingBytecode, padLength } = encodeP2sUnlockingWithPad({
+    operand: operandUnlockingBytecode,
+    floor: unlockingFloor,
+  });
+  return Object.freeze({
+    ...fixture,
+    redeemBytecode,
+    operandUnlockingBytecode,
+    unlockingBytecode,
+    lockingBytecode: redeemBytecode,
+    padLength,
+    unlockingFloor,
+    carrier: 'p2s',
+  });
+};
+
+export const encodeBchCircleFriQ2PartitionP2sTransactionFixture = (
+  fixtures,
+  { unlockingFloor = PARTITION_UNLOCKING_FLOOR } = {},
+) => {
+  const materialized = fixtures.map((fixture) => (
+    materializeBchCircleFriQ2PartitionP2s(fixture, { unlockingFloor })
+  ));
+  const sourceOutputs = materialized.map(({ lockingBytecode }) => ({
+    lockingBytecode,
+    valueSatoshis: 1_000n,
+  }));
+  const transaction = {
+    version: 2,
+    inputs: materialized.map(({ unlockingBytecode }, inputIndex) => ({
+      outpointTransactionHash: new Uint8Array(32).fill(0x31 + (inputIndex % 200)),
+      outpointIndex: inputIndex,
+      sequenceNumber: 0xffff_ffff,
+      unlockingBytecode,
+    })),
+    outputs: [{
+      lockingBytecode: Uint8Array.of(OP.OP_1),
+      valueSatoshis: BigInt(materialized.length) * 1_000n,
+    }],
+    locktime: 0,
+  };
+  const transactionWire = encodeTransaction(transaction);
+  const sourceOutputsWire = encodeTransactionOutputs(sourceOutputs);
+  return Object.freeze({
+    materialized,
+    transaction,
+    sourceOutputs,
+    transactionHex: binToHex(transactionWire),
+    sourceOutputsHex: binToHex(sourceOutputsWire),
+    transactionBytes: transactionWire.length,
+    sourceOutputsBytes: sourceOutputsWire.length,
+    transactionDigestSha256: binToHex(sha256(transactionWire)),
+    sourceOutputsDigestSha256: binToHex(sha256(sourceOutputsWire)),
+    carrier: 'p2s',
+  });
+};
+
+export const encodeBchCircleFriQ2PartitionTransactionFixture = (
+  fixtures,
+  { unlockingFloor = PARTITION_UNLOCKING_FLOOR } = {},
+) => {
+  const wires = encodeBchCircleFriQ2BatchTransactionFixture(fixtures);
+  const materialized = fixtures.map((fixture) => (
+    materializeBchCircleFriQ2PartitionP2sh32(fixture, { unlockingFloor })
+  ));
+  const sourceOutputs = materialized.map(({ lockingBytecode }) => ({
+    lockingBytecode,
+    valueSatoshis: 1_000n,
+  }));
+  const transaction = {
+    version: 2,
+    inputs: materialized.map(({ unlockingBytecode }, inputIndex) => ({
+      outpointTransactionHash: new Uint8Array(32).fill(0x31 + (inputIndex % 200)),
+      outpointIndex: inputIndex,
+      sequenceNumber: 0xffff_ffff,
+      unlockingBytecode,
+    })),
+    outputs: [{
+      lockingBytecode: Uint8Array.of(OP.OP_1),
+      valueSatoshis: BigInt(materialized.length) * 1_000n,
+    }],
+    locktime: 0,
+  };
+  const transactionWire = encodeTransaction(transaction);
+  const sourceOutputsWire = encodeTransactionOutputs(sourceOutputs);
+  return Object.freeze({
+    ...wires,
+    materialized,
+    transaction,
+    sourceOutputs,
+    transactionHex: binToHex(transactionWire),
+    sourceOutputsHex: binToHex(sourceOutputsWire),
+    transactionBytes: transactionWire.length,
+    sourceOutputsBytes: sourceOutputsWire.length,
+    transactionDigestSha256: binToHex(sha256(transactionWire)),
+    sourceOutputsDigestSha256: binToHex(sha256(sourceOutputsWire)),
+  });
+};
+
+export const evaluateBchCircleFriQ2PartitionTransactionFixture = (
+  wires,
+) => evaluateBchCircleFriQ2BatchTransactionFixture(wires);
 
 /** Build the exact two-operand prefix; the redeem push is appended separately. */
 export const buildBchCircleFriQ2BatchOperandUnlockingBytecode = (fixture) => {
@@ -1393,12 +1845,25 @@ export const materializeBchCircleFriQ2BatchP2sh32 = (fixture) => {
   });
 };
 
-/** Encode one complete two-input q4 component transaction. */
+/** Encode one complete multi-input q2-batch component transaction. */
 export const encodeBchCircleFriQ2BatchTransactionFixture = (fixtures) => {
-  require(Array.isArray(fixtures) && fixtures.length === TRANSACTION_BATCH_COUNT, 'q4 transaction requires exactly two q2 fixtures');
+  require(Array.isArray(fixtures) && fixtures.length >= 1, 'q2 transaction requires at least one q2 fixture');
   fixtures.forEach(assertBatchFixture);
-  require(fixtures[0].batchOrdinal === 0 && fixtures[1].batchOrdinal === 1, 'q2 fixtures must be ordered by batch ordinal');
-  require(equalBytes(fixtures[0].publicProofDigest, fixtures[1].publicProofDigest), 'q2 fixtures must bind one public proof transcript');
+  const batchCount = publicBatchCount(fixtures[0].parameters);
+  require(fixtures.length === batchCount, `q2 transaction requires exactly ${batchCount} q2 fixtures`);
+  require(
+    fixtures.every((fixture, index) => (
+      fixture.batchOrdinal === index
+      && fixture.parameters.queryCount === fixtures[0].parameters.queryCount
+      && fixture.parameters.logDegreeBound === fixtures[0].parameters.logDegreeBound
+      && fixture.parameters.logBlowup === fixtures[0].parameters.logBlowup
+    )),
+    'q2 fixtures must be ordered by batch ordinal and share one public schedule',
+  );
+  require(
+    fixtures.every(({ publicProofDigest }) => equalBytes(publicProofDigest, fixtures[0].publicProofDigest)),
+    'q2 fixtures must bind one public proof transcript',
+  );
   const materialized = fixtures.map(materializeBchCircleFriQ2BatchP2sh32);
   require(
     materialized.every(({ lockingBytecode }) => equalBytes(lockingBytecode, materialized[0].lockingBytecode)),
@@ -1411,14 +1876,14 @@ export const encodeBchCircleFriQ2BatchTransactionFixture = (fixtures) => {
   const transaction = {
     version: 2,
     inputs: materialized.map(({ unlockingBytecode }, inputIndex) => ({
-      outpointTransactionHash: new Uint8Array(32).fill(0x31 + inputIndex),
+      outpointTransactionHash: new Uint8Array(32).fill(0x31 + (inputIndex % 200)),
       outpointIndex: inputIndex,
       sequenceNumber: 0xffff_ffff,
       unlockingBytecode,
     })),
     outputs: [{
       lockingBytecode: Uint8Array.of(OP.OP_1),
-      valueSatoshis: 2_000n,
+      valueSatoshis: BigInt(batchCount) * 1_000n,
     }],
     locktime: 0,
   };
