@@ -10,7 +10,7 @@ export const HOST_ORACLE_SPLIT = Object.freeze({
   inProof: Object.freeze([
     'PAST public felts bound to the interpolant (seq/reserve/counters/roots)',
     'J-then-π FRI of that bound interpolant (optionally Z_H·R-tailed)',
-    'Poseidon2-M31 masked interpolant: Q=C/π^9(x) of absorb-zeroed columns plus snapshot Merkle; absorb unopened',
+    'Poseidon2-M31 absorb+snapshot Q=C/π^9(x) of the real interpolant, opened at a transcript LDE zeta',
   ]),
   hostOracleForever: Object.freeze([
     'DEEP Re/Im and Stwo inner-product quotients while they are not Circle-FFT low-degree',
@@ -19,7 +19,7 @@ export const HOST_ORACLE_SPLIT = Object.freeze({
   reason: [
     'Note / Merkle / nullifier / auth are Poseidon2-M31 AIR constraints (absorb + squeeze +',
     'snapshot transitions). HASH256 PAST roots remain a different public codec, not the AIR',
-    'hash. Bound snapshot-quotient even-x q2 unlocking 11695–11951 (blowup 2) exceeds 10k.',
+    'hash. Absorb-in-Q even-x q2 unlocking 11439–11503 (blowup 2) exceeds 10k.',
     'Not a production lock.',
   ].join(' '),
 });

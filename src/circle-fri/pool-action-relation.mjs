@@ -299,7 +299,7 @@ export const provePoolActionRelation = ({
   const algebraic = Object.freeze({
     ...algebraicAir,
     labeledFriOfAir: poseidon2Air?.labeledFriOfAir === true,
-    statedInHoldingLane: poseidon2Air?.residualObject === 'poseidon2-m31-snapshot-quotient-v1',
+    statedInHoldingLane: poseidon2Air?.residualObject === 'poseidon2-m31-absorb-snapshot-quotient-v1',
     interpolantFri: false,
     wall: poseidon2Air?.wall ?? algebraicAir.wall,
     airKind: poseidon2Air?.kind ?? null,
@@ -360,7 +360,7 @@ export const verifyPoolActionRelation = ({ proof, expectedStatement, witness }) 
       poseidon2Air: airProof,
       commitmentScheme: ALGEBRAIC_COMMITMENT_SCHEME,
       statedInLane: false,
-      statedInHoldingLane: airProof.residualObject === 'poseidon2-m31-snapshot-quotient-v1',
+      statedInHoldingLane: airProof.residualObject === 'poseidon2-m31-absorb-snapshot-quotient-v1',
     });
   } catch (error) {
     return Object.freeze({

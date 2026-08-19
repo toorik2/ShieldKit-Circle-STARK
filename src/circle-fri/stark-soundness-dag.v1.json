@@ -208,7 +208,7 @@
       "minimumBits": 100,
       "selectionAllowed": false,
       "fallbackAuthorized": false,
-      "reason": "Conjectural unselected even-x + masked-absorb snapshot-quotient worksheet. S_total floor 47 bits. Reaching 128 requires selecting a tuple or dropping queries. ethSTARK 36x4=144 is not this union. Not 128-bit."
+      "reason": "Conjectural unselected even-x + absorb-in-Q LDE worksheet. S_total floor 47 bits. Reaching 128 requires selecting a tuple or dropping queries. ethSTARK 36x4=144 is not this union. Not 128-bit."
     },
     "notes": [
       "36/1024 is a measured query-kernel schedule, not this tuple and not a selection.",

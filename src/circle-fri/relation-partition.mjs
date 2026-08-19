@@ -136,7 +136,7 @@ export const evaluateRelationBoundPartition = ({
     redeemBytes,
     floor: PARTITION_UNLOCKING_FLOOR,
     friNonce: poseidon2Air.friNonce ?? 0,
-    chainObject: 'air-masked-snapshot-quotient-even-x',
+    chainObject: 'air-absorb-in-q-even-x',
     carrier: wires.carrier ?? 'p2sh32',
     airWall: poseidon2Air.wall,
     airOnChainWall,
@@ -152,7 +152,7 @@ export const evaluateRelationBoundPartition = ({
         bindingConstraint: 'standard transaction size 100000; queries were not dropped',
       }),
       airObject: Object.freeze({
-        schedule: 'Poseidon2-M31 16×1024 masked-absorb bound Q even-x / deg<8192 / blowup 2 / q=4',
+        schedule: 'Poseidon2-M31 16×1024 absorb+snapshot Q even-x / deg<8192 / blowup 2 / q=4',
         redeemBytes,
         unlockingBytes,
         carrier: wires.carrier ?? 'p2sh32',
