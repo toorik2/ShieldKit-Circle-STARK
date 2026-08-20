@@ -23,6 +23,13 @@ const assertM31 = (value, name) => {
   return value;
 };
 
+export const isCm31 = (value) => (
+  value !== null
+  && typeof value === 'object'
+  && typeof value.re === 'bigint'
+  && typeof value.im === 'bigint'
+);
+
 export const cm31 = (re, im) => Object.freeze({
   re: assertM31(re, 're'),
   im: assertM31(im, 'im'),

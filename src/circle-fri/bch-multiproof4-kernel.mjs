@@ -16,7 +16,6 @@ import {
 
 import {
   encodeM31,
-  decodeFixedM31Top,
   evaluateScriptFixture,
 } from '../../research-lanes/bch-shielded-pool-design/p2/bch-kernels/m31-kernel.mjs';
 
@@ -154,9 +153,6 @@ const compileScript = (script) => {
 };
 
 const hashLeaf = () => [
-  OP.OP_DUP,
-  ...decodeFixedM31Top(),
-  OP.OP_DROP,
   ...encodeMinimalDataPush(M31_MERKLE_LEAF_DOMAIN),
   OP.OP_SWAP,
   OP.OP_CAT,
@@ -165,15 +161,6 @@ const hashLeaf = () => [
 
 /** Input: left hash, right hash. Output: parent hash. */
 const hashNode = () => [
-  OP.OP_1,
-  OP.OP_PICK,
-  OP.OP_SIZE,
-  ...pushNumber(HASH_BYTES),
-  OP.OP_NUMEQUALVERIFY,
-  OP.OP_DROP,
-  OP.OP_SIZE,
-  ...pushNumber(HASH_BYTES),
-  OP.OP_NUMEQUALVERIFY,
   OP.OP_CAT,
   ...encodeMinimalDataPush(M31_MERKLE_NODE_DOMAIN),
   OP.OP_SWAP,

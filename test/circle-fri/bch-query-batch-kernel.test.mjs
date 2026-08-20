@@ -67,14 +67,11 @@ const honest = buildFixtures(proof);
 const readU16 = (bytes, offset) => bytes[offset] + bytes[offset + 1] * 0x100;
 
 const codecOffsets = (bytes) => {
-  const roots = 22;
-  const finalCodeword = roots + PARAMETERS.logDegreeBound * 32;
-  const topologyRoot = finalCodeword + (2 ** PARAMETERS.logBlowup) * 4;
-  const record0 = topologyRoot + 32;
+  const finalCodeword = 22;
+  const record0 = finalCodeword + (2 ** PARAMETERS.logBlowup) * 4;
   const recordBytes = circleFriTopologyRecordBytes(PARAMETERS);
   const record1 = record0 + recordBytes;
-  const topologySiblingCount = record1 + recordBytes;
-  let cursor = topologySiblingCount + 2 + readU16(bytes, topologySiblingCount) * 32;
+  let cursor = record1 + recordBytes;
   const layers = [];
   for (let round = 0; round < PARAMETERS.logDegreeBound; round += 1) {
     const siblingCount = readU16(bytes, cursor + 2);
@@ -91,14 +88,10 @@ const codecOffsets = (bytes) => {
   return Object.freeze({
     queryOrdinals: 10,
     queryIndices: 14,
-    roots,
     finalCodeword,
-    topologyRoot,
     record0,
     record1,
     recordBytes,
-    topologySiblingCount,
-    topologySiblings: topologySiblingCount + 2,
     layers,
     end: cursor,
   });
@@ -129,13 +122,13 @@ test('one fixed P2SH32 redeem accepts both canonical q2 witnesses in one standar
   assert.deepEqual(wires.materialized[0].redeemBytecode, wires.materialized[1].redeemBytecode);
   assert.deepEqual(wires.materialized[0].lockingBytecode, wires.materialized[1].lockingBytecode);
   assert.equal(wires.materialized[0].lockingBytecode.length, 35);
-  assert.equal(wires.materialized[0].redeemBytecode.length, 4_536);
-  assert.deepEqual(wires.materialized.map(({ operandUnlockingBytecode }) => operandUnlockingBytecode.length), [4_540, 4_604]);
-  assert.deepEqual(wires.materialized.map(({ unlockingBytecode }) => unlockingBytecode.length), [9_079, 9_143]);
-  assert.equal(wires.transactionBytes, 18_328);
+  assert.equal(wires.materialized[0].redeemBytecode.length, 4_235);
+  assert.deepEqual(wires.materialized.map(({ operandUnlockingBytecode }) => operandUnlockingBytecode.length), [3_866, 3_866]);
+  assert.deepEqual(wires.materialized.map(({ unlockingBytecode }) => unlockingBytecode.length), [8_104, 8_104]);
+  assert.equal(wires.transactionBytes, 16_314);
   assert.equal(wires.sourceOutputsBytes, 89);
-  assert.deepEqual(results.map(({ metrics }) => metrics.operationCost), [3_762_002, 3_796_759]);
-  assert.deepEqual(results.map(({ metrics }) => metrics.hashDigestIterations), [608, 614]);
+  assert.deepEqual(results.map(({ metrics }) => metrics.operationCost), [3_051_810, 3_051_832]);
+  assert.deepEqual(results.map(({ metrics }) => metrics.hashDigestIterations), [552, 552]);
   assert.deepEqual(results.map(({ metrics }) => metrics.signatureCheckCount), [0, 0]);
   assert.ok(wires.transactionBytes <= 100_000);
   assert.ok(wires.materialized.every(({ redeemBytecode, unlockingBytecode }) => (
@@ -194,7 +187,7 @@ test('cross-input public transcript digest rejects altered prefixes and mixed pu
 
   const alternate = buildFixtures(buildProof(0x46524bn));
   assert.notDeepEqual(alternate[0].publicProofDigest, honest[0].publicProofDigest);
-  assert.deepEqual(
+  assert.notDeepEqual(
     buildBchCircleFriQ2BatchRedeemBytecode(alternate[0]),
     buildBchCircleFriQ2BatchRedeemBytecode(honest[0]),
   );
@@ -210,10 +203,7 @@ test('cross-input public transcript digest rejects altered prefixes and mixed pu
 
 test('runtime binds every root, topology record/frontier, M31 value/frontier, inverse, and final', () => {
   const mutations = [
-    (bytes, offsets) => { bytes[offsets.roots] ^= 1; },
-    (bytes, offsets) => { bytes[offsets.topologyRoot] ^= 1; },
     (bytes, offsets) => { bytes[offsets.record0 + 10] ^= 1; },
-    (bytes, offsets) => { bytes[offsets.topologySiblings] ^= 1; },
     (bytes, offsets) => { bytes[offsets.layers[0].values] ^= 1; },
     (bytes, offsets) => { bytes[offsets.layers[2].siblings] ^= 1; },
     (bytes, offsets) => { bytes[offsets.layers[1].inverse0] ^= 1; },
@@ -234,11 +224,6 @@ test('canonical codec parsing rejects swaps, truncated/extra bytes, and nonminim
     bytes.set(first, offsets.record1);
   });
   assert.equal(evaluateInput0(encodeBchCircleFriQ2BatchTransactionFixture([recordSwap, honest[1]])).accepted, false);
-
-  const nonminimalTopology = mutateFixture(honest[0], (bytes, offsets) => {
-    bytes[offsets.topologySiblingCount] += 1;
-  });
-  assert.equal(evaluateInput0(encodeBchCircleFriQ2BatchTransactionFixture([nonminimalTopology, honest[1]])).accepted, false);
 
   const nonminimalLayer = mutateFixture(honest[0], (bytes, offsets) => {
     bytes[offsets.layers[0].header + 2] += 1;
@@ -277,4 +262,49 @@ test('exact transaction input roster rejects missing and extra inputs', () => {
     sourceOutputs: [...structuredClone(wires.sourceOutputs), structuredClone(wires.sourceOutputs[0])],
   };
   assert.equal(evaluateBchCircleFriQ2BatchTransactionFixture(extra).every(({ accepted }) => !accepted), true);
+});
+
+test('4-to-1 clustered q2: round 0 is 4-leaf, later rounds 2-leaf, Libauth accepts', () => {
+  const clustered = Object.freeze({ logDegreeBound: 8, logBlowup: 1, queryCount: 4 });
+  const context = utf8('ShieldKit Circle-FRI VERIFY_LAYER2 grind v1');
+  let seed = 0x465249n;
+  const coefficients = Array.from({ length: 1 << clustered.logDegreeBound }, () => {
+    seed = (seed * 2_862_933_555_777_941_757n + 3_037_000_493n) & ((1n << 64n) - 1n);
+    return (seed >> 11n) % M31_MODULUS;
+  });
+  const proof8 = proveCircleFriQueries({
+    coefficients,
+    logBlowup: clustered.logBlowup,
+    queryCount: clustered.queryCount,
+    protocolContext: context,
+  });
+  const clusteredFixtures = [[0, 1], [2, 3]].map((queryOrdinals) => createBchCircleFriQ2BatchFixture({
+    witness: createCircleFriQ2BatchWitness({
+      proof: proof8,
+      expected: clustered,
+      protocolContext: context,
+      queryOrdinals,
+    }),
+    expected: clustered,
+    protocolContext: context,
+  }));
+  assert.equal(clusteredFixtures[0].witness.layers[0].values.length, 4);
+  const clusteredDomain = 2 ** (clustered.logDegreeBound + clustered.logBlowup);
+  clusteredFixtures[0].witness.layers.slice(1).forEach((layer, index) => {
+    const round = index + 1;
+    const length = clusteredDomain / (2 ** round);
+    if (length <= 16) {
+      assert.equal(layer.values.length, length);
+      assert.equal(layer.siblings.length, 0);
+    } else {
+      assert.equal(layer.values.length, 2);
+    }
+  });
+  const wires = encodeBchCircleFriQ2BatchTransactionFixture(clusteredFixtures);
+  const results = evaluateBchCircleFriQ2BatchTransactionFixture(wires);
+  assert.equal(results[0].accepted, true, results[0].error);
+  assert.equal(results[1].accepted, true, results[1].error);
+  assert.ok(wires.materialized[0].redeemBytecode.length <= 5_200);
+  assert.ok(wires.materialized.every(({ unlockingBytecode }) => unlockingBytecode.length <= 10_000));
+  assert.ok(wires.transactionBytes <= 100_000);
 });

@@ -111,14 +111,18 @@ test('DEEP is pinned; FRI-of-DEEP is a named wall, not a relabel', () => {
     owner: deposit.witness.owner,
     rho: deposit.witness.rho,
   });
-  assert.equal(air.labeledFriOfAir, false);
+  assert.equal(air.labeledFriOfAir, true);
   assert.equal(air.interpolantFri, false);
   assert.equal(air.residualObject, 'poseidon2-m31-absorb-snapshot-quotient-v1');
-  assert.equal(air.bind, 'absorb-in-q-lde-v1');
-  assert.match(air.wall ?? '', /3 mixed LDE openings/u);
+  assert.equal(air.bind, 'lde-only-commitment-v1');
+  assert.equal(air.wall, null);
   assert.ok(air.ldeOpenings);
+  assert.equal(air.rowMerkleRoot, undefined);
   assert.ok((air.quotientNonzero ?? 0) > 0);
-  assert.equal(air.evenXDeep.parameters.logDegreeBound, 13);
+  assert.equal(air.evenXDeep.parameters.logDegreeBound, 14);
+  assert.equal(air.evenXDeep.parameters.logBlowup, 2);
+  assert.equal(air.evenXDeep.parameters.queryCount, 26);
+  assert.equal(air.evenXDeep.zhR.onChain, true);
   assert.ok(air.transitions > 0);
   console.log('DEEP_FRI', {
     proven: [
@@ -127,6 +131,7 @@ test('DEEP is pinned; FRI-of-DEEP is a named wall, not a relabel', () => {
       'labeledFriOfDeep true',
       'TRACE-64 even-x FRI remains of the bound interpolant',
       'Poseidon2-M31 absorb+snapshot Q even-x FRI, LDE-opened at zeta',
+      'AIR-bound-to-the-table (LDE-only; TRACE merkle forbidden)',
     ],
     failed: [
       `Re/Im still dense: ${proof.deepFriWall}`,

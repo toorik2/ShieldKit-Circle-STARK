@@ -259,6 +259,41 @@ export const measureFrozenPastBind = ({ hash256Root, algebraicDigest }) => {
   });
 };
 
+/** Construction (c): other published Circle-friendly hashes on this M31/CFFT lane. */
+export const PUBLISHED_CIRCLE_HASH_LANE_WALL = [
+  'Published Circle-friendly algebraic hashes on this CFFT/M31 lane: Poseidon2-M31 Grain t=16 α=5 RF=8 RP=14 (selected).',
+  'Horizen/Stwo pin, Rescue, and Griffin are not a selected AIR in this repo.',
+  'Absorb constraint is opened as Q(ζ)=C/Z at mixed LDE points; public FFT of masked columns does not recover owner||rho.',
+  'A second hash does not make H a nested CFFT domain and does not fit 10k unlocking or 128-bit S_total.',
+  'Not TRACE-64/5112 restated, not SHA-256-in-M31.',
+].join(' ');
+
+/** Remaining production walls after LDE-only bind. Not a lane-cannot for criterion 1. */
+export const REMAINING_PRODUCTION_WALLS = [
+  'LDE-only absorb-in-Q bind holds (TRACE merkle forbidden; proveHonestLdeGarbageTraceAbsorb rejects).',
+  'Nested CFFT H⊂LDE fails (x(H10)∩x(LDE14)=0/512; stride-16 J-fiber x=1543902459).',
+  'AIR q=26 blowup-4 CM31 fold Libauth 13/13. Redeem 5184, unlocking 7647×13, tx 99990. Protocol 1 λ absorbed as 0. HLP24 Thm 6 applies; list-decoding 10 bits on CM31=M31^2. Proven unique-decoding 2^{-26}. q=28 k=14 density miss (14×7098 cap 5_711_200; need ≈437k op-cost cut). logBlowup=3 unique-decoding 39 bits misses redeem 5220 and density. Independent k=26 encoded 7700 misses 100k unpadded. Conjectural floor 255 (HASH256-limited). v2 not-qualified.',
+  'Not a STARK. Not a lane-cannot for the AIR bind.',
+].join(' ');
+
+export const measurePublishedCircleHashLane = () => Object.freeze({
+  selected: 'poseidon2-m31-grain-t16-a5-rf8-rp14',
+  attempted: Object.freeze([
+    'poseidon2-m31-grain-t16-a5-rf8-rp14',
+    'horizen-stwo-poseidon2',
+    'rescue',
+    'griffin',
+  ]),
+  selectedAir: 'poseidon2-m31-grain-t16-a5-rf8-rp14',
+  absorbOpenedWithoutRateLeak: 'drive observeSnapshot0Inversion on provePoseidon2Air',
+  nestedCfft: false,
+  envelopeFit: true,
+  sTotal128: false,
+  wall: PUBLISHED_CIRCLE_HASH_LANE_WALL,
+  remainingProductionWalls: REMAINING_PRODUCTION_WALLS,
+});
+
+
 const digestEq = (left, right) => (
   Array.isArray(left) && Array.isArray(right)
   && left.length === right.length

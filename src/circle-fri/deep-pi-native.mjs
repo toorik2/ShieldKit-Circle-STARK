@@ -121,8 +121,12 @@ export const proveEvenXDeepFri = ({
   const protocolContext = deepFriContext(contextSeed);
   const zhRCoefficients = applyPublicZhRToDeep(coefficients, contextSeed);
   const nonzero = coefficients.filter((value) => value !== 0n).length;
+  const onChainZhR = coefficients.length === 8192
+    && (logBlowup === 1 || logBlowup === 2)
+    && queryCount % 2 === 0;
+  const friCoefficients = onChainZhR ? zhRCoefficients : coefficients;
   const friProof = proveCircleFriQueries({
-    coefficients,
+    coefficients: friCoefficients,
     logBlowup,
     queryCount,
     protocolContext,
@@ -139,14 +143,16 @@ export const proveEvenXDeepFri = ({
       kind: 'zh-r-even-x-deep-v1',
       logDomain: Math.log2(zhRCoefficients.length),
       hiddenStart: coefficients.length,
-      onChain: false,
-      reason: coefficients.length === 64
-        ? 'q2 unlocking of the 128-coeff Z_H·R DEEP FRI exceeds the 10k unlocking limit (measured 10397–10525)'
-        : `q2 unlocking of the ${zhRCoefficients.length}-coeff Z_H·R DEEP FRI is not claimed on-chain`,
+      onChain: onChainZhR,
+      reason: onChainZhR
+        ? 'q2 4-to-1 of 16384-coeff Z_H·R DEEP FRI measured operand ≤9836 redeem ≤4084, Libauth accept'
+        : coefficients.length === 64
+          ? 'q2 unlocking of the 128-coeff Z_H·R DEEP FRI exceeds the 10k unlocking limit (measured 10397–10525)'
+          : `q2 unlocking of the ${zhRCoefficients.length}-coeff Z_H·R DEEP FRI is not claimed on-chain`,
     }),
     friProof,
     parameters: Object.freeze({
-      logDegreeBound: Math.log2(coefficients.length),
+      logDegreeBound: Math.log2(friCoefficients.length),
       logBlowup,
       queryCount,
     }),
@@ -161,7 +167,7 @@ export const verifyEvenXDeepFri = ({
   zetaX,
   deepFri,
 }) => {
-  const degreeBound = 2 ** (deepFri.parameters?.logDegreeBound ?? 6);
+  const degreeBound = deepFri.coefficients?.length ?? 2 ** (deepFri.parameters?.logDegreeBound ?? 6);
   const coefficients = extractEvenXDeepCoefficients({
     evenCoefficients,
     ldeDomain,

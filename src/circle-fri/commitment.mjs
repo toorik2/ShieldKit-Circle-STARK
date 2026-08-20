@@ -4,6 +4,11 @@ import {
 } from '../../research-lanes/bch-shielded-pool-design/p2/reference/m31.mjs';
 
 import {
+  cm31,
+  isCm31,
+} from './cm31.mjs';
+
+import {
   assertBytes,
   concatBytes,
   equalBytes,
@@ -12,6 +17,7 @@ import {
 } from './bytes.mjs';
 
 export const M31_MERKLE_LEAF_DOMAIN = utf8('ShieldKit/CircleFRI/M31Leaf/v1\0');
+export const CM31_MERKLE_LEAF_DOMAIN = utf8('ShieldKit/CircleFRI/CM31Leaf/v1\0');
 export const M31_MERKLE_NODE_DOMAIN = utf8('ShieldKit/CircleFRI/MerkleNode/v1\0');
 
 const fail = (message) => {
@@ -58,6 +64,19 @@ export const hashM31Leaf = (value) => hash256(concatBytes(
   encodeM31(assertElement(value, 'leaf value')),
 ));
 
+export const hashCm31Leaf = (value) => {
+  const felt = isCm31(value) ? cm31(value.re, value.im) : fail('CM31 leaf value is required');
+  return hash256(concatBytes(
+    CM31_MERKLE_LEAF_DOMAIN,
+    encodeM31(felt.re),
+    encodeM31(felt.im),
+  ));
+};
+
+const hashCodewordLeaf = (value) => (
+  isCm31(value) ? hashCm31Leaf(value) : hashM31Leaf(value)
+);
+
 export const hashMerkleNode = (left, right) => {
   const a = assertBytes(left, 'left hash');
   const b = assertBytes(right, 'right hash');
@@ -69,8 +88,10 @@ export const buildM31MerkleTree = (values) => {
   if (!Array.isArray(values) || !isPowerOfTwo(values.length)) {
     fail('Merkle codeword length must be a positive power of two');
   }
-  const codeword = values.map((value, index) => assertElement(value, `values[${index}]`));
-  const layers = [codeword.map(hashM31Leaf)];
+  const codeword = values.map((value, index) => (
+    isCm31(value) ? cm31(value.re, value.im) : assertElement(value, `values[${index}]`)
+  ));
+  const layers = [codeword.map(hashCodewordLeaf)];
   while (layers.at(-1).length > 1) {
     const current = layers.at(-1);
     const parent = new Array(current.length / 2);
@@ -138,7 +159,7 @@ export const verifyM31Merkle = ({ root, length, index, value, siblings }) => {
     fail('Merkle path length does not match the committed codeword length');
   }
 
-  let current = hashM31Leaf(assertElement(value, 'value'));
+  let current = hashCodewordLeaf(value);
   let currentIndex = index;
   for (let level = 0; level < siblings.length; level += 1) {
     const sibling = assertBytes(siblings[level], `siblings[${level}]`);
@@ -169,7 +190,7 @@ export const verifyM31MerkleMulti = ({ root, length, indices, values, siblings }
 
   let current = new Map(canonicalIndices.map((index, ordinal) => [
     index,
-    hashM31Leaf(assertElement(values[ordinal], `values[${ordinal}]`)),
+    hashCodewordLeaf(values[ordinal]),
   ]));
   let siblingCursor = 0;
   let levelLength = length;

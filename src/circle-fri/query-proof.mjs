@@ -22,6 +22,8 @@ import {
   foldJLayer,
   foldPair,
   foldPiLayer,
+  piPairMerkleCodeword,
+  piPairMerkleIndex,
 } from './fold.mjs';
 
 import {
@@ -38,9 +40,18 @@ import {
   CircleFriTranscript,
 } from './transcript.mjs';
 
+import {
+  cm31,
+  cm31Eq,
+  isCm31,
+} from './cm31.mjs';
+
 export const CIRCLE_FRI_QUERY_PROOF_VERSION = 3;
 export const CIRCLE_FRI_QUERY_PROOF_MAGIC = utf8('CFRP');
 export const CIRCLE_FRI_QUERY_CANDIDATE_LABEL = 'fri-query-candidate';
+export const CIRCLE_FRI_DIMENSION_GAP_LAMBDA_LABEL = 'fri-dimension-gap-lambda';
+/** FFT-space encoding: coefficients length is 2^n, so Protocol 1 λ is 0. */
+export const CIRCLE_FRI_DIMENSION_GAP_LAMBDA = 0n;
 export const DEFAULT_MAXIMUM_LOG_DOMAIN = 20;
 
 const fail = (message) => {
@@ -89,6 +100,18 @@ export const assertCircleFriParameters = ({
   });
 };
 
+/** Clustered later π layers commit N-1-P pairs as adjacent Merkle leaves. */
+export const circleFriUsesPiPairMerkle = (parameters, round) => (
+  Number.isSafeInteger(round)
+  && round > 0
+  && parameters.logDegreeBound >= 8
+);
+
+/** Clustered FRI (logDegreeBound≥8) samples fold β in CM31 and folds even+β·odd over CM31 on-chain. Cheap deg-6 stays M31. */
+export const circleFriUsesCm31Fold = (parameters) => (
+  parameters.logDegreeBound >= 8
+);
+
 export const encodeCircleFriParameters = (parameters) => Uint8Array.of(
   CIRCLE_FRI_QUERY_PROOF_VERSION,
   parameters.logDegreeBound,
@@ -97,17 +120,40 @@ export const encodeCircleFriParameters = (parameters) => Uint8Array.of(
 );
 
 const encodeM31Vector = (values, name) => concatBytes(...values.map(
-  (value, index) => encodeM31(assertElement(value, `${name}[${index}]`)),
+  (value, index) => encodeFelt(value, `${name}[${index}]`),
 ));
 
 const firstFoldPairIndex = (index, domainLength) => (
   index < domainLength / 2 ? index : domainLength - 1 - index
 );
 
+export const fourToOnePartnerIndex = (pairIndex, domainLength) => {
+  const domain = buildStandardCoset(Math.log2(domainLength));
+  const jTopology = buildJFoldTopology(domain);
+  const piTopology = buildPiFoldTopology(jTopology.domain);
+  const piPair = piTopology.pairs.find((pair) => (
+    pair.leftIndex === pairIndex || pair.rightIndex === pairIndex
+  ));
+  if (!piPair) fail('4-to-1 partner: J-pair is not in the first pi topology');
+  const partnerFold = pairIndex === piPair.leftIndex ? piPair.rightIndex : piPair.leftIndex;
+  return jTopology.pairs[partnerFold].leftIndex;
+};
+
 const deriveUniqueQueryIndices = (transcript, parameters) => {
   const indices = [];
   const seenFirstFoldPairs = new Set();
   for (let query = 0; query < parameters.queryCount; query += 1) {
+    if (query % 2 === 1 && parameters.queryCount % 2 === 0 && parameters.logDegreeBound >= 8) {
+      const partner = fourToOnePartnerIndex(
+        firstFoldPairIndex(indices[query - 1], parameters.domainLength),
+        parameters.domainLength,
+      );
+      const pairIndex = firstFoldPairIndex(partner, parameters.domainLength);
+      if (seenFirstFoldPairs.has(pairIndex)) fail('4-to-1 partner collides with an earlier J-pair');
+      seenFirstFoldPairs.add(pairIndex);
+      indices.push(partner);
+      continue;
+    }
     for (;;) {
       const index = transcript.challengeIndex(CIRCLE_FRI_QUERY_CANDIDATE_LABEL, parameters.domainLength);
       const pairIndex = firstFoldPairIndex(index, parameters.domainLength);
@@ -121,9 +167,17 @@ const deriveUniqueQueryIndices = (transcript, parameters) => {
   return indices;
 };
 
+export const encodeCircleFriDimensionGapLambda = (
+  lambda = CIRCLE_FRI_DIMENSION_GAP_LAMBDA,
+) => encodeM31(assertElement(lambda, 'dimension-gap λ'));
+
 const prepareTranscript = (protocolContext, parameters) => {
   const transcript = new CircleFriTranscript(assertBytes(protocolContext, 'protocolContext'));
   transcript.absorb('fri-parameters', encodeCircleFriParameters(parameters));
+  transcript.absorb(
+    CIRCLE_FRI_DIMENSION_GAP_LAMBDA_LABEL,
+    encodeCircleFriDimensionGapLambda(),
+  );
   return transcript;
 };
 
@@ -188,10 +242,15 @@ export const proveCircleFriQueries = ({
   let codeword = circleFFT(domain, extendedCoefficients);
 
   for (let round = 0; round < parameters.logDegreeBound; round += 1) {
-    const tree = buildM31MerkleTree(codeword);
+    const merkleValues = circleFriUsesPiPairMerkle(parameters, round)
+      ? piPairMerkleCodeword(codeword)
+      : codeword;
+    const tree = buildM31MerkleTree(merkleValues);
     roots.push(new Uint8Array(tree.root));
     transcript.absorb(`fri-layer-root-${round}`, tree.root);
-    const beta = transcript.challengeField(`fri-fold-beta-${round}`);
+    const beta = circleFriUsesCm31Fold(parameters)
+      ? transcript.challengeCm31(`fri-fold-beta-${round}`)
+      : transcript.challengeField(`fri-fold-beta-${round}`);
     const folded = round === 0
       ? foldJLayer(domain, codeword, beta)
       : foldPiLayer(domain, codeword, beta);
@@ -202,7 +261,10 @@ export const proveCircleFriQueries = ({
 
   if (codeword.length !== parameters.blowup) fail('prover fold length does not equal blowup');
   const finalValue = codeword[0];
-  if (!codeword.every((value) => value === finalValue)) {
+  const sameFinal = isCm31(finalValue)
+    ? (value) => cm31Eq(value, finalValue)
+    : (value) => value === finalValue;
+  if (!codeword.every(sameFinal)) {
     throw new Error('low-degree coefficients did not fold to a constant final codeword');
   }
   const finalCodeword = codeword.slice();
@@ -211,14 +273,22 @@ export const proveCircleFriQueries = ({
 
   const queries = queryIndices.map((initialIndex) => {
     let currentIndex = initialIndex;
-    const layers = committedLayers.map((layer) => {
+    const layers = committedLayers.map((layer, round) => {
       const pairIndex = layer.folded.pairs.findIndex(({ leftIndex, rightIndex }) => (
         leftIndex === currentIndex || rightIndex === currentIndex
       ));
       if (pairIndex < 0) throw new Error('prover could not locate query leaf in fold topology');
       const pair = layer.folded.pairs[pairIndex];
-      const leftOpening = openM31Merkle(layer.tree, pair.leftIndex);
-      const rightOpening = openM31Merkle(layer.tree, pair.rightIndex);
+      const layerLength = layer.codeword.length;
+      const usesPiMerkle = circleFriUsesPiPairMerkle(parameters, round);
+      const leftMerkleIndex = usesPiMerkle
+        ? piPairMerkleIndex(pair.leftIndex, layerLength)
+        : pair.leftIndex;
+      const rightMerkleIndex = usesPiMerkle
+        ? piPairMerkleIndex(pair.rightIndex, layerLength)
+        : pair.rightIndex;
+      const leftOpening = openM31Merkle(layer.tree, leftMerkleIndex);
+      const rightOpening = openM31Merkle(layer.tree, rightMerkleIndex);
       currentIndex = pairIndex;
       return Object.freeze({
         leftValue: layer.codeword[pair.leftIndex],
@@ -235,9 +305,13 @@ export const proveCircleFriQueries = ({
     logDegreeBound: parameters.logDegreeBound,
     logBlowup: parameters.logBlowup,
     queryCount: parameters.queryCount,
+    dimensionGapLambda: CIRCLE_FRI_DIMENSION_GAP_LAMBDA,
     roots,
     finalCodeword,
     queries,
+    smallLayerCodewords: Object.freeze(committedLayers.map((layer) => (
+      layer.codeword.length <= 16 ? Object.freeze(layer.codeword.slice()) : null
+    ))),
   });
 };
 
@@ -263,7 +337,14 @@ const assertProofShape = (proof, maximumLogDomain = DEFAULT_MAXIMUM_LOG_DOMAIN) 
   if (!Array.isArray(proof.finalCodeword) || proof.finalCodeword.length !== parameters.blowup) {
     fail('finalCodeword length must equal blowup');
   }
-  proof.finalCodeword.forEach((value, index) => assertElement(value, `finalCodeword[${index}]`));
+  const cm31Valued = circleFriUsesCm31Fold(parameters);
+  proof.finalCodeword.forEach((value, index) => {
+    if (cm31Valued) {
+      if (!isCm31(value)) fail(`finalCodeword[${index}] must be CM31`);
+    } else {
+      assertElement(value, `finalCodeword[${index}]`);
+    }
+  });
   if (!Array.isArray(proof.queries) || proof.queries.length !== parameters.queryCount) {
     fail('proof query count does not match queryCount');
   }
@@ -277,8 +358,13 @@ const assertProofShape = (proof, maximumLogDomain = DEFAULT_MAXIMUM_LOG_DOMAIN) 
       const opening = item.layers[round];
       const pathLength = parameters.logDomain - round;
       if (opening === null || typeof opening !== 'object') fail(`queries[${query}].layers[${round}] must be an object`);
-      assertElement(opening.leftValue, `queries[${query}].layers[${round}].leftValue`);
-      assertElement(opening.rightValue, `queries[${query}].layers[${round}].rightValue`);
+      if (cm31Valued && round > 0) {
+        if (!isCm31(opening.leftValue)) fail(`queries[${query}].layers[${round}].leftValue must be CM31`);
+        if (!isCm31(opening.rightValue)) fail(`queries[${query}].layers[${round}].rightValue must be CM31`);
+      } else {
+        assertElement(opening.leftValue, `queries[${query}].layers[${round}].leftValue`);
+        assertElement(opening.rightValue, `queries[${query}].layers[${round}].rightValue`);
+      }
       for (const side of ['leftSiblings', 'rightSiblings']) {
         if (!Array.isArray(opening[side]) || opening[side].length !== pathLength) {
           fail(`queries[${query}].layers[${round}].${side} has wrong length`);
@@ -304,13 +390,22 @@ const verifyCircleFriQueriesOrThrow = ({
   }
 
   const finalValue = proof.finalCodeword[0];
-  if (!proof.finalCodeword.every((value) => value === finalValue)) fail('final codeword is not constant');
+  const sameFinalFelt = isCm31(finalValue)
+    ? (value) => cm31Eq(value, finalValue)
+    : (value) => value === finalValue;
+  if (!proof.finalCodeword.every(sameFinalFelt)) fail('final codeword is not constant');
 
   const transcript = prepareTranscript(protocolContext, parameters);
+  const lambda = proof.dimensionGapLambda ?? CIRCLE_FRI_DIMENSION_GAP_LAMBDA;
+  if (lambda !== CIRCLE_FRI_DIMENSION_GAP_LAMBDA) {
+    fail('dimension-gap λ must be 0 for the FFT-space encoding');
+  }
   const betas = [];
   for (let round = 0; round < parameters.logDegreeBound; round += 1) {
     transcript.absorb(`fri-layer-root-${round}`, proof.roots[round]);
-    betas.push(transcript.challengeField(`fri-fold-beta-${round}`));
+    betas.push(circleFriUsesCm31Fold(parameters)
+      ? transcript.challengeCm31(`fri-fold-beta-${round}`)
+      : transcript.challengeField(`fri-fold-beta-${round}`));
   }
   transcript.absorb('fri-final-codeword', encodeM31Vector(proof.finalCodeword, 'finalCodeword'));
   const queryIndices = deriveUniqueQueryIndices(transcript, parameters);
@@ -326,17 +421,24 @@ const verifyCircleFriQueriesOrThrow = ({
       const opening = proof.queries[query].layers[round];
       const root = proof.roots[round];
 
+      const usesPiMerkle = circleFriUsesPiPairMerkle(parameters, round);
+      const leftMerkleIndex = usesPiMerkle
+        ? piPairMerkleIndex(pair.leftIndex, topology.layerLength)
+        : pair.leftIndex;
+      const rightMerkleIndex = usesPiMerkle
+        ? piPairMerkleIndex(pair.rightIndex, topology.layerLength)
+        : pair.rightIndex;
       const leftValid = verifyM31Merkle({
         root,
         length: topology.layerLength,
-        index: pair.leftIndex,
+        index: leftMerkleIndex,
         value: opening.leftValue,
         siblings: opening.leftSiblings,
       });
       const rightValid = verifyM31Merkle({
         root,
         length: topology.layerLength,
-        index: pair.rightIndex,
+        index: rightMerkleIndex,
         value: opening.rightValue,
         siblings: opening.rightSiblings,
       });
@@ -346,7 +448,10 @@ const verifyCircleFriQueriesOrThrow = ({
         const authenticatedCurrent = currentIndex === pair.leftIndex
           ? opening.leftValue
           : opening.rightValue;
-        if (previousFold !== authenticatedCurrent) fail(`query ${query} round ${round} fold continuity failed`);
+        const same = isCm31(previousFold) || isCm31(authenticatedCurrent)
+          ? cm31Eq(previousFold, authenticatedCurrent)
+          : previousFold === authenticatedCurrent;
+        if (!same) fail(`query ${query} round ${round} fold continuity failed`);
       }
 
       previousFold = foldPair({
@@ -357,7 +462,11 @@ const verifyCircleFriQueriesOrThrow = ({
       }).value;
       currentIndex = pairIndex;
     }
-    if (previousFold !== proof.finalCodeword[currentIndex]) {
+    const finalFelt = proof.finalCodeword[currentIndex];
+    const sameFinal = isCm31(previousFold) || isCm31(finalFelt)
+      ? cm31Eq(previousFold, finalFelt)
+      : previousFold === finalFelt;
+    if (!sameFinal) {
       fail(`query ${query} final low-degree check failed`);
     }
   }
@@ -373,6 +482,20 @@ export const verifyCircleFriQueries = (input) => {
   }
 };
 
+const encodeFelt = (value, name) => (
+  isCm31(value)
+    ? concatBytes(encodeM31(value.re), encodeM31(value.im))
+    : encodeM31(assertElement(value, name))
+);
+
+const decodeFelt = (bytes, name, cm31Valued) => {
+  if (cm31Valued) {
+    if (bytes.length !== 8) fail(`${name} CM31 encoding must be 8 bytes`);
+    return cm31(decodeM31(bytes.subarray(0, 4)), decodeM31(bytes.subarray(4, 8)));
+  }
+  return decodeM31(bytes);
+};
+
 export const estimateCircleFriQueryProofBytes = ({
   logDegreeBound,
   logBlowup,
@@ -380,10 +503,13 @@ export const estimateCircleFriQueryProofBytes = ({
   maximumLogDomain = DEFAULT_MAXIMUM_LOG_DOMAIN,
 }) => {
   const parameters = assertCircleFriParameters({ logDegreeBound, logBlowup, queryCount, maximumLogDomain });
-  let bytes = 9 + parameters.logDegreeBound * 32 + parameters.blowup * 4;
+  const cm31Valued = circleFriUsesCm31Fold(parameters);
+  const finalFeltBytes = cm31Valued ? 8 : 4;
+  let bytes = 9 + parameters.logDegreeBound * 32 + parameters.blowup * finalFeltBytes;
   let perQuery = 0;
   for (let round = 0; round < parameters.logDegreeBound; round += 1) {
-    perQuery += 8 + 64 * (parameters.logDomain - round);
+    const valueBytes = (cm31Valued && round > 0) ? 8 : 4;
+    perQuery += 2 * valueBytes + 64 * (parameters.logDomain - round);
   }
   bytes += parameters.queryCount * perQuery;
   return bytes;
@@ -395,13 +521,14 @@ export const encodeCircleFriQueryProof = (proof, { maximumLogDomain = DEFAULT_MA
     CIRCLE_FRI_QUERY_PROOF_MAGIC,
     encodeCircleFriParameters(parameters),
     ...proof.roots,
-    encodeM31Vector(proof.finalCodeword, 'finalCodeword'),
+    encodeFelt(proof.finalCodeword[0], 'finalCodeword[0]'),
+    ...proof.finalCodeword.slice(1).map((value, index) => encodeFelt(value, `finalCodeword[${index + 1}]`)),
   ];
   for (const query of proof.queries) {
     for (const opening of query.layers) {
       chunks.push(
-        encodeM31(opening.leftValue),
-        encodeM31(opening.rightValue),
+        encodeFelt(opening.leftValue, 'leftValue'),
+        encodeFelt(opening.rightValue, 'rightValue'),
         ...opening.leftSiblings,
         ...opening.rightSiblings,
       );
@@ -440,15 +567,26 @@ export const decodeCircleFriQueryProof = (encoded, { maximumLogDomain = DEFAULT_
   if (bytes.length !== expectedLength) fail(`encoded proof length ${bytes.length} does not equal canonical length ${expectedLength}`);
 
   const roots = Array.from({ length: parameters.logDegreeBound }, (_, index) => read(32, `roots[${index}]`));
+  const cm31Valued = circleFriUsesCm31Fold(parameters);
+  const finalFeltBytes = cm31Valued ? 8 : 4;
   const finalCodeword = Array.from({ length: parameters.blowup }, (_, index) => (
-    decodeM31(read(4, `finalCodeword[${index}]`))
+    decodeFelt(read(finalFeltBytes, `finalCodeword[${index}]`), `finalCodeword[${index}]`, cm31Valued)
   ));
   const queries = Array.from({ length: parameters.queryCount }, (_, query) => ({
     layers: Array.from({ length: parameters.logDegreeBound }, (_, round) => {
       const pathLength = parameters.logDomain - round;
+      const valueBytes = (cm31Valued && round > 0) ? 8 : 4;
       return Object.freeze({
-        leftValue: decodeM31(read(4, `queries[${query}].layers[${round}].leftValue`)),
-        rightValue: decodeM31(read(4, `queries[${query}].layers[${round}].rightValue`)),
+        leftValue: decodeFelt(
+          read(valueBytes, `queries[${query}].layers[${round}].leftValue`),
+          `queries[${query}].layers[${round}].leftValue`,
+          cm31Valued && round > 0,
+        ),
+        rightValue: decodeFelt(
+          read(valueBytes, `queries[${query}].layers[${round}].rightValue`),
+          `queries[${query}].layers[${round}].rightValue`,
+          cm31Valued && round > 0,
+        ),
         leftSiblings: Array.from({ length: pathLength }, (_, index) => (
           read(32, `queries[${query}].layers[${round}].leftSiblings[${index}]`)
         )),

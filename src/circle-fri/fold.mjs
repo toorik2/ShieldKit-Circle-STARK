@@ -13,6 +13,15 @@ import {
   piX,
 } from './circle.mjs';
 
+import {
+  cm31,
+  cm31Add,
+  cm31FromM31,
+  cm31Mul,
+  cm31Sub,
+  isCm31,
+} from './cm31.mjs';
+
 export const M31_HALF = (M31_MODULUS + 1n) / 2n;
 
 const fail = (message) => {
@@ -30,11 +39,38 @@ const assertCodeword = (values, expectedLength) => {
   if (!Array.isArray(values) || values.length !== expectedLength) {
     fail(`codeword must contain exactly ${expectedLength} values`);
   }
+  if (values.length > 0 && isCm31(values[0])) {
+    return values.map((value, index) => cm31(value.re, value.im));
+  }
   return values.map((value, index) => assertElement(value, `codeword[${index}]`));
+};
+
+/** Fold a pair over CM31. left/right may be M31 or CM31; beta is CM31. */
+export const foldPairCm31 = ({ positive, negative, coordinate, beta }) => {
+  const z = assertElement(coordinate, 'coordinate');
+  if (z === 0n) fail('fold coordinate must be nonzero');
+  const toCm = (value, name) => (
+    isCm31(value) ? cm31(value.re, value.im) : cm31FromM31(assertElement(value, name))
+  );
+  const challenge = cm31(beta.re, beta.im);
+  const fPositive = toCm(positive, 'positive');
+  const fNegative = toCm(negative, 'negative');
+  const half = cm31FromM31(M31_HALF);
+  const inv2z = cm31FromM31(inverse(mul(2n, z)));
+  const even = cm31Mul(cm31Add(fPositive, fNegative), half);
+  const odd = cm31Mul(cm31Sub(fPositive, fNegative), inv2z);
+  return Object.freeze({
+    even,
+    odd,
+    value: cm31Add(even, cm31Mul(challenge, odd)),
+  });
 };
 
 /** Fold a pair f(+z), f(-z) into its even/odd decomposition at challenge beta. */
 export const foldPair = ({ positive, negative, coordinate, beta }) => {
+  if (isCm31(beta) || isCm31(positive) || isCm31(negative)) {
+    return foldPairCm31({ positive, negative, coordinate, beta });
+  }
   const fPositive = assertElement(positive, 'positive');
   const fNegative = assertElement(negative, 'negative');
   const z = assertElement(coordinate, 'coordinate');
@@ -115,7 +151,6 @@ export const buildPiFoldTopology = (xDomain) => {
  */
 export const foldJLayer = (domain, codeword, beta) => {
   const values = assertCodeword(codeword, domain.length);
-  const challenge = assertElement(beta, 'beta');
   const topology = buildJFoldTopology(domain);
   const folded = new Array(topology.pairs.length);
   const pairs = new Array(topology.pairs.length);
@@ -126,7 +161,7 @@ export const foldJLayer = (domain, codeword, beta) => {
       positive: values[pair.leftIndex],
       negative: values[pair.rightIndex],
       coordinate: pair.coordinate,
-      beta: challenge,
+      beta,
     });
     folded[index] = result.value;
     pairs[index] = Object.freeze({ ...pair, ...result });
@@ -135,11 +170,36 @@ export const foldJLayer = (domain, codeword, beta) => {
 };
 
 /**
+ * Place a π-layer codeword so each N-1-P fold pair occupies adjacent Merkle
+ * leaves: merkle[2p] = codeword[p], merkle[2p+1] = codeword[N-1-p].
+ * pairIndex is min(P, N-1-P) on this family (leftIndex === min === array index).
+ */
+export const piPairMerkleCodeword = (codeword) => {
+  if (!Array.isArray(codeword) || codeword.length < 2 || (codeword.length & 1) !== 0) {
+    fail('pi-pair Merkle codeword length must be an even positive power of two');
+  }
+  const merkle = new Array(codeword.length);
+  const half = codeword.length / 2;
+  for (let pairIndex = 0; pairIndex < half; pairIndex += 1) {
+    merkle[2 * pairIndex] = codeword[pairIndex];
+    merkle[2 * pairIndex + 1] = codeword[codeword.length - 1 - pairIndex];
+  }
+  return merkle;
+};
+
+export const piPairMerkleIndex = (domainIndex, layerLength) => {
+  if (!Number.isSafeInteger(domainIndex) || domainIndex < 0 || domainIndex >= layerLength) {
+    fail('pi-pair Merkle domain index is out of range');
+  }
+  const pairIndex = Math.min(domainIndex, layerLength - 1 - domainIndex);
+  return domainIndex === pairIndex ? 2 * pairIndex : 2 * pairIndex + 1;
+};
+
+/**
  * Later Circle-FRI layers: fold x and -x to pi(x)=2*x^2-1.
  */
 export const foldPiLayer = (xDomain, codeword, beta) => {
   const values = assertCodeword(codeword, xDomain.length);
-  const challenge = assertElement(beta, 'beta');
   const topology = buildPiFoldTopology(xDomain);
   const folded = new Array(topology.pairs.length);
   const pairs = new Array(topology.pairs.length);
@@ -149,7 +209,7 @@ export const foldPiLayer = (xDomain, codeword, beta) => {
       positive: values[pair.leftIndex],
       negative: values[pair.rightIndex],
       coordinate: pair.coordinate,
-      beta: challenge,
+      beta,
     });
     folded[index] = result.value;
     pairs[index] = Object.freeze({ ...pair, ...result });

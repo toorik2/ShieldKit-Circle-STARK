@@ -27,6 +27,7 @@ import {
 
 import {
   observePoseidon2Air,
+  observeSnapshot0Inversion,
   provePoseidon2Air,
 } from '../../src/circle-fri/poseidon2-air.mjs';
 
@@ -35,8 +36,13 @@ import {
 } from '../../research-lanes/bch-shielded-pool-design/p1/codec/common.mjs';
 
 import {
+  measureNestedLdeSubset,
   measureNestedTraceCoset,
 } from '../../src/circle-fri/nested-coset.mjs';
+
+import {
+  measurePublishedCircleHashLane,
+} from '../../src/circle-fri/algebraic-hash-air.mjs';
 
 const TICKET = 10_000_000n;
 
@@ -70,8 +76,13 @@ test('public AIR+DEEP proof does not reveal rho, owner, or secret amount slot; d
 
   const deposit = buildHonestDeposit();
   const relation = provePoolActionRelation(deposit);
-  assert.equal(relation.poseidon2Air.columnCoefficients.length, 16);
+  assert.equal(relation.poseidon2Air.columnCoefficients, undefined);
   assert.equal(relation.poseidon2Air.hostColumnCoefficients, undefined);
+  const snapshot0Public = observeSnapshot0Inversion(relation.poseidon2Air, {
+    owner: deposit.witness.owner,
+    rho: deposit.witness.rho,
+  });
+  assert.equal(snapshot0Public.leaked, false);
   const airObserved = observePublicProof(relation.poseidon2Air, {
     rho: deposit.witness.rho,
     owner: deposit.witness.owner,
@@ -92,16 +103,32 @@ test('public AIR+DEEP proof does not reveal rho, owner, or secret amount slot; d
   assert.equal(nesting.nested, false);
   assert.equal(nesting.intersection, 0);
   assert.match(nesting.wall ?? '', /0\/64/u);
+  const nestedSubset = measureNestedLdeSubset({ logTrace: 10, logBlowup: 4 });
+  assert.equal(nestedSubset.nestedCfft, false);
+  assert.equal(nestedSubset.uniqueHXsInD, 0);
+  assert.match(nestedSubset.wall ?? '', /x\(H\)∩x\(LDE\)=0\/512/u);
+  assert.match(nestedSubset.wall ?? '', /Not 0\/64, not 0\/1024 restated/u);
+  const hashLane = measurePublishedCircleHashLane();
+  assert.equal(hashLane.selectedAir, 'poseidon2-m31-grain-t16-a5-rf8-rp14');
+  assert.equal(hashLane.nestedCfft, false);
+  assert.equal(hashLane.envelopeFit, true);
+  assert.equal(hashLane.sTotal128, false);
+  assert.notEqual(hashLane.absorbOpenedWithoutRateLeak, true);
+  assert.match(hashLane.remainingProductionWalls ?? '', /LDE-only absorb-in-Q bind holds/u);
+  assert.doesNotMatch(hashLane.remainingProductionWalls ?? '', /cannot state a production Circle STARK/u);
   console.log('ZK_OBSERVER', {
     proven: [
       'secret-slot interpolant !== ticket/hash(owner)/hash(rho)',
       'degree-0 classified failed',
       'Z_H·R on even-x DEEP FRI domain recomputes and verifies',
-      'public poseidon2Air publishes masked columnCoefficients; limb FFT does not recover owner||rho',
+      'public poseidon2Air omits TRACE interpolant; snapshot0 inversion does not recover owner||rho',
+      'AIR-bound-to-the-table (LDE-only; TRACE merkle forbidden)',
     ],
-    failed: [],
-    speculative: ['128-coset tail remains; nested H⊂LDE cannot be stated for this CFFT family; 2^14 AIR Z_H·R is host-only (32768-coeff)'],
+    failed: [nestedSubset.wall, hashLane.wall, hashLane.remainingProductionWalls],
+    speculative: ['nested CFFT H⊂LDE still failed; conjectural FRI (2^16/M31^2)^13 ∪ HASH256 floors to 255 bits and is not proven; unique-decoding is (1/4)^13=2^-26; HLP24 on CM31 is 10 bits; v2 cannot express 128-bit-pass'],
     nestedCoset: nesting,
+    nestedLdeSubset: nestedSubset,
+    publishedHashLane: hashLane,
     observed,
   });
 });
@@ -134,5 +161,11 @@ test('observer interpolant evaluation catches an unmasked AIR proof', () => {
   });
   assert.equal(airLeak.owner, 'unmasked-column-fft');
   assert.equal(airLeak.rho, 'unmasked-column-fft');
-  console.log('ZK_UNMASKED_CAUGHT', { leaked, airLeak });
+  const snapshot0Host = observeSnapshot0Inversion(hostColumns, {
+    owner: deposit.witness.owner,
+    rho: deposit.witness.rho,
+  });
+  assert.equal(snapshot0Host.leaked, true);
+  assert.equal(snapshot0Host.method, 'snapshot0-external-inverse');
+  console.log('ZK_UNMASKED_CAUGHT', { leaked, airLeak, snapshot0Host });
 });

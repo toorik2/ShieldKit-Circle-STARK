@@ -1,6 +1,10 @@
 import { M31_MODULUS } from '../../research-lanes/bch-shielded-pool-design/p2/reference/m31.mjs';
 
 import {
+  cm31,
+} from './cm31.mjs';
+
+import {
   assertBytes,
   concatBytes,
   frameBytes,
@@ -123,6 +127,13 @@ export class CircleFriTranscript {
 
   challengeField(label) {
     return BigInt(this.#sample(label, Number(M31_MODULUS)));
+  }
+
+  challengeCm31(label) {
+    return cm31(
+      this.challengeField(`${label}-re`),
+      this.challengeField(`${label}-im`),
+    );
   }
 
   challengeIndex(label, range) {

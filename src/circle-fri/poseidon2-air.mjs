@@ -84,6 +84,7 @@ export const SNAPSHOT_QUOTIENT_DEGREE = 8192;
 export const SNAPSHOT_QUOTIENT_KIND = 'poseidon2-m31-snapshot-quotient-v1';
 export const MASKED_ABSORB_BIND = 'masked-absorb-interpolant-v1';
 export const ABSORB_IN_Q_BIND = 'absorb-in-q-lde-v1';
+export const LDE_ONLY_BIND = 'lde-only-commitment-v1';
 export const ABSORB_SNAPSHOT_QUOTIENT_KIND = 'poseidon2-m31-absorb-snapshot-quotient-v1';
 /** New wall: 3 LDE openings do not bind TRACE absorb to the interpolant. */
 export const TRACE_LDE_UNLINK_WALL = [
@@ -666,7 +667,35 @@ export const buildPhaseSelectors = (layout) => {
   return Object.freeze({ snap, fresh, cont });
 };
 
-export const buildSnapshotConstraintQuotient = ({ table, layout, includeAbsorb = false }) => {
+export const publicBindRows = (layout, publicFelts, statementPublicFelts) => {
+  const padded = (felts) => {
+    const row = new Array(POSEIDON2_T).fill(0n);
+    for (let index = 0; index < Math.min(felts.length, POSEIDON2_T); index += 1) {
+      row[index] = felts[index];
+    }
+    return row;
+  };
+  const binds = [
+    { row: 0, values: padded(statementPublicFelts ?? []), width: POSEIDON2_T },
+    { row: layout.note.lastRow, values: padded(publicFelts.note), width: POSEIDON2_RATE },
+    { row: layout.auth.lastRow, values: padded(publicFelts.auth), width: POSEIDON2_RATE },
+    { row: layout.merkleNote.lastRow, values: padded(publicFelts.newNoteRoot), width: POSEIDON2_RATE },
+  ];
+  if (layout.nullifier && publicFelts.nullifier) {
+    binds.push({ row: layout.nullifier.lastRow, values: padded(publicFelts.nullifier), width: POSEIDON2_RATE });
+  }
+  if (layout.merkleNf && publicFelts.newNfRoot) {
+    binds.push({ row: layout.merkleNf.lastRow, values: padded(publicFelts.newNfRoot), width: POSEIDON2_RATE });
+  }
+  return Object.freeze(binds);
+};
+
+export const buildSnapshotConstraintQuotient = ({
+  table,
+  layout,
+  includeAbsorb = false,
+  publicBinds = null,
+}) => {
   if (!layout?.perms) fail('snapshot quotient requires layout.perms');
   const H = buildStandardCoset(POSEIDON2_AIR_ROW_LOG);
   const LDE = buildStandardCoset(SNAPSHOT_QUOTIENT_LDE_LOG);
@@ -688,7 +717,13 @@ export const buildSnapshotConstraintQuotient = ({ table, layout, includeAbsorb =
   const contLde = includeAbsorb
     ? extendCircleEvaluations({ sourceDomain: H, targetDomain: LDE, values: selectors.cont }).evaluations
     : null;
+  const publicSelLde = (publicBinds ?? []).map((bind) => {
+    const column = new Array(POSEIDON2_AIR_ROWS).fill(0n);
+    column[bind.row] = 1n;
+    return extendCircleEvaluations({ sourceDomain: H, targetDomain: LDE, values: column }).evaluations;
+  });
   const constraint = new Array(LDE.length).fill(0n);
+  const betas = constraintBetas();
   for (let index = 0; index < LDE.length; index += 1) {
     const state = colLde.map((column) => column[index]);
     const next = colLde.map((column) => column[(index + stride) % LDE.length]);
@@ -701,6 +736,17 @@ export const buildSnapshotConstraintQuotient = ({ table, layout, includeAbsorb =
       freshSelector: includeAbsorb ? freshLde[index] : 0n,
       contSelector: includeAbsorb ? contLde[index] : 0n,
     });
+    for (let bindIndex = 0; bindIndex < publicSelLde.length; bindIndex += 1) {
+      const selector = publicSelLde[bindIndex][index];
+      if (selector === 0n) continue;
+      const bind = publicBinds[bindIndex];
+      for (let col = 0; col < bind.width; col += 1) {
+        constraint[index] = add(
+          constraint[index],
+          mul(mul(betas[col], selector), sub(state[col], bind.values[col])),
+        );
+      }
+    }
   }
   const quotient = constraint.map((value, index) => {
     const vanishing = piIter(LDE[index].x, POSEIDON2_AIR_ROW_LOG - 1);
@@ -780,8 +826,8 @@ export const provePoseidon2Air = ({
   owner,
   rho,
   amountFelt = 10_000_000n,
-  logBlowup = 3,
-  queryCount = 2,
+  logBlowup = 2,
+  queryCount = 26,
   friNonce = 0,
   includeHostColumns = false,
 }) => {
@@ -798,31 +844,11 @@ export const provePoseidon2Air = ({
     statementPublicFelts: built.statementPublicFelts,
   });
   if (!atOpenings.vanish) fail('Poseidon2 AIR residual-at-openings do not vanish');
-  const rowTree = buildRowMerkle(built.table);
-  const openingPaths = Object.freeze({
-    public: openRowMerkle(rowTree, 0),
-    note: openRowMerkle(rowTree, built.layout.note.lastRow),
-    notePrev: openRowMerkle(rowTree, built.layout.note.lastRow - 1),
-    auth: openRowMerkle(rowTree, built.layout.auth.lastRow),
-    authPrev: openRowMerkle(rowTree, built.layout.auth.lastRow - 1),
-    merkleNote: openRowMerkle(rowTree, built.layout.merkleNote.lastRow),
-    nullifier: built.layout.nullifier
-      ? openRowMerkle(rowTree, built.layout.nullifier.lastRow)
-      : null,
-    nullifierPrev: built.layout.nullifier
-      ? openRowMerkle(rowTree, built.layout.nullifier.lastRow - 1)
-      : null,
-    merkleNf: built.layout.merkleNf
-      ? openRowMerkle(rowTree, built.layout.merkleNf.lastRow)
-      : null,
-  });
-  const domain = buildStandardCoset(POSEIDON2_AIR_ROW_LOG);
-  const maskedTable = maskSecretAbsorbRows(built.table, built.layout);
-  const columnCoefficients = maskedTable.map((column) => circleIFFT(domain, column));
   const quotient = buildSnapshotConstraintQuotient({
     table: built.table,
     layout: built.layout,
     includeAbsorb: true,
+    publicBinds: publicBindRows(built.layout, built.publicFelts, built.statementPublicFelts),
   });
   const ldeLen = 1 << SNAPSHOT_QUOTIENT_LDE_LOG;
   const stride = ldeLen / POSEIDON2_AIR_ROWS;
@@ -831,25 +857,18 @@ export const provePoseidon2Air = ({
     ldeRows.push(quotient.colLde.map((column) => column[index]));
   }
   const ldeTree = buildWideMerkle(ldeRows);
-  const snapshotRows = snapshotRowsFromLayout(built.layout);
-  const snapshotOpeningPaths = Object.freeze(Object.fromEntries(
-    snapshotRows.map((row) => [String(row), openRowMerkle(rowTree, row)]),
-  ));
   const statementBytes = encodePoolActionStatement(statement);
-  const colDigest = hashColumnCoefficients(columnCoefficients);
   const layoutDigest = sha256(utf8(JSON.stringify(built.layout)));
   const openingsDigest = sha256(utf8(JSON.stringify(openings, (_, value) => (
     typeof value === 'bigint' ? value.toString() : value
   ))));
   const contextSeed = [
     Buffer.from(statementBytes).toString('hex'),
-    Buffer.from(colDigest).toString('hex'),
     Buffer.from(layoutDigest).toString('hex'),
-    Buffer.from(rowTree.root).toString('hex'),
     Buffer.from(ldeTree.root).toString('hex'),
     Buffer.from(openingsDigest).toString('hex'),
     ABSORB_SNAPSHOT_QUOTIENT_KIND,
-    ABSORB_IN_Q_BIND,
+    LDE_ONLY_BIND,
     `nonce:${friNonce}`,
   ].join(':');
   const zetaIndex = ldeZetaIndex(contextSeed);
@@ -886,18 +905,13 @@ export const provePoseidon2Air = ({
     statementPublicFelts: built.statementPublicFelts,
     publicFelts: built.publicFelts,
     openings,
-    openingPaths,
-    snapshotOpeningPaths,
-    rowMerkleRoot: rowTree.root,
     ldeMerkleRoot: ldeTree.root,
     ldeOpenings,
-    columnDigest: colDigest,
-    columnCoefficients: Object.freeze(columnCoefficients.map((coeffs) => Object.freeze(coeffs))),
     evenXDeep,
-    labeledFriOfAir: false,
+    labeledFriOfAir: true,
     interpolantFri: false,
-    wall: TRACE_LDE_UNLINK_WALL,
-    bind: ABSORB_IN_Q_BIND,
+    wall: null,
+    bind: LDE_ONLY_BIND,
     zhR: evenXDeep.zhR,
     residualObject: ABSORB_SNAPSHOT_QUOTIENT_KIND,
     compositionNonzero: evenXDeep.nonzero,
@@ -906,6 +920,7 @@ export const provePoseidon2Air = ({
     friNonce,
   };
   if (includeHostColumns) {
+    const domain = buildStandardCoset(POSEIDON2_AIR_ROW_LOG);
     publicProof.hostColumnCoefficients = Object.freeze(
       built.table.map((column) => Object.freeze(circleIFFT(domain, column))),
     );
@@ -967,13 +982,12 @@ export const proveHonestLdeGarbageTraceAbsorb = ({
   ))));
   const contextSeed = [
     Buffer.from(statementBytes).toString('hex'),
-    Buffer.from(honest.columnDigest).toString('hex'),
     Buffer.from(layoutDigest).toString('hex'),
     Buffer.from(rowTree.root).toString('hex'),
     Buffer.from(honest.ldeMerkleRoot).toString('hex'),
     Buffer.from(openingsDigest).toString('hex'),
     ABSORB_SNAPSHOT_QUOTIENT_KIND,
-    ABSORB_IN_Q_BIND,
+    LDE_ONLY_BIND,
     `nonce:${friNonce}`,
   ].join(':');
   const ldeLen = 1 << SNAPSHOT_QUOTIENT_LDE_LOG;
@@ -1225,6 +1239,65 @@ export const proveDummyZeroTableAir = ({ statement, honestPublicRow = false }) =
   });
 };
 
+/** Linear inverse of Poseidon2 applyExternal: snapshot0[i] = pre[i] + sum(pre). */
+export const invertPoseidon2External = (external) => {
+  if (!Array.isArray(external) || external.length !== POSEIDON2_T) return null;
+  let sumOut = 0n;
+  for (const value of external) sumOut = add(sumOut, value);
+  const roundSum = mul(sumOut, inverse(17n));
+  return external.map((value) => sub(value, roundSum));
+};
+
+/**
+ * Recover owner||rho from public snapshot0 = External(absorb+carry), if the
+ * TRACE interpolant (or host columns) is published.
+ */
+export const observeSnapshot0Inversion = (proof, { owner, rho } = {}) => {
+  const recovered = { owner: null, rho: null, leaked: false, method: null };
+  const coeffs = proof?.hostColumnCoefficients
+    ?? proof?.poseidon2Air?.hostColumnCoefficients
+    ?? proof?.columnCoefficients
+    ?? proof?.poseidon2Air?.columnCoefficients;
+  const layout = proof?.layout ?? proof?.poseidon2Air?.layout;
+  if (!Array.isArray(coeffs) || coeffs.length !== POSEIDON2_T || !layout?.perms) {
+    return Object.freeze(recovered);
+  }
+  const domain = buildStandardCoset(POSEIDON2_AIR_ROW_LOG);
+  const table = coeffs.map((column) => circleFFT(domain, column));
+  const notePermCount = layout.note?.perms ?? 0;
+  const perms = layout.perms.slice(0, notePermCount);
+  const absorbFelts = [];
+  for (const perm of perms) {
+    const pre = invertPoseidon2External(rowOf(table, perm.snapshot0));
+    if (!pre) return Object.freeze(recovered);
+    const carry = perm.fresh === true
+      ? new Array(POSEIDON2_T).fill(0n)
+      : rowOf(table, perm.absorbRow - 1);
+    for (let index = 0; index < POSEIDON2_RATE; index += 1) {
+      absorbFelts.push(sub(pre[index], carry[index]));
+    }
+  }
+  const ownerLimbs = absorbFelts.slice(2 + 9, 2 + 18);
+  const rhoLimbs = absorbFelts.slice(2 + 18, 2 + 27);
+  if (owner && ownerLimbs.length === 9) {
+    const expected = bytesToM31Limbs(owner);
+    if (ownerLimbs.every((value, index) => value === expected[index])) {
+      recovered.owner = 'snapshot0-external-inverse';
+      recovered.leaked = true;
+      recovered.method = 'snapshot0-external-inverse';
+    }
+  }
+  if (rho && rhoLimbs.length === 9) {
+    const expected = bytesToM31Limbs(rho);
+    if (rhoLimbs.every((value, index) => value === expected[index])) {
+      recovered.rho = 'snapshot0-external-inverse';
+      recovered.leaked = true;
+      recovered.method = 'snapshot0-external-inverse';
+    }
+  }
+  return Object.freeze(recovered);
+};
+
 /** Recover owner||rho M31 limbs from published unmasked columnCoefficients, if present. */
 export const observePoseidon2Air = (proof, { owner, rho } = {}) => {
   const recovered = { owner: null, rho: null, leaked: false };
@@ -1259,7 +1332,8 @@ export const observePoseidon2Air = (proof, { owner, rho } = {}) => {
       recovered.leaked = true;
     }
   }
-  return Object.freeze(recovered);
+  if (recovered.leaked) return Object.freeze(recovered);
+  return observeSnapshot0Inversion(proof, { owner, rho });
 };
 
 export const verifyPoseidon2Air = ({ proof, expectedStatement }) => {
@@ -1292,36 +1366,11 @@ export const verifyPoseidon2Air = ({ proof, expectedStatement }) => {
       reason: atOpenings.reason ?? 'Poseidon2 AIR residual-at-openings failed (note/Merkle/nullifier/auth)',
     });
   }
-  const paths = proof.openingPaths;
-  const root = proof.rowMerkleRoot;
-  if (!root || !paths) {
-    return Object.freeze({ ok: false, reason: 'Poseidon2 AIR row Merkle openings are missing' });
-  }
-  const checks = [
-    ['public', 0, proof.openings.public, paths.public],
-    ['note', proof.layout.note.lastRow, proof.openings.note, paths.note],
-    ['notePrev', proof.layout.note.lastRow - 1, proof.openings.notePrev, paths.notePrev],
-    ['auth', proof.layout.auth.lastRow, proof.openings.auth, paths.auth],
-    ['authPrev', proof.layout.auth.lastRow - 1, proof.openings.authPrev, paths.authPrev],
-    ['merkleNote', proof.layout.merkleNote.lastRow, proof.openings.merkleNote, paths.merkleNote],
-  ];
-  if (proof.layout.nullifier) {
-    checks.push(['nullifier', proof.layout.nullifier.lastRow, proof.openings.nullifier, paths.nullifier]);
-    checks.push(['nullifierPrev', proof.layout.nullifier.lastRow - 1, proof.openings.nullifierPrev, paths.nullifierPrev]);
-  }
-  if (proof.layout.merkleNf) {
-    checks.push(['merkleNf', proof.layout.merkleNf.lastRow, proof.openings.merkleNf, paths.merkleNf]);
-  }
-  for (const [label, index, values, path] of checks) {
-    if (!verifyRowMerkle({
-      root,
-      length: POSEIDON2_AIR_ROWS,
-      index,
-      values,
-      siblings: path?.siblings,
-    })) {
-      return Object.freeze({ ok: false, reason: `Poseidon2 AIR ${label} opening is not in the row Merkle tree` });
-    }
+  if (proof.rowMerkleRoot) {
+    return Object.freeze({
+      ok: false,
+      reason: 'LDE-only commitment forbids a TRACE merkle (second tree)',
+    });
   }
   const statementBytes = encodePoolActionStatement(expectedStatement);
   const layoutDigest = sha256(utf8(JSON.stringify(proof.layout)));
@@ -1334,10 +1383,10 @@ export const verifyPoseidon2Air = ({ proof, expectedStatement }) => {
       reason: 'Poseidon2 AIR FRI object is not the absorb+snapshot quotient',
     });
   }
-  if (proof.bind !== ABSORB_IN_Q_BIND) {
+  if (proof.bind !== LDE_ONLY_BIND) {
     return Object.freeze({
       ok: false,
-      reason: 'Poseidon2 AIR bind is not absorb-in-Q LDE',
+      reason: 'Poseidon2 AIR bind is not LDE-only commitment',
     });
   }
   if (!proof.ldeMerkleRoot || !proof.ldeOpenings) {
@@ -1346,7 +1395,9 @@ export const verifyPoseidon2Air = ({ proof, expectedStatement }) => {
       reason: 'Poseidon2 AIR absorb LDE openings are missing',
     });
   }
-  if (proof.evenXDeep?.parameters?.logDegreeBound !== Math.log2(SNAPSHOT_QUOTIENT_DEGREE)) {
+  const expectedFriLog = Math.log2(SNAPSHOT_QUOTIENT_DEGREE)
+    + (proof.evenXDeep?.zhR?.onChain === true ? 1 : 0);
+  if (proof.evenXDeep?.parameters?.logDegreeBound !== expectedFriLog) {
     return Object.freeze({
       ok: false,
       reason: 'Poseidon2 AIR FRI degree bound is not the snapshot quotient',
@@ -1358,32 +1409,11 @@ export const verifyPoseidon2Air = ({ proof, expectedStatement }) => {
       reason: 'Poseidon2 AIR snapshot quotient FRI is degenerate',
     });
   }
-  if (!Array.isArray(proof.columnCoefficients) || proof.columnCoefficients.length !== POSEIDON2_T) {
+  if (proof.columnCoefficients) {
     return Object.freeze({
       ok: false,
-      reason: 'Poseidon2 AIR masked columnCoefficients are required',
+      reason: 'LDE-only commitment forbids public TRACE interpolant coefficients (snapshot0 leak)',
     });
-  }
-  const domain = buildStandardCoset(POSEIDON2_AIR_ROW_LOG);
-  const recovered = proof.columnCoefficients.map((coeffs) => {
-    if (!Array.isArray(coeffs) || coeffs.length !== POSEIDON2_AIR_ROWS) return null;
-    return circleFFT(domain, coeffs);
-  });
-  if (recovered.some((column) => column === null)) {
-    return Object.freeze({ ok: false, reason: 'Poseidon2 AIR masked columns are the wrong length' });
-  }
-  for (const perm of proof.layout.perms) {
-    if (recovered.some((column) => column[perm.absorbRow] !== 0n)) {
-      return Object.freeze({
-        ok: false,
-        reason: 'Poseidon2 AIR public interpolant must zero absorb rows',
-      });
-    }
-  }
-  const expectedDigest = hashColumnCoefficients(proof.columnCoefficients);
-  if (!(proof.columnDigest instanceof Uint8Array)
-      || expectedDigest.some((byte, index) => byte !== proof.columnDigest[index])) {
-    return Object.freeze({ ok: false, reason: 'Poseidon2 AIR columnDigest does not match masked coefficients' });
   }
   if (!Array.isArray(proof.quotientCoefficients)
       || proof.quotientCoefficients.length !== SNAPSHOT_QUOTIENT_DEGREE) {
@@ -1397,13 +1427,11 @@ export const verifyPoseidon2Air = ({ proof, expectedStatement }) => {
   const lde = proof.ldeOpenings;
   const expectedZeta = ldeZetaIndex([
     Buffer.from(statementBytes).toString('hex'),
-    Buffer.from(proof.columnDigest).toString('hex'),
     Buffer.from(layoutDigest).toString('hex'),
-    Buffer.from(root).toString('hex'),
     Buffer.from(proof.ldeMerkleRoot).toString('hex'),
     Buffer.from(openingsDigest).toString('hex'),
     ABSORB_SNAPSHOT_QUOTIENT_KIND,
-    ABSORB_IN_Q_BIND,
+    LDE_ONLY_BIND,
     `nonce:${proof.friNonce ?? 0}`,
   ].join(':'));
   if (lde.index !== expectedZeta
@@ -1432,7 +1460,7 @@ export const verifyPoseidon2Air = ({ proof, expectedStatement }) => {
   const selAt = (column) => extendCircleEvaluations({
     sourceDomain: H, targetDomain: LDE, values: column,
   }).evaluations[lde.index];
-  const constraint = evaluateAirConstraintComposition({
+  let constraint = evaluateAirConstraintComposition({
     state: lde.state,
     next: lde.next,
     prev: lde.prev,
@@ -1440,6 +1468,24 @@ export const verifyPoseidon2Air = ({ proof, expectedStatement }) => {
     freshSelector: selAt(selectors.fresh),
     contSelector: selAt(selectors.cont),
   });
+  const publicBinds = publicBindRows(
+    proof.layout,
+    proof.publicFelts,
+    proof.statementPublicFelts,
+  );
+  const betas = constraintBetas();
+  for (const bind of publicBinds) {
+    const selColumn = new Array(POSEIDON2_AIR_ROWS).fill(0n);
+    selColumn[bind.row] = 1n;
+    const selector = selAt(selColumn);
+    if (selector === 0n) continue;
+    for (let col = 0; col < bind.width; col += 1) {
+      constraint = add(
+        constraint,
+        mul(mul(betas[col], selector), sub(lde.state[col], bind.values[col])),
+      );
+    }
+  }
   const vanishing = piIter(LDE[lde.index].x, POSEIDON2_AIR_ROW_LOG - 1);
   if (vanishing === 0n) {
     return Object.freeze({ ok: false, reason: 'Poseidon2 AIR Z_H vanished at LDE zeta' });
@@ -1452,25 +1498,8 @@ export const verifyPoseidon2Air = ({ proof, expectedStatement }) => {
       reason: 'published Q is not C/Z of the committed LDE (absorb+snapshot) at zeta',
     });
   }
-  const snapshotRows = snapshotRowsFromLayout(proof.layout);
-  const snapshotPaths = proof.snapshotOpeningPaths ?? {};
-  for (const row of snapshotRows) {
-    const values = recovered.map((column) => column[row]);
-    if (!verifyRowMerkle({
-      root,
-      length: POSEIDON2_AIR_ROWS,
-      index: row,
-      values,
-      siblings: snapshotPaths[String(row)]?.siblings,
-    })) {
-      return Object.freeze({
-        ok: false,
-        reason: `masked interpolant row ${row} is not the committed snapshot`,
-      });
-    }
-  }
   const expectedContext = sha256(utf8(
-    `even-x-deep-v1\0${Buffer.from(statementBytes).toString('hex')}:${Buffer.from(proof.columnDigest).toString('hex')}:${Buffer.from(layoutDigest).toString('hex')}:${Buffer.from(root).toString('hex')}:${Buffer.from(proof.ldeMerkleRoot).toString('hex')}:${Buffer.from(openingsDigest).toString('hex')}:${ABSORB_SNAPSHOT_QUOTIENT_KIND}:${ABSORB_IN_Q_BIND}:nonce:${proof.friNonce ?? 0}`,
+    `even-x-deep-v1\0${Buffer.from(statementBytes).toString('hex')}:${Buffer.from(layoutDigest).toString('hex')}:${Buffer.from(proof.ldeMerkleRoot).toString('hex')}:${Buffer.from(openingsDigest).toString('hex')}:${ABSORB_SNAPSHOT_QUOTIENT_KIND}:${LDE_ONLY_BIND}:nonce:${proof.friNonce ?? 0}`,
   ));
   const got = proof.evenXDeep?.protocolContext;
   if (!(got instanceof Uint8Array) || got.some((byte, index) => byte !== expectedContext[index])) {
@@ -1495,11 +1524,11 @@ export const verifyPoseidon2Air = ({ proof, expectedStatement }) => {
   return Object.freeze({
     ok: true,
     kind: POSEIDON2_AIR_KIND,
-    labeledFriOfAir: false,
+    labeledFriOfAir: true,
     interpolantFri: false,
     residualObject: ABSORB_SNAPSHOT_QUOTIENT_KIND,
-    bind: ABSORB_IN_Q_BIND,
-    wall: TRACE_LDE_UNLINK_WALL,
+    bind: LDE_ONLY_BIND,
+    wall: null,
     transitions: proof.transitions,
     predicateBinds: proof.predicateBinds,
     snapshotRows: proof.snapshotRows,

@@ -44,6 +44,7 @@ test('one complete Circle-FRI proof verifies through every Merkle and fold layer
   assert.equal(verdict.betas.length, PARAMETERS.logDegreeBound);
   assert.equal(proof.finalCodeword.length, 1 << PARAMETERS.logBlowup);
   assert.equal(new Set(proof.finalCodeword).size, 1);
+  assert.equal(proof.dimensionGapLambda, 0n);
 });
 
 test('canonical proof codec round-trips with an exact measured byte length', () => {
@@ -53,7 +54,7 @@ test('canonical proof codec round-trips with an exact measured byte length', () 
   assert.equal(encoded.length, estimateCircleFriQueryProofBytes(PARAMETERS));
   assert.equal(
     createHash('sha256').update(encoded).digest('hex'),
-    'c836f5d0821da80af9fae0717c9488331dd3aef6b52e04c8e1c19b6e96fc4cf0',
+    'bff11c09dc44215fc684eaa33e3b7cbcf5b16ac5f8674a8fa3db6ec9c6455df8',
   );
   const decoded = decodeCircleFriQueryProof(encoded);
   assert.deepEqual(encodeCircleFriQueryProof(decoded), encoded);

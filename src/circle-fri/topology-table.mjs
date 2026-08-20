@@ -51,6 +51,18 @@ export const circleFriTopologyRecordBytes = (parameters) => (
   + parameters.logDegreeBound * CIRCLE_FRI_TOPOLOGY_ROUND_BYTES
 );
 
+/** Clustered q2 unlocking ships only the round-0 plan; later left/right are N-1-P. */
+export const circleFriCodecTopologyRecordBytes = (parameters) => {
+  const normalized = assertCircleFriParameters(parameters);
+  return normalized.logDegreeBound >= 8
+    ? CIRCLE_FRI_TOPOLOGY_RECORD_MAGIC.length
+      + 1
+      + encodeCircleFriParameters(normalized).length
+      + 4
+      + CIRCLE_FRI_TOPOLOGY_ROUND_BYTES
+    : circleFriTopologyRecordBytes(normalized);
+};
+
 export const encodeCircleFriTopologyRecord = ({ parameters, queryIndex, rounds }) => {
   const normalized = assertCircleFriParameters(parameters);
   if (!Number.isSafeInteger(queryIndex) || queryIndex < 0 || queryIndex >= normalized.domainLength) {

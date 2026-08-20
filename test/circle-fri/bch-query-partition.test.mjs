@@ -55,8 +55,7 @@ const fixtures = [[0, 1], [2, 3]].map((queryOrdinals) => createBchCircleFriQ2Bat
   protocolContext: CONTEXT,
 }));
 
-test('partition binds one digest without all-sibling INPUTBYTECODE and keeps density when witnesses differ', () => {
-  assert.notEqual(fixtures[0].encodedWitness.length, fixtures[1].encodedWitness.length);
+test('partition binds one digest without all-sibling INPUTBYTECODE and pads unlocking to the density floor', () => {
   const left = materializeBchCircleFriQ2PartitionP2sh32(fixtures[0]);
   const right = materializeBchCircleFriQ2PartitionP2sh32(fixtures[1]);
   assert.equal(left.unlockingBytecode.length, PARTITION_UNLOCKING_FLOOR);

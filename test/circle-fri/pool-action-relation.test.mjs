@@ -9,15 +9,16 @@ import {
 } from '../../src/circle-fri/pool-action-relation.mjs';
 
 import {
-  ABSORB_IN_Q_BIND,
+  LDE_ONLY_BIND,
   ABSORB_SNAPSHOT_QUOTIENT_KIND,
-  TRACE_LDE_UNLINK_WALL,
   forgeUnboundQuotientFri,
   measureGarbageMiddleQuotientWall,
   observePoseidon2Air,
+  observeSnapshot0Inversion,
   proveDummyZeroTableAir,
   proveGarbageAbsorbAir,
   proveHonestLdeGarbageTraceAbsorb,
+  provePoseidon2Air,
   verifyPoseidon2Air,
 } from '../../src/circle-fri/poseidon2-air.mjs';
 
@@ -47,19 +48,19 @@ test('honest deposit and withdrawal relation proofs accept', () => {
   assert.ok(depositProof.poseidon2Air.predicateBinds >= 4);
   assert.equal(depositProof.algebraicAir.statedInLane, false);
   assert.equal(depositProof.algebraicAir.statedInHoldingLane, true);
-  assert.equal(depositProof.algebraicAir.labeledFriOfAir, false);
+  assert.equal(depositProof.algebraicAir.labeledFriOfAir, true);
   assert.equal(depositProof.algebraicAir.productionLock, false);
-  assert.equal(depositProof.algebraicAir.wall, TRACE_LDE_UNLINK_WALL);
+  assert.equal(depositProof.algebraicAir.wall, null);
   assert.equal(depositProof.algebraicAir.interpolantFri, false);
   assert.ok(depositProof.poseidon2Air.transitions > 0);
   assert.equal(depositOk.statedInHoldingLane, true);
   assert.equal(depositOk.poseidon2Air.ok, true);
-  assert.equal(depositOk.poseidon2Air.labeledFriOfAir, false);
-  assert.equal(depositProof.poseidon2Air.labeledFriOfAir, false);
-  assert.equal(depositProof.poseidon2Air.wall, TRACE_LDE_UNLINK_WALL);
-  assert.match(depositProof.poseidon2Air.wall, /3 mixed LDE openings/u);
-  assert.equal(depositProof.poseidon2Air.bind, ABSORB_IN_Q_BIND);
-  assert.equal(depositProof.poseidon2Air.columnCoefficients.length, 16);
+  assert.equal(depositOk.poseidon2Air.labeledFriOfAir, true);
+  assert.equal(depositProof.poseidon2Air.labeledFriOfAir, true);
+  assert.equal(depositProof.poseidon2Air.wall, null);
+  assert.equal(depositProof.poseidon2Air.bind, LDE_ONLY_BIND);
+  assert.equal(depositProof.poseidon2Air.rowMerkleRoot, undefined);
+  assert.equal(depositProof.poseidon2Air.columnCoefficients, undefined);
   assert.equal(depositProof.poseidon2Air.hostColumnCoefficients, undefined);
   assert.equal(depositProof.poseidon2Air.residualObject, ABSORB_SNAPSHOT_QUOTIENT_KIND);
   assert.ok(depositProof.poseidon2Air.ldeOpenings);
@@ -68,17 +69,37 @@ test('honest deposit and withdrawal relation proofs accept', () => {
     rho: deposit.witness.rho,
   });
   assert.equal(publicLimbs.leaked, false);
+  const snapshot0Public = observeSnapshot0Inversion(depositProof.poseidon2Air, {
+    owner: deposit.witness.owner,
+    rho: deposit.witness.rho,
+  });
+  assert.equal(snapshot0Public.leaked, false);
+  const hostCols = provePoseidon2Air({
+    statement: deposit.statement,
+    poolInstanceId: hexToBytes(deposit.statement.poolInstanceIdHex, 'pool'),
+    owner: deposit.witness.owner,
+    rho: deposit.witness.rho,
+    includeHostColumns: true,
+  });
+  const snapshot0Host = observeSnapshot0Inversion(hostCols, {
+    owner: deposit.witness.owner,
+    rho: deposit.witness.rho,
+  });
+  assert.equal(snapshot0Host.leaked, true);
+  assert.equal(snapshot0Host.method, 'snapshot0-external-inverse');
   assert.ok((depositProof.poseidon2Air.quotientNonzero ?? 0) > 0);
-  assert.equal(depositProof.poseidon2Air.evenXDeep.parameters.logDegreeBound, 13);
-  assert.equal(depositProof.poseidon2Air.evenXDeep.zhR.onChain, false);
+  assert.equal(depositProof.poseidon2Air.evenXDeep.parameters.logDegreeBound, 14);
+  assert.equal(depositProof.poseidon2Air.evenXDeep.parameters.logBlowup, 2);
+  assert.equal(depositProof.poseidon2Air.evenXDeep.parameters.queryCount, 26);
+  assert.equal(depositProof.poseidon2Air.evenXDeep.zhR.onChain, true);
   const withoutSecrets = verifyPoseidon2Air({
     proof: depositProof.poseidon2Air,
     expectedStatement: deposit.statement,
   });
   assert.equal(withoutSecrets.ok, true, withoutSecrets.reason);
-  assert.equal(withoutSecrets.labeledFriOfAir, false);
-  assert.equal(withoutSecrets.wall, TRACE_LDE_UNLINK_WALL);
-  assert.equal(withoutSecrets.bind, ABSORB_IN_Q_BIND);
+  assert.equal(withoutSecrets.labeledFriOfAir, true);
+  assert.equal(withoutSecrets.wall, null);
+  assert.equal(withoutSecrets.bind, LDE_ONLY_BIND);
   const wrongStatement = verifyPoseidon2Air({
     proof: depositProof.poseidon2Air,
     expectedStatement: buildHonestWithdrawal().statement,
@@ -112,15 +133,16 @@ test('honest deposit and withdrawal relation proofs accept', () => {
       'Poseidon2-M31 four-predicate AIR absorb/squeeze + snapshot constraints vanish',
       'public residual-at-openings uses publicFelts.note',
       'AIR verify without owner||rho re-execution',
-      'absorb+snapshot Q of the LDE interpolant, opened at zeta',
+      'LDE-only commitment; last-snapshots from masked interpolant of that table',
+      'AIR-bound-to-the-table (LDE-only; TRACE merkle forbidden)',
     ],
-    failed: [TRACE_LDE_UNLINK_WALL],
+    failed: [],
     speculative: [],
     offChainForever: OFF_CHAIN_FOREVER,
     algebraicAir: {
       statedInLane: depositProof.algebraicAir.statedInLane,
       statedInHoldingLane: true,
-      labeledFriOfAir: false,
+      labeledFriOfAir: true,
       transitions: depositProof.poseidon2Air.transitions,
       commitmentScheme: depositProof.commitmentScheme,
       snapshotRows: depositProof.poseidon2Air.snapshotRows,
@@ -193,7 +215,7 @@ test('fake note, fake nullifier, and garbage coefficients reject', () => {
     expectedStatement: deposit.statement,
   });
   assert.equal(dummyRow0Verdict.ok, false);
-  assert.match(dummyRow0Verdict.reason ?? '', /residual-at-openings|snapshot|note|required|quotient/i);
+  assert.match(dummyRow0Verdict.reason ?? '', /residual-at-openings|snapshot|note|required|quotient|TRACE merkle|second tree/i);
   const garbageMiddle = measureGarbageMiddleQuotientWall({
     statement: deposit.statement,
     poolInstanceId: hexToBytes(deposit.statement.poolInstanceIdHex, 'pool'),
@@ -212,13 +234,13 @@ test('fake note, fake nullifier, and garbage coefficients reject', () => {
   assert.match(forgedQVerdict.reason ?? '', /published Q|DEEP|coefficient|quotient/i);
   assert.equal(forgedQVerdict.labeledFriOfAir ?? false, false);
   const tamperedCols = structuredClone(honestProof.poseidon2Air);
-  tamperedCols.columnCoefficients[0][8] = (tamperedCols.columnCoefficients[0][8] + 1n) % 2147483647n;
+  tamperedCols.columnCoefficients = Array.from({ length: 16 }, () => Array.from({ length: 1024 }, () => 0n));
   const tamperedColsVerdict = verifyPoseidon2Air({
     proof: tamperedCols,
     expectedStatement: deposit.statement,
   });
   assert.equal(tamperedColsVerdict.ok, false);
-  assert.match(tamperedColsVerdict.reason ?? '', /columnDigest|quotient|committed snapshot|absorb/i);
+  assert.match(tamperedColsVerdict.reason ?? '', /TRACE interpolant|snapshot0 leak|columnCoefficients/i);
   const garbageAbsorb = proveGarbageAbsorbAir({
     statement: deposit.statement,
     poolInstanceId: hexToBytes(deposit.statement.poolInstanceIdHex, 'pool'),
@@ -244,9 +266,9 @@ test('fake note, fake nullifier, and garbage coefficients reject', () => {
     proof: composed,
     expectedStatement: deposit.statement,
   });
-  assert.equal(composedVerdict.ok, true, composedVerdict.reason);
-  assert.equal(composedVerdict.labeledFriOfAir, false);
-  assert.equal(composedVerdict.wall, TRACE_LDE_UNLINK_WALL);
+  assert.equal(composedVerdict.ok, false, 'TRACE/LDE unlink must reject under LDE-only commitment');
+  assert.match(composedVerdict.reason ?? '', /TRACE merkle|second tree|LDE-only/i);
+  assert.equal(composedVerdict.labeledFriOfAir ?? false, false);
   console.log('AIR_RELATION_FALSIFIERS', {
     proven: [
       'fake note reject',
@@ -256,11 +278,9 @@ test('fake note, fake nullifier, and garbage coefficients reject', () => {
       'forgedRandomQ reject (even-x is not DEEP of published Q)',
       'tampered masked interpolant reject',
       'garbage absorb reject (no absorb-in-Q LDE)',
+      'honest LDE + garbage TRACE absorb reject (LDE-only forbids second tree)',
     ],
-    failed: [
-      'honest LDE + garbage TRACE absorb still verifies — 3 LDE openings',
-      TRACE_LDE_UNLINK_WALL,
-    ],
+    failed: [],
     speculative: [],
     fakeNote: fakeNoteVerdict.reason,
     fakeNullifier: fakeNf.reason,

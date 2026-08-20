@@ -39,6 +39,10 @@ import {
 } from './transcript.mjs';
 
 import {
+  fourToOnePartnerIndex,
+} from './query-proof.mjs';
+
+import {
   assertCircleFriParameters,
   buildCircleFriPublicTopologies,
   CIRCLE_FRI_QUERY_CANDIDATE_LABEL,
@@ -100,6 +104,19 @@ const deriveUniqueQueryIndices = (transcript, parameters) => {
   const indices = [];
   const seenFirstFoldPairs = new Set();
   for (let query = 0; query < parameters.queryCount; query += 1) {
+    if (query % 2 === 1 && parameters.queryCount % 2 === 0 && parameters.logDegreeBound >= 8) {
+      const partner = fourToOnePartnerIndex(
+        firstFoldPairIndex(indices[query - 1], parameters.domainLength),
+        parameters.domainLength,
+      );
+      const pairIndex = firstFoldPairIndex(partner, parameters.domainLength);
+      if (seenFirstFoldPairs.has(pairIndex)) {
+        throw new TypeError('4-to-1 partner collides with an earlier J-pair');
+      }
+      seenFirstFoldPairs.add(pairIndex);
+      indices.push(partner);
+      continue;
+    }
     for (;;) {
       const index = transcript.challengeIndex(CIRCLE_FRI_QUERY_CANDIDATE_LABEL, parameters.domainLength);
       const pairIndex = firstFoldPairIndex(index, parameters.domainLength);

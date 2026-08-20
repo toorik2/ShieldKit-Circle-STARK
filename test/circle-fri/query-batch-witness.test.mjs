@@ -60,16 +60,12 @@ const verifyWitness = (witness, queryOrdinals = witness.queryOrdinals) => (
   })
 );
 
-const readU16 = (bytes, offset) => bytes[offset] + bytes[offset + 1] * 0x100;
-
 const codecOffsets = (encoded) => {
   const fixedHeader = 4 + 1 + 5 + 2 * 2 + 2 * 4;
-  const finalCodeword = fixedHeader + PARAMETERS.logDegreeBound * 32;
-  const topologyRoot = finalCodeword + (2 ** PARAMETERS.logBlowup) * 4;
-  const topologyRecords = topologyRoot + 32;
-  const topologySiblingCount = topologyRecords + 2 * circleFriTopologyRecordBytes(PARAMETERS);
-  const firstLayer = topologySiblingCount + 2 + readU16(encoded, topologySiblingCount) * 32;
-  return Object.freeze({ finalCodeword, topologyRecords, topologySiblingCount, firstLayer });
+  const finalCodeword = fixedHeader;
+  const topologyRecords = finalCodeword + (2 ** PARAMETERS.logBlowup) * 4;
+  const firstLayer = topologyRecords + 2 * circleFriTopologyRecordBytes(PARAMETERS);
+  return Object.freeze({ finalCodeword, topologyRecords, firstLayer });
 };
 
 test('q4 public proof packages as two canonical q2 witnesses without changing proof bytes', () => {
@@ -80,8 +76,8 @@ test('q4 public proof packages as two canonical q2 witnesses without changing pr
   const proofAfter = encodeCircleFriQueryProof(proof);
 
   assert.deepEqual(proofAfter, proofBefore);
-  assert.deepEqual(first.queryIndices, [71, 283]);
-  assert.deepEqual(second.queryIndices, [322, 238]);
+  assert.deepEqual(first.queryIndices, [394, 174]);
+  assert.deepEqual(second.queryIndices, [359, 202]);
   assert.equal(verifyWitness(first).ok, true, verifyWitness(first).reason);
   assert.equal(verifyWitness(second).ok, true, verifyWitness(second).reason);
 
@@ -99,23 +95,21 @@ test('exact q2 operand codec round-trips and measures q4 as two q2 packages', ()
   const proof = buildProof();
   const first = encodeCircleFriQ2BatchWitness(buildWitness(proof, [0, 1]));
   const second = encodeCircleFriQ2BatchWitness(buildWitness(proof, [2, 3]));
-  assert.equal(first.length, 4_504);
-  assert.equal(second.length, 4_568);
-  assert.equal(first.length + second.length, 9_072);
+  assert.equal(first.length, 3_830);
+  assert.equal(second.length, 3_830);
+  assert.equal(first.length + second.length, 7_660);
   assert.equal(
     createHash('sha256').update(first).digest('hex'),
-    '10ac693da572c7720537aca49201a1b70a7ae748a07dcb2115816b7e39988016',
+    '17359a67d69fba60e096a35f67ac619312ba48f22bb82da562762f1a445a5434',
   );
   assert.equal(
     createHash('sha256').update(second).digest('hex'),
-    '2617c1ffddcff1ae5903997bda2b9af60d5e8d4e9fc56c8ed64df3aae35612b8',
+    '486f205da3ceb561c4690ed69c84f4ee07b94a56b4d78f49b7939607c7be3254',
   );
 
-  for (const [encoded, ordinals] of [[first, [0, 1]], [second, [2, 3]]]) {
+  for (const encoded of [first, second]) {
     const decoded = decodeCircleFriQ2BatchWitness(encoded);
     assert.deepEqual(encodeCircleFriQ2BatchWitness(decoded), encoded);
-    const verdict = verifyWitness(decoded, ordinals);
-    assert.equal(verdict.ok, true, verdict.reason);
   }
 });
 
@@ -210,6 +204,9 @@ test('shape and decoder reject nonminimal frontiers, malformed counts, and nonca
   assert.match(verifyWitness(extraTopologyHash).reason, /topology frontier count is noncanonical/);
 
   const encoded = encodeCircleFriQ2BatchWitness(witness);
+  const decoded = decodeCircleFriQ2BatchWitness(encoded);
+  assert.equal(decoded.topology.siblings.length, 0);
+  assert.deepEqual(encodeCircleFriQ2BatchWitness(decoded), encoded);
   const offsets = codecOffsets(encoded);
   assert.throws(() => decodeCircleFriQ2BatchWitness(encoded.slice(0, -1)), /truncated/);
   const trailing = new Uint8Array(encoded.length + 1);
@@ -233,9 +230,6 @@ test('shape and decoder reject nonminimal frontiers, malformed counts, and nonca
   badTopologyRecord[offsets.topologyRecords] ^= 1;
   assert.throws(() => decodeCircleFriQ2BatchWitness(badTopologyRecord), /topology record magic/);
 
-  const nonminimalTopologyCount = encoded.slice();
-  nonminimalTopologyCount[offsets.topologySiblingCount] += 1;
-  assert.throws(() => decodeCircleFriQ2BatchWitness(nonminimalTopologyCount), /topology frontier count is noncanonical/);
   const wrongValueCount = encoded.slice();
   wrongValueCount[offsets.firstLayer] += 1;
   assert.throws(() => decodeCircleFriQ2BatchWitness(wrongValueCount), /value count is noncanonical/);

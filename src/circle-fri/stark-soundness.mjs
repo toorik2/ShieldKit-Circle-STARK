@@ -23,10 +23,14 @@ export const SOUNDNESS_ROLES = Object.freeze([
   'B', 'D', 'E', 'F_batch', 'F_fri', 'F_deep', 'Q_deep', 'H_outer', 'grind', 'S_total',
 ]);
 
-/** 47-bit conjectural union cannot reach 128 without selecting or dropping queries. */
+/** Conjectural unselected union of the shipped q=26 clustered object. v2 cannot express 128-bit-pass. */
 export const SOUNDNESS_128_WALL = [
-  'Unselected S_total floor is 47 bits (3/2^49). Reaching 128 requires selecting a tuple',
-  'or dropping queries. Neither is allowed. 36×4=144 is not this union. Not production.',
+  'Unselected conjectural S_total floor is 255 bits (FRI (2^16/M31^2)^(q/2) at q=26 plus HASH256 2^-256). HASH256 limits the union; the FRI term is 597 bits.',
+  'Proven unique-decoding on this blowup-4 domain is (1/4)^k = 2^-26 (k=13 independent 4-to-1 clusters). That proven term is not the union.',
+  '4-to-1 derived odd queries so k=13 independent first-fold pairs. Domain 2^16, blowup 4, π-pair Merkle later layers. Fold β sampled in CM31 on logDegreeBound≥8.',
+  'AIR/DEEP are derivation-only on FRI-of-Q; parser is fail-closed on HASH256; no grind.',
+  'HLP24 Theorem 6 list-decoding ε_C+α^k floors to 10 bits on CM31=M31^2 (L=1, m=3, r=14; commit-phase ~38 bits, query α^13 ~10 bits). Protocol 1 λ is absorbed as 0 (FFT-space encoding). Neither unique-decoding 2^-26 nor HLP24 10 bits is 128. Unique-decoding 128 needs k≥64. HLP24 128 needs s≥165. q=28 density-miss (cap 5_711_200 vs ~6.15M). logBlowup=3 redeem 5220. Independent k=q encoded 7700 misses 100k.',
+  'Not a selected tuple. Queries were not dropped. 36×4=144 is not this union. HASH256 is not F_fri.',
 ].join(' ');
 
 export const SOUNDNESS_EVENT_FAMILIES = Object.freeze([
@@ -70,14 +74,14 @@ export const computeStarkSoundnessArtifactDigests = () => {
     reimWall: 'circle-deep-re-im-v1',
     algebraicAir: 'poseidon2-m31-four-predicate-air-v1',
     residualObject: 'poseidon2-m31-absorb-snapshot-quotient-v1',
-    bind: 'absorb-in-q-lde-v1',
+    bind: 'lde-only-commitment-v1',
     fri: 'j-then-pi-query-v3',
     relation: 'pool-action-hash256-merkle-v1',
     zk: 'zh-r-even-x-deep-v1',
-    partition: 'air-absorb-in-q-even-x',
-    logDegreeBound: 13,
-    logBlowup: 3,
-    queryCount: 4,
+    partition: 'air-lde-only-even-x',
+    logDegreeBound: 14,
+    logBlowup: 2,
+    queryCount: 26,
   })));
   const sourceCommit = sha256hex(Buffer.concat([
     readNeighbor(SOUNDNESS_EVEN_X_NEIGHBORS.deep),

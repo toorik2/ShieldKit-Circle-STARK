@@ -271,8 +271,8 @@ export const encodeStateHex = (fields) => bytesToHex(encodePoolState(stateObject
 export const provePoolActionRelation = ({
   statement,
   witness,
-  logBlowup = 3,
-  queryCount = 2,
+  logBlowup = 2,
+  queryCount = 26,
   friNonce = 0,
   includeColumn = true,
   includeAir = true,
@@ -299,9 +299,9 @@ export const provePoolActionRelation = ({
   const algebraic = Object.freeze({
     ...algebraicAir,
     labeledFriOfAir: poseidon2Air?.labeledFriOfAir === true,
-    statedInHoldingLane: poseidon2Air?.residualObject === 'poseidon2-m31-absorb-snapshot-quotient-v1',
+    statedInHoldingLane: poseidon2Air?.labeledFriOfAir === true,
     interpolantFri: false,
-    wall: poseidon2Air?.wall ?? algebraicAir.wall,
+    wall: poseidon2Air?.labeledFriOfAir === true ? null : (poseidon2Air?.wall ?? algebraicAir.wall),
     airKind: poseidon2Air?.kind ?? null,
     bind: poseidon2Air?.bind ?? null,
     transitions: poseidon2Air?.transitions ?? null,
@@ -360,7 +360,7 @@ export const verifyPoolActionRelation = ({ proof, expectedStatement, witness }) 
       poseidon2Air: airProof,
       commitmentScheme: ALGEBRAIC_COMMITMENT_SCHEME,
       statedInLane: false,
-      statedInHoldingLane: airProof.residualObject === 'poseidon2-m31-absorb-snapshot-quotient-v1',
+      statedInHoldingLane: airProof.labeledFriOfAir === true,
     });
   } catch (error) {
     return Object.freeze({

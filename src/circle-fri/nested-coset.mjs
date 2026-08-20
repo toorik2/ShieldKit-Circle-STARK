@@ -14,6 +14,78 @@ import {
 } from './cfft.mjs';
 
 export const NESTED_COSET_KIND = 'standard-coset-nesting-v1';
+export const NESTED_JPAIR_KIND = 'lde-j-pair-subset-v1';
+
+const tryIfft = (circleIFFT, domain) => {
+  try {
+    circleIFFT(domain, domain.map((_, index) => BigInt((index % 251) + 1)));
+    return 'ok';
+  } catch (error) {
+    return error instanceof Error ? error.message : String(error);
+  }
+};
+
+/**
+ * New family: 1024-point subsets of standardCoset(logLde) that are nested
+ * as sets. Not standardCoset(n)∩standardCoset(n+k). Measured on 10/14:
+ * stride subsets fail J-fiber; first J-pairs fail π-fiber; x(H)∩x(LDE)=0/512.
+ */
+export const measureNestedLdeSubset = ({
+  logTrace = 10,
+  logBlowup = 4,
+} = {}) => {
+  const H = buildStandardCoset(logTrace);
+  const D = buildStandardCoset(logTrace + logBlowup);
+  const stride = D.length / H.length;
+  const hXs = new Set(H.map((point) => point.x.toString()));
+  const dByX = new Map();
+  for (const point of D) {
+    const key = point.x.toString();
+    const fiber = dByX.get(key) ?? [];
+    fiber.push(point);
+    dByX.set(key, fiber);
+  }
+  const uniqueHXsInD = [...hXs].filter((x) => dByX.has(x)).length;
+  const stride0 = [];
+  for (let index = 0; index < D.length; index += stride) stride0.push(D[index]);
+  const firstPairs = [];
+  const seen = new Set();
+  for (const point of D) {
+    const key = point.x.toString();
+    if (seen.has(key)) continue;
+    const fiber = dByX.get(key);
+    if (fiber?.length === 2) {
+      firstPairs.push(fiber[0], fiber[1]);
+      seen.add(key);
+    }
+    if (firstPairs.length >= H.length) break;
+  }
+  const strideIfft = tryIfft(circleIFFT, stride0);
+  const pairIfft = tryIfft(circleIFFT, firstPairs);
+  const nestedCfft = strideIfft === 'ok' || pairIfft === 'ok';
+  return Object.freeze({
+    kind: NESTED_JPAIR_KIND,
+    logTrace,
+    logBlowup,
+    uniqueHXs: hXs.size,
+    uniqueHXsInD,
+    strideSize: stride0.length,
+    strideIfft,
+    pairSize: firstPairs.length,
+    pairIfft,
+    nestedCfft,
+    wall: nestedCfft
+      ? null
+      : [
+        `lde-j-pair-subset-v1 on standardCoset(${logTrace}+${logBlowup}):`,
+        `x(H)∩x(LDE)=${uniqueHXsInD}/${hXs.size};`,
+        `stride-${stride} IFFT: ${strideIfft};`,
+        `first-${H.length}-J-pairs IFFT: ${pairIfft}.`,
+        'Nested as a set, not a CFFT domain. Z_H·R cannot sit on nested H⊂LDE.',
+        'Not 0/64, not 0/1024 restated.',
+      ].join(' '),
+  });
+};
 
 export const measureNestedTraceCoset = ({
   logTrace = 6,
