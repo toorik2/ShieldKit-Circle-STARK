@@ -92,6 +92,10 @@ test('honest deposit and withdrawal relation proofs accept', () => {
   assert.equal(depositProof.poseidon2Air.evenXDeep.parameters.logBlowup, 3);
   assert.equal(depositProof.poseidon2Air.evenXDeep.parameters.queryCount, 90);
   assert.equal(depositProof.poseidon2Air.evenXDeep.zhR.onChain, true);
+  assert.match(depositProof.poseidon2Air.evenXDeep.zhR.reason, /redeem 5015/u);
+  assert.match(depositProof.poseidon2Air.evenXDeep.zhR.reason, /unlocking 9000\/6400/u);
+  assert.match(depositProof.poseidon2Air.evenXDeep.zhR.reason, /tx 99265/u);
+  assert.doesNotMatch(depositProof.poseidon2Air.evenXDeep.zhR.reason, /4934|4122|Libauth 24\/24/u);
   const withoutSecrets = verifyPoseidon2Air({
     proof: depositProof.poseidon2Air,
     expectedStatement: deposit.statement,
@@ -269,6 +273,11 @@ test('fake note, fake nullifier, and garbage coefficients reject', () => {
   assert.equal(composedVerdict.ok, false, 'TRACE/LDE unlink must reject under LDE-only commitment');
   assert.match(composedVerdict.reason ?? '', /TRACE merkle|second tree|LDE-only/i);
   assert.equal(composedVerdict.labeledFriOfAir ?? false, false);
+  assert.equal(
+    composedVerdict.ok === false,
+    honestProof.poseidon2Air.labeledFriOfAir === true,
+    'proveHonestLdeGarbageTraceAbsorb rejects iff labeledFriOfAir',
+  );
   console.log('AIR_RELATION_FALSIFIERS', {
     proven: [
       'fake note reject',

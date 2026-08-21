@@ -32,6 +32,10 @@ const runPartition = (label, bundle) => {
   assert.match(evaluated.envelope.miss.bindingConstraint, /queries were not dropped/u);
   assert.equal(evaluated.proof.evenXDeep.zhR?.kind, 'zh-r-even-x-deep-v1');
   assert.equal(evaluated.proof.poseidon2Air.evenXDeep.zhR.onChain, true);
+  assert.equal(evaluated.redeemBytes, 5015);
+  assert.equal(evaluated.wires.transactionBytes, 99265);
+  assert.equal(evaluated.unlockingBytes[0], 9000);
+  assert.ok(evaluated.unlockingBytes.slice(1).every((bytes) => bytes === 6400));
   assert.equal(evaluated.proof.poseidon2Air.evenXDeep.parameters.logDegreeBound, 14);
   assert.equal(evaluated.proof.poseidon2Air.evenXDeep.parameters.logBlowup, 3);
   assert.equal(evaluated.proof.poseidon2Air.evenXDeep.parameters.queryCount, 90);
