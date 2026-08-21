@@ -20,6 +20,13 @@ node_modules/
 .atlas-cycle-stage-*
 Telegram_export/
 research-lanes/bch-shielded-pool-design/sources/telegram-2026-07-29/
+# Telegram-derived source images / chat artifacts — never publish
+assets/*.jpg
+assets/*.jpeg
+assets/*.png
+assets/*.webp
+**/*.jpg
+**/*.jpeg
 __pycache__/
 *.py[cod]
 .pytest_cache/
