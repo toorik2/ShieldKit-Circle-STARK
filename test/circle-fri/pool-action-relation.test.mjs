@@ -89,8 +89,8 @@ test('honest deposit and withdrawal relation proofs accept', () => {
   assert.equal(snapshot0Host.method, 'snapshot0-external-inverse');
   assert.ok((depositProof.poseidon2Air.quotientNonzero ?? 0) > 0);
   assert.equal(depositProof.poseidon2Air.evenXDeep.parameters.logDegreeBound, 14);
-  assert.equal(depositProof.poseidon2Air.evenXDeep.parameters.logBlowup, 2);
-  assert.equal(depositProof.poseidon2Air.evenXDeep.parameters.queryCount, 26);
+  assert.equal(depositProof.poseidon2Air.evenXDeep.parameters.logBlowup, 3);
+  assert.equal(depositProof.poseidon2Air.evenXDeep.parameters.queryCount, 90);
   assert.equal(depositProof.poseidon2Air.evenXDeep.zhR.onChain, true);
   const withoutSecrets = verifyPoseidon2Air({
     proof: depositProof.poseidon2Air,

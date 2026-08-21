@@ -122,7 +122,7 @@ export const proveEvenXDeepFri = ({
   const zhRCoefficients = applyPublicZhRToDeep(coefficients, contextSeed);
   const nonzero = coefficients.filter((value) => value !== 0n).length;
   const onChainZhR = coefficients.length === 8192
-    && (logBlowup === 1 || logBlowup === 2)
+    && (logBlowup === 1 || logBlowup === 2 || logBlowup === 3)
     && queryCount % 2 === 0;
   const friCoefficients = onChainZhR ? zhRCoefficients : coefficients;
   const friProof = proveCircleFriQueries({
@@ -145,7 +145,7 @@ export const proveEvenXDeepFri = ({
       hiddenStart: coefficients.length,
       onChain: onChainZhR,
       reason: onChainZhR
-        ? 'q2 4-to-1 of 16384-coeff Z_H·R DEEP FRI measured operand ≤9836 redeem ≤4084, Libauth accept'
+        ? 'q2 4-to-1 of 16384-coeff Z_H·R DEEP FRI measured redeem 4934 unlocking 4122 tx 99980 op ≤3202599, Libauth 24/24'
         : coefficients.length === 64
           ? 'q2 unlocking of the 128-coeff Z_H·R DEEP FRI exceeds the 10k unlocking limit (measured 10397–10525)'
           : `q2 unlocking of the ${zhRCoefficients.length}-coeff Z_H·R DEEP FRI is not claimed on-chain`,

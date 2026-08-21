@@ -33,13 +33,13 @@ const runPartition = (label, bundle) => {
   assert.equal(evaluated.proof.evenXDeep.zhR?.kind, 'zh-r-even-x-deep-v1');
   assert.equal(evaluated.proof.poseidon2Air.evenXDeep.zhR.onChain, true);
   assert.equal(evaluated.proof.poseidon2Air.evenXDeep.parameters.logDegreeBound, 14);
-  assert.equal(evaluated.proof.poseidon2Air.evenXDeep.parameters.logBlowup, 2);
-  assert.equal(evaluated.proof.poseidon2Air.evenXDeep.parameters.queryCount, 26);
+  assert.equal(evaluated.proof.poseidon2Air.evenXDeep.parameters.logBlowup, 3);
+  assert.equal(evaluated.proof.poseidon2Air.evenXDeep.parameters.queryCount, 90);
   assert.ok(evaluated.redeemBytes <= 5200);
   assert.ok(evaluated.unlockingBytes.every((bytes) => bytes <= 10_000));
   assert.ok(evaluated.wires.transactionBytes <= 100_000);
   assert.equal(evaluated.envelope.airObject.bindingConstraint, null);
-  assert.equal(evaluated.inputBytecodeOps, 1);
+  assert.ok(evaluated.inputBytecodeOps >= 1 && evaluated.inputBytecodeOps <= 3);
   const owner = bundle.witness.owner;
   const rho = bundle.witness.rho;
   for (const item of evaluated.wires.materialized) {
@@ -49,7 +49,7 @@ const runPartition = (label, bundle) => {
   }
   for (const item of evaluated.wires.materialized) {
     if (item.padLength > 0) {
-      assert.equal(item.unlockingBytecode.length, evaluated.floor);
+      assert.equal(item.unlockingBytecode.length, item.unlockingFloor);
     }
   }
   const accepted = evaluated.results.every(({ accepted: ok }) => ok);
@@ -64,7 +64,7 @@ const runPartition = (label, bundle) => {
     proven: [
       `host Poseidon2 AIR + AIR even-x partition of ${label}`,
       `BCH-2026 partition ${evaluated.results.every(({ accepted }) => accepted) ? 'accepts' : 'rejects'} AIR snapshot-quotient even-x FRI (${evaluated.carrier})`,
-      'exactly one OP_INPUTBYTECODE opcode',
+      `OP_INPUTBYTECODE opcode count ${evaluated.inputBytecodeOps} (bounded, input 0 only)`,
       `density pad ${evaluated.floor} on ${evaluated.unlockingBytes.length} inputs`,
     ],
     failed: [

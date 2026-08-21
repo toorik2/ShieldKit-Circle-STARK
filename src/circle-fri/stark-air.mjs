@@ -42,6 +42,7 @@ import {
 
 import {
   proveCircleFriQueries,
+  retryCircleFriQueryCollision,
   verifyCircleFriQueries,
 } from './query-proof.mjs';
 
@@ -251,24 +252,28 @@ export const provePoolActionAirDeep = ({
     deepFriWall = error instanceof Error ? error.message : String(error);
   }
   const evenCoefficients = coefficients.slice(0, TRACE_LEN / 2);
-  const evenXDeep = proveEvenXDeepFri({
+  const evenXDeep = retryCircleFriQueryCollision((nonce) => proveEvenXDeepFri({
     evenCoefficients,
     ldeDomain,
     zetaX: zeta.point.x,
     logBlowup: parameters.logBlowup,
     queryCount: parameters.queryCount,
-    contextSeed: `${Buffer.from(bound.statementBytes).toString('hex')}:${friNonce}`,
-  });
-  const friContext = relationFriContext(bound.statementBytes, friNonce);
-  const friProof = proveCircleFriQueries({
-    coefficients,
-    logBlowup: parameters.logBlowup,
-    queryCount: parameters.queryCount,
-    protocolContext: friContext,
-  });
+    contextSeed: `${Buffer.from(bound.statementBytes).toString('hex')}:${nonce}`,
+  }), { startNonce: friNonce });
+  const provedFri = retryCircleFriQueryCollision((nonce) => {
+    const friContext = relationFriContext(bound.statementBytes, nonce);
+    const friProof = proveCircleFriQueries({
+      coefficients,
+      logBlowup: parameters.logBlowup,
+      queryCount: parameters.queryCount,
+      protocolContext: friContext,
+    });
+    return { friContext, friProof, friNonce: nonce };
+  }, { startNonce: friNonce });
+  const { friContext, friProof } = provedFri;
   return Object.freeze({
     kind: STARK_COMPONENT_KIND,
-    friNonce,
+    friNonce: provedFri.friNonce,
     friContext,
     deepStrategy: CIRCLE_DEEP_STRATEGY,
     deepFriCompatible: deepFriWall === null,

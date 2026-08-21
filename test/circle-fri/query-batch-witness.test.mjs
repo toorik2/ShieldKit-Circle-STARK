@@ -100,11 +100,11 @@ test('exact q2 operand codec round-trips and measures q4 as two q2 packages', ()
   assert.equal(first.length + second.length, 7_660);
   assert.equal(
     createHash('sha256').update(first).digest('hex'),
-    '17359a67d69fba60e096a35f67ac619312ba48f22bb82da562762f1a445a5434',
+    'dd35ea85027a6cb1f12db97f96420d58e535caa742ae5e21676d4b92c0d2e1e6',
   );
   assert.equal(
     createHash('sha256').update(second).digest('hex'),
-    '486f205da3ceb561c4690ed69c84f4ee07b94a56b4d78f49b7939607c7be3254',
+    '8ffef375cdfff4cd966b5120519a34b677b04c590b2c75341c8ac13d9d65fa35',
   );
 
   for (const encoded of [first, second]) {

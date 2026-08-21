@@ -50,6 +50,10 @@ import {
 } from './deep-pi-native.mjs';
 
 import {
+  retryCircleFriQueryCollision,
+} from './query-proof.mjs';
+
+import {
   publicFeltsFromStatement,
 } from './stark-air.mjs';
 
@@ -826,8 +830,8 @@ export const provePoseidon2Air = ({
   owner,
   rho,
   amountFelt = 10_000_000n,
-  logBlowup = 2,
-  queryCount = 26,
+  logBlowup = 3,
+  queryCount = 90,
   friNonce = 0,
   includeHostColumns = false,
 }) => {
@@ -862,39 +866,44 @@ export const provePoseidon2Air = ({
   const openingsDigest = sha256(utf8(JSON.stringify(openings, (_, value) => (
     typeof value === 'bigint' ? value.toString() : value
   ))));
-  const contextSeed = [
+  const seedPrefix = [
     Buffer.from(statementBytes).toString('hex'),
     Buffer.from(layoutDigest).toString('hex'),
     Buffer.from(ldeTree.root).toString('hex'),
     Buffer.from(openingsDigest).toString('hex'),
     ABSORB_SNAPSHOT_QUOTIENT_KIND,
     LDE_ONLY_BIND,
-    `nonce:${friNonce}`,
-  ].join(':');
-  const zetaIndex = ldeZetaIndex(contextSeed);
-  const nextIndex = (zetaIndex + stride) % ldeLen;
-  const prevIndex = (zetaIndex - stride + ldeLen) % ldeLen;
-  const ldeOpenings = Object.freeze({
-    index: zetaIndex,
-    nextIndex,
-    prevIndex,
-    state: Object.freeze(ldeRows[zetaIndex].slice()),
-    next: Object.freeze(ldeRows[nextIndex].slice()),
-    prev: Object.freeze(ldeRows[prevIndex].slice()),
-    path: openWideMerkle(ldeTree, zetaIndex),
-    nextPath: openWideMerkle(ldeTree, nextIndex),
-    prevPath: openWideMerkle(ldeTree, prevIndex),
-  });
+  ];
   const quotientDomain = buildStandardCoset(Math.log2(SNAPSHOT_QUOTIENT_DEGREE));
-  const evenXDeep = proveEvenXDeepFri({
-    evenCoefficients: quotient.coefficients.slice(0, SNAPSHOT_QUOTIENT_DEGREE / 2),
-    ldeDomain: buildStandardCoset(Math.log2(SNAPSHOT_QUOTIENT_DEGREE) + logBlowup),
-    zetaX: quotientDomain[1].x,
-    logBlowup,
-    queryCount,
-    contextSeed,
-    degreeBound: SNAPSHOT_QUOTIENT_DEGREE,
-  });
+  const proved = retryCircleFriQueryCollision((nonce) => {
+    const contextSeed = [...seedPrefix, `nonce:${nonce}`].join(':');
+    const zetaIndex = ldeZetaIndex(contextSeed);
+    const nextIndex = (zetaIndex + stride) % ldeLen;
+    const prevIndex = (zetaIndex - stride + ldeLen) % ldeLen;
+    const ldeOpenings = Object.freeze({
+      index: zetaIndex,
+      nextIndex,
+      prevIndex,
+      state: Object.freeze(ldeRows[zetaIndex].slice()),
+      next: Object.freeze(ldeRows[nextIndex].slice()),
+      prev: Object.freeze(ldeRows[prevIndex].slice()),
+      path: openWideMerkle(ldeTree, zetaIndex),
+      nextPath: openWideMerkle(ldeTree, nextIndex),
+      prevPath: openWideMerkle(ldeTree, prevIndex),
+    });
+    const evenXDeep = proveEvenXDeepFri({
+      evenCoefficients: quotient.coefficients.slice(0, SNAPSHOT_QUOTIENT_DEGREE / 2),
+      ldeDomain: buildStandardCoset(Math.log2(SNAPSHOT_QUOTIENT_DEGREE) + logBlowup),
+      zetaX: quotientDomain[1].x,
+      logBlowup,
+      queryCount,
+      contextSeed,
+      degreeBound: SNAPSHOT_QUOTIENT_DEGREE,
+    });
+    return { contextSeed, ldeOpenings, evenXDeep, friNonce: nonce };
+  }, { startNonce: friNonce });
+  const { ldeOpenings, evenXDeep } = proved;
+  const friNonceUsed = proved.friNonce;
   const publicProof = {
     kind: POSEIDON2_AIR_KIND,
     commitmentScheme: ALGEBRAIC_COMMITMENT_SCHEME,
@@ -917,7 +926,7 @@ export const provePoseidon2Air = ({
     compositionNonzero: evenXDeep.nonzero,
     quotientNonzero: quotient.nonzero,
     quotientCoefficients: Object.freeze(quotient.coefficients.slice()),
-    friNonce,
+    friNonce: friNonceUsed,
   };
   if (includeHostColumns) {
     const domain = buildStandardCoset(POSEIDON2_AIR_ROW_LOG);

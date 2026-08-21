@@ -271,8 +271,8 @@ export const encodeStateHex = (fields) => bytesToHex(encodePoolState(stateObject
 export const provePoolActionRelation = ({
   statement,
   witness,
-  logBlowup = 2,
-  queryCount = 26,
+  logBlowup = 3,
+  queryCount = 90,
   friNonce = 0,
   includeColumn = true,
   includeAir = true,
@@ -282,7 +282,7 @@ export const provePoolActionRelation = ({
     statement,
     witness: { rho: witness.rho, owner: witness.owner, amountFelt: TICKET_SATS },
     logBlowup,
-    queryCount,
+    queryCount: 2,
     friNonce,
   });
   const algebraicAir = attemptAlgebraicHashAir();
@@ -295,6 +295,7 @@ export const provePoolActionRelation = ({
     amountFelt: TICKET_SATS,
     logBlowup,
     queryCount,
+    friNonce,
   }) : null;
   const algebraic = Object.freeze({
     ...algebraicAir,

@@ -43,14 +43,17 @@ import {
 
 import {
   CIRCLE_FRI_DIMENSION_GAP_LAMBDA_LABEL,
+  CIRCLE_FRI_MERKLE_STRIDE,
   CIRCLE_FRI_QUERY_CANDIDATE_LABEL,
   assertCircleFriParameters,
   circleFriUsesCm31Fold,
+  circleFriUsesFourToOne,
   encodeCircleFriDimensionGapLambda,
   encodeCircleFriParameters,
 } from './query-proof.mjs';
 
 import {
+  QUERY_BATCH_WITNESS_VERSION,
   encodeCircleFriQ2BatchWitness,
   verifyCircleFriQ2BatchWitness,
 } from './query-batch-witness.mjs';
@@ -60,12 +63,14 @@ import {
   CIRCLE_FRI_TRANSCRIPT_DOMAIN,
   absorbCircleFriTranscriptState,
   initializeCircleFriTranscriptState,
+  sampleCircleFriTranscriptCm31,
   sampleCircleFriTranscriptState,
 } from './transcript.mjs';
 
 import {
   CIRCLE_FRI_TOPOLOGY_LEAF_DOMAIN,
   buildCircleFriTopologyTable,
+  clusteredTopologyRoot,
   circleFriCodecTopologyRecordBytes,
   circleFriTopologyRecordBytes,
 } from './topology-table.mjs';
@@ -117,6 +122,7 @@ const OP = Object.freeze({
   OP_2DUP: 0x6e,
   OP_2OVER: 0x70,
   OP_2SWAP: 0x72,
+  OP_DEPTH: 0x74,
   OP_DROP: 0x75,
   OP_DUP: 0x76,
   OP_NIP: 0x77,
@@ -166,6 +172,9 @@ const FUNCTION = Object.freeze({
   LOOKUP4: 7,
   MULTIPROOF4: 8,
   HASHED_MULTIPROOF2: 9,
+  HASHED_MULTIPROOF4: 22,
+  VERIFY_CLUSTER: 23,
+  TRANSCRIPT_UNIQUE: 24,
   SORT4: 10,
   VERIFY_LAYER: 11,
   VERIFY_LAYER2: 12,
@@ -355,7 +364,7 @@ const FOLD_M31_TO_CM31_FUNCTION = compileScript([
   ...invokeM31Reduce(),
   OP.OP_TOALTSTACK,
   OP.OP_SUB,
-  ...invokeM31WrapSub(),
+  ...m31WrapSub(),
   OP.OP_FROMALTSTACK,
   OP.OP_FROMALTSTACK,
   OP.OP_ROT,
@@ -405,7 +414,7 @@ const FOLD_CM31_FUNCTION = compileScript([
   ...pushNumber(3),
   OP.OP_PICK,
   OP.OP_SUB,
-  ...invokeM31WrapSub(),
+  ...m31WrapSub(),
   OP.OP_OVER,
   OP.OP_MUL,
   ...m31Reduce(),
@@ -415,7 +424,7 @@ const FOLD_CM31_FUNCTION = compileScript([
   ...pushNumber(2),
   OP.OP_PICK,
   OP.OP_SUB,
-  ...invokeM31WrapSub(),
+  ...m31WrapSub(),
   OP.OP_OVER,
   OP.OP_MUL,
   ...m31Reduce(),
@@ -429,43 +438,39 @@ const FOLD_CM31_FUNCTION = compileScript([
   OP.OP_FROMALTSTACK,
   OP.OP_FROMALTSTACK,
   OP.OP_FROMALTSTACK,
-  ...pushNumber(1),
-  OP.OP_PICK,
+  OP.OP_OVER,
   ...pushNumber(5),
   OP.OP_PICK,
   OP.OP_MUL,
-  ...invokeM31Reduce(),
+  ...m31Reduce(),
   ...pushNumber(3),
   OP.OP_PICK,
   OP.OP_ADD,
-  ...invokeM31Reduce(),
-  ...pushNumber(1),
-  OP.OP_PICK,
+  ...m31Reduce(),
+  OP.OP_OVER,
   ...pushNumber(7),
   OP.OP_PICK,
   OP.OP_MUL,
-  ...invokeM31Reduce(),
+  ...m31Reduce(),
   OP.OP_SUB,
-  ...invokeM31WrapSub(),
+  ...m31WrapSub(),
   OP.OP_TOALTSTACK,
-  ...pushNumber(1),
-  OP.OP_PICK,
+  OP.OP_OVER,
   ...pushNumber(6),
   OP.OP_PICK,
   OP.OP_MUL,
-  ...invokeM31Reduce(),
+  ...m31Reduce(),
   ...pushNumber(4),
   OP.OP_PICK,
   OP.OP_ADD,
-  ...invokeM31Reduce(),
-  ...pushNumber(1),
-  OP.OP_PICK,
+  ...m31Reduce(),
+  OP.OP_OVER,
   ...pushNumber(6),
   OP.OP_PICK,
   OP.OP_MUL,
-  ...invokeM31Reduce(),
+  ...m31Reduce(),
   OP.OP_ADD,
-  ...invokeM31Reduce(),
+  ...m31Reduce(),
   OP.OP_NIP,
   OP.OP_NIP,
   OP.OP_NIP,
@@ -798,8 +803,7 @@ const HASHED_MULTIPROOF2_FUNCTION = compileScript([
   OP.OP_ROLL,
   OP.OP_TOALTSTACK,
   OP.OP_TOALTSTACK,
-  OP.OP_1,
-  OP.OP_ROLL,
+  OP.OP_SWAP,
   OP.OP_TOALTSTACK,
   OP.OP_TOALTSTACK,
   OP.OP_FROMALTSTACK,
@@ -808,20 +812,8 @@ const HASHED_MULTIPROOF2_FUNCTION = compileScript([
   OP.OP_FROMALTSTACK,
   OP.OP_FROMALTSTACK,
 
-  // Adjacent π-pair Merkle leaves (2p, 2p+1) are siblings at layer 0.
-  // Bit-complements still meet as the root's children.
-  ...currentIndicesAreSiblings2(),
-  OP.OP_IF,
-  OP.OP_ELSE,
-  OP.OP_BEGIN,
-  ...stepBothPaths2(),
-  OP.OP_FROMALTSTACK,
-  OP.OP_2,
-  OP.OP_DIV,
-  OP.OP_TOALTSTACK,
-  ...currentIndicesAreSiblings2(),
-  OP.OP_UNTIL,
-  OP.OP_ENDIF,
+  // π-pair leaves are (2p, 2p+1) siblings. A forged non-adjacent pair
+  // hashes to the wrong parent and fails the root check below.
   ...pushNumber(4),
   OP.OP_ROLL,
   ...pushNumber(3),
@@ -839,8 +831,6 @@ const HASHED_MULTIPROOF2_FUNCTION = compileScript([
   OP.OP_FROMALTSTACK,
   OP.OP_2,
   OP.OP_DIV,
-  OP.OP_TOALTSTACK,
-  OP.OP_FROMALTSTACK,
   OP.OP_DUP,
   OP.OP_TOALTSTACK,
   OP.OP_1,
@@ -848,12 +838,6 @@ const HASHED_MULTIPROOF2_FUNCTION = compileScript([
   OP.OP_IF,
   OP.OP_ELSE,
   OP.OP_BEGIN,
-  ...pushNumber(2),
-  OP.OP_ROLL,
-  ...pushNumber(2),
-  OP.OP_ROLL,
-  ...pushNumber(2),
-  OP.OP_ROLL,
   ...pushNumber(32),
   OP.OP_SPLIT,
   OP.OP_TOALTSTACK,
@@ -913,15 +897,9 @@ const derivePublicProofDigest = ({ witness, parameters, protocolContext }) => {
   for (let round = 0; round < parameters.logDegreeBound; round += 1) {
     state = absorbCircleFriTranscriptState(state, `fri-layer-root-${round}`, witness.roots[round]);
     if (circleFriUsesCm31Fold(parameters)) {
-      state = sampleCircleFriTranscriptState({
+      state = sampleCircleFriTranscriptCm31({
         state,
-        label: `fri-fold-beta-${round}-re`,
-        upperBound: Number(M31_MODULUS),
-      }).state;
-      state = sampleCircleFriTranscriptState({
-        state,
-        label: `fri-fold-beta-${round}-im`,
-        upperBound: Number(M31_MODULUS),
+        label: `fri-fold-beta-${round}`,
       }).state;
     } else {
       state = sampleCircleFriTranscriptState({
@@ -966,23 +944,24 @@ export const createBchCircleFriQ2BatchFixture = ({
     queryOrdinals: [batchOrdinal * BATCH_SIZE, batchOrdinal * BATCH_SIZE + 1],
   });
   require(verdict.ok, `q2 witness must verify before BCH lowering: ${verdict.reason ?? 'invalid'}`);
-  const fourToOne = witness.logDegreeBound >= 8;
+  const fourToOne = circleFriUsesFourToOne(parameters);
   const laterLayerOk = (layer, round) => {
     const length = parameters.domainLength / (2 ** round);
-    return layer.values.length === 2
+    const pairCount = fourToOne && round > 0 ? 2 : 4;
+    return layer.values.length === pairCount
       || (layer.siblings.length === 0 && layer.values.length === length);
   };
   require(
-    fourToOne
-      ? (witness.layers[0]?.values.length === 4
-        && witness.layers.slice(1).every((layer, index) => laterLayerOk(layer, index + 1)))
-      : witness.layers.every((layer) => layer.values.length === 4),
+    witness.layers[0]?.values.length === 4
+      && witness.layers.slice(1).every((layer, index) => laterLayerOk(layer, index + 1)),
     fourToOne
       ? 'q2 4-to-1 profile requires four leaves in round 0 and two-leaf or full small later rounds'
-      : 'current BCH q2 profile requires four distinct authenticated leaves in every layer',
+      : 'q2 independent profile requires four leaves in every Merkle layer or a full small layer',
   );
-  const topologyTable = buildCircleFriTopologyTable(parameters);
-  require(equalBytes(witness.topology.root, topologyTable.root), 'q2 witness topology root is not canonical');
+  const topologyRoot = parameters.logDegreeBound >= 8
+    ? clusteredTopologyRoot(parameters)
+    : buildCircleFriTopologyTable(parameters).root;
+  require(equalBytes(witness.topology.root, topologyRoot), 'q2 witness topology root is not canonical');
   const encodedWitness = encodeCircleFriQ2BatchWitness(witness);
   const publicProofDigest = derivePublicProofDigest({ witness, parameters, protocolContext });
   return Object.freeze({
@@ -993,7 +972,7 @@ export const createBchCircleFriQ2BatchFixture = ({
     batchOrdinal,
     parameters,
     protocolContext: new Uint8Array(protocolContext),
-    topologyRoot: new Uint8Array(topologyTable.root),
+    topologyRoot: new Uint8Array(topologyRoot),
     topologyRecordBytes: circleFriCodecTopologyRecordBytes(parameters),
     publicProofDigest: new Uint8Array(publicProofDigest),
     encodedWitness,
@@ -1022,6 +1001,83 @@ const extractInputProofDigestPrefix = (inputIndex) => [
   OP.OP_EQUALVERIFY,
 ];
 
+/** Second unlocking push is packed u32le query indices (after the 33-byte digest push). */
+const extractPackedQueryIndicesFromInput = (inputIndex, queryCount) => {
+  const packedLen = queryCount * 4;
+  const prefixLen = encodeMinimalDataPush(new Uint8Array(packedLen)).length - packedLen;
+  return [
+    ...pushNumber(inputIndex),
+    OP.OP_INPUTBYTECODE,
+    ...pushNumber(33),
+    OP.OP_SPLIT,
+    OP.OP_NIP,
+    ...pushNumber(prefixLen),
+    OP.OP_SPLIT,
+    OP.OP_NIP,
+    ...pushNumber(packedLen),
+    OP.OP_SPLIT,
+    OP.OP_DROP,
+  ];
+};
+
+const packedBetasLength = (parameters) => (
+  parameters.logDegreeBound * (circleFriUsesCm31Fold(parameters) ? 8 : 4)
+);
+
+/** Third unlocking push is packed fold betas (after digest + packed queries). */
+const extractPackedBetasFromInput = (inputIndex, queryCount, parameters) => {
+  const packedLen = queryCount * 4;
+  const packedPushLen = encodeMinimalDataPush(new Uint8Array(packedLen)).length;
+  const betasLen = packedBetasLength(parameters);
+  const prefixLen = encodeMinimalDataPush(new Uint8Array(betasLen)).length - betasLen;
+  return [
+    ...pushNumber(inputIndex),
+    OP.OP_INPUTBYTECODE,
+    ...pushNumber(33 + packedPushLen),
+    OP.OP_SPLIT,
+    OP.OP_NIP,
+    ...pushNumber(prefixLen),
+    OP.OP_SPLIT,
+    OP.OP_NIP,
+    ...pushNumber(betasLen),
+    OP.OP_SPLIT,
+    OP.OP_DROP,
+  ];
+};
+
+const encodePackedBetas = (fixture) => {
+  const { parameters, protocolContext, witness } = fixture;
+  const cm31 = circleFriUsesCm31Fold(parameters);
+  let state = initializeCircleFriTranscriptState(protocolContext);
+  state = absorbCircleFriTranscriptState(state, 'fri-parameters', encodeCircleFriParameters(parameters));
+  state = absorbCircleFriTranscriptState(
+    state,
+    CIRCLE_FRI_DIMENSION_GAP_LAMBDA_LABEL,
+    encodeCircleFriDimensionGapLambda(),
+  );
+  const parts = [];
+  for (let round = 0; round < parameters.logDegreeBound; round += 1) {
+    state = absorbCircleFriTranscriptState(state, `fri-layer-root-${round}`, witness.roots[round]);
+    if (cm31) {
+      const sampled = sampleCircleFriTranscriptCm31({
+        state,
+        label: `fri-fold-beta-${round}`,
+      });
+      state = sampled.state;
+      parts.push(encodeM31(sampled.value.re), encodeM31(sampled.value.im));
+    } else {
+      const sampled = sampleCircleFriTranscriptState({
+        state,
+        label: `fri-fold-beta-${round}`,
+        upperBound: Number(M31_MODULUS),
+      });
+      state = sampled.state;
+      parts.push(encodeM31(BigInt(sampled.value)));
+    }
+  }
+  return concat(...parts);
+};
+
 const buildCrossInputProofDigestBinding = (batchCount) => {
   require(Number.isSafeInteger(batchCount) && batchCount >= 1, 'batchCount must be a positive integer');
   if (batchCount === 2) {
@@ -1038,7 +1094,7 @@ const buildCrossInputProofDigestBinding = (batchCount) => {
       OP.OP_EQUALVERIFY,
     ];
   }
-  const script = [
+  return [
     OP.OP_TXINPUTCOUNT,
     ...pushNumber(batchCount),
     OP.OP_NUMEQUALVERIFY,
@@ -1047,17 +1103,18 @@ const buildCrossInputProofDigestBinding = (batchCount) => {
     ...pushNumber(batchCount),
     OP.OP_WITHIN,
     OP.OP_VERIFY,
+    OP.OP_INPUTINDEX,
+    OP.OP_0,
+    OP.OP_NUMEQUAL,
+    OP.OP_IF,
+    ...extractInputProofDigestPrefix(1),
+    OP.OP_ELSE,
     ...extractInputProofDigestPrefix(0),
+    OP.OP_ENDIF,
+    ...pushNumber(2),
+    OP.OP_PICK,
+    OP.OP_EQUALVERIFY,
   ];
-  for (let inputIndex = 1; inputIndex < batchCount; inputIndex += 1) {
-    script.push(
-      ...extractInputProofDigestPrefix(inputIndex),
-      OP.OP_OVER,
-      OP.OP_EQUALVERIFY,
-    );
-  }
-  script.push(OP.OP_DROP);
-  return script;
 };
 
 const firstFoldPairOfTop = (parameters) => [
@@ -1070,6 +1127,56 @@ const firstFoldPairOfTop = (parameters) => [
   OP.OP_SWAP,
   OP.OP_SUB,
   OP.OP_ENDIF,
+];
+
+/** TOS query index → 21-byte round-0 J-plan: current||2P||2P+1||P||coord0||side0. */
+const packRound0PlanFromQueryTop = (parameters) => [
+  OP.OP_DUP,
+  ...firstFoldPairOfTop(parameters),
+  OP.OP_TOALTSTACK,
+  OP.OP_FROMALTSTACK,
+  OP.OP_DUP,
+  OP.OP_TOALTSTACK,
+  OP.OP_DUP,
+  OP.OP_ADD,
+  OP.OP_DUP,
+  OP.OP_1ADD,
+  OP.OP_FROMALTSTACK,
+  ...pushNumber(4),
+  OP.OP_NUM2BIN,
+  OP.OP_TOALTSTACK,
+  ...pushNumber(4),
+  OP.OP_NUM2BIN,
+  OP.OP_TOALTSTACK,
+  ...pushNumber(4),
+  OP.OP_NUM2BIN,
+  OP.OP_TOALTSTACK,
+  ...pushNumber(4),
+  OP.OP_NUM2BIN,
+  OP.OP_FROMALTSTACK,
+  OP.OP_CAT,
+  OP.OP_FROMALTSTACK,
+  OP.OP_CAT,
+  OP.OP_FROMALTSTACK,
+  OP.OP_CAT,
+  ...encodeMinimalDataPush(new Uint8Array(4)),
+  OP.OP_CAT,
+  OP.OP_0,
+  ...pushNumber(1),
+  OP.OP_NUM2BIN,
+  OP.OP_CAT,
+];
+
+/** TOS 8-byte selectedQueries → plan0, plan1 (Q0 then Q1). */
+const synthesizeRound0PlansFromSelected = (parameters) => [
+  OP.OP_DUP,
+  ...extractTopBytes(0, 4),
+  ...decodeUnsignedTop(),
+  ...packRound0PlanFromQueryTop(parameters),
+  OP.OP_SWAP,
+  ...extractTopBytes(4, 4),
+  ...decodeUnsignedTop(),
+  ...packRound0PlanFromQueryTop(parameters),
 ];
 
 /** π-sibling of a J-pair index P on the x-line is N/2 − 1 − P. */
@@ -1096,7 +1203,7 @@ const pushFirstFoldUniquenessFlag = (parameters, query) => {
 };
 
 const buildCanonicalQueryDerivationAll = (parameters) => {
-  const fourToOne = parameters.logDegreeBound >= 8;
+  const fourToOne = circleFriUsesFourToOne(parameters);
   const script = [];
   for (let query = 0; query < parameters.queryCount; query += 1) {
     if (fourToOne && query % 2 === 1) {
@@ -1158,28 +1265,39 @@ export const measureBchCircleFriQ2UnrolledQueryDerivationBytes = (parameters) =>
  *
  * Loop ABI: [state, packedIndices, count] and altstack [packedPairs].
  */
-const packedPairSearch = () => [
+const packedPairSearch = (parameters) => [
   OP.OP_FROMALTSTACK,
   OP.OP_SIZE,
-  OP.OP_0,
-  OP.OP_NUMEQUAL,
+  OP.OP_NOT,
   OP.OP_IF,
   OP.OP_1,
   OP.OP_ELSE,
-  OP.OP_0,
+  OP.OP_DUP,
   OP.OP_BEGIN,
+  OP.OP_SIZE,
+  OP.OP_NOT,
+  OP.OP_IF,
+  OP.OP_DROP,
+  OP.OP_1,
+  OP.OP_1,
+  OP.OP_ELSE,
+  ...pushNumber(4),
+  OP.OP_SPLIT,
+  OP.OP_SWAP,
+  ...decodeUnsignedTop(),
   OP.OP_DUP,
   ...pushNumber(4),
-  OP.OP_MUL,
-  ...pushNumber(2),
   OP.OP_PICK,
-  OP.OP_SWAP,
-  OP.OP_SPLIT,
-  OP.OP_NIP,
-  ...pushNumber(4),
-  OP.OP_SPLIT,
+  OP.OP_NUMEQUAL,
+  OP.OP_IF,
   OP.OP_DROP,
-  ...decodeUnsignedTop(),
+  OP.OP_DROP,
+  OP.OP_0,
+  OP.OP_1,
+  OP.OP_ELSE,
+  ...pushNumber(parameters.firstFoldPairCount - 1),
+  OP.OP_SWAP,
+  OP.OP_SUB,
   ...pushNumber(3),
   OP.OP_PICK,
   OP.OP_NUMEQUAL,
@@ -1188,17 +1306,8 @@ const packedPairSearch = () => [
   OP.OP_0,
   OP.OP_1,
   OP.OP_ELSE,
-  OP.OP_1ADD,
-  OP.OP_DUP,
-  ...pushNumber(6),
-  OP.OP_PICK,
-  OP.OP_LESSTHAN,
-  OP.OP_IF,
   OP.OP_0,
-  OP.OP_ELSE,
-  OP.OP_DROP,
-  OP.OP_1,
-  OP.OP_1,
+  OP.OP_ENDIF,
   OP.OP_ENDIF,
   OP.OP_ENDIF,
   OP.OP_UNTIL,
@@ -1229,14 +1338,187 @@ const packedAcceptIndex = () => [
   OP.OP_ROLL,
 ];
 
-const packedRejectIndex = () => [
+/** Accept the query index without appending a first-fold pair (4-to-1 partner). */
+const packedAcceptIndexOnly = () => [
   OP.OP_TOALTSTACK,
-  OP.OP_2DROP,
+  OP.OP_DROP,
+  OP.OP_SWAP,
+  OP.OP_TOALTSTACK,
+  ...pushNumber(2),
+  OP.OP_ROLL,
+  OP.OP_OVER,
+  ...pushNumber(4),
+  OP.OP_NUM2BIN,
+  OP.OP_CAT,
+  OP.OP_NIP,
+  OP.OP_SWAP,
+  OP.OP_1ADD,
+  OP.OP_FROMALTSTACK,
   ...pushNumber(2),
   OP.OP_ROLL,
   ...pushNumber(2),
   OP.OP_ROLL,
 ];
+
+const packedRejectIndex = () => [
+  OP.OP_TOALTSTACK,
+  OP.OP_DROP,
+  ...pushNumber(2),
+  OP.OP_ROLL,
+  ...pushNumber(2),
+  OP.OP_ROLL,
+];
+
+/** TOS=offset, second=blob → TOS=u32, second=blob. Offset is a small scriptnum. */
+const loadU32AtOffset = () => [
+  OP.OP_OVER,
+  OP.OP_SWAP,
+  OP.OP_SPLIT,
+  OP.OP_NIP,
+  ...pushNumber(4),
+  OP.OP_SPLIT,
+  OP.OP_SWAP,
+  OP.OP_NIP,
+  ...decodeUnsignedTop(),
+];
+
+/**
+ * TOS=key (scriptnum), second=sorted u32le blob.
+ * Insert key at the first offset whose value is greater than key.
+ * SPLIT indexes are small scriptnums (0, 4, 8, …), never a 4-byte pair encoding.
+ * Fail if key is already present. Leaves the new sorted blob.
+ */
+const insertKeyIntoSortedU32Blob = () => [
+  OP.OP_OVER,
+  OP.OP_SIZE,
+  OP.OP_NIP,
+  OP.OP_0,
+  OP.OP_BEGIN,
+  OP.OP_2DUP,
+  OP.OP_GREATERTHANOREQUAL,
+  OP.OP_IF,
+  OP.OP_2DROP,
+  ...pushNumber(4),
+  OP.OP_NUM2BIN,
+  OP.OP_CAT,
+  OP.OP_1,
+  OP.OP_ELSE,
+  ...pushNumber(3),
+  OP.OP_PICK,
+  OP.OP_OVER,
+  ...loadU32AtOffset(),
+  OP.OP_NIP,
+  ...pushNumber(3),
+  OP.OP_PICK,
+  OP.OP_OVER,
+  OP.OP_NUMNOTEQUAL,
+  OP.OP_VERIFY,
+  OP.OP_SWAP,
+  OP.OP_GREATERTHAN,
+  OP.OP_IF,
+  OP.OP_TOALTSTACK,
+  OP.OP_DROP,
+  OP.OP_SWAP,
+  OP.OP_FROMALTSTACK,
+  OP.OP_SPLIT,
+  OP.OP_TOALTSTACK,
+  OP.OP_SWAP,
+  ...pushNumber(4),
+  OP.OP_NUM2BIN,
+  OP.OP_CAT,
+  OP.OP_FROMALTSTACK,
+  OP.OP_CAT,
+  OP.OP_1,
+  OP.OP_ELSE,
+  ...pushNumber(4),
+  OP.OP_ADD,
+  OP.OP_0,
+  OP.OP_ENDIF,
+  OP.OP_ENDIF,
+  OP.OP_UNTIL,
+];
+
+/**
+ * TOS sorted u32le blob. Fail if any two values sum to partnerSum.
+ * Leaves the blob.
+ */
+const assertSortedU32BlobNoPartnerSum = (n, partnerSum) => {
+  if (n < 2) return [];
+  const lastOffset = 4 * (n - 1);
+  return [
+    ...pushNumber(0),
+    ...pushNumber(lastOffset),
+    OP.OP_BEGIN,
+    OP.OP_2DUP,
+    OP.OP_GREATERTHANOREQUAL,
+    OP.OP_IF,
+    OP.OP_2DROP,
+    OP.OP_1,
+    OP.OP_ELSE,
+    ...pushNumber(2),
+    OP.OP_PICK,
+    ...pushNumber(2),
+    OP.OP_PICK,
+    ...loadU32AtOffset(),
+    OP.OP_NIP,
+    ...pushNumber(3),
+    OP.OP_PICK,
+    ...pushNumber(2),
+    OP.OP_PICK,
+    ...loadU32AtOffset(),
+    OP.OP_NIP,
+    OP.OP_ADD,
+    OP.OP_DUP,
+    ...pushNumber(partnerSum),
+    OP.OP_NUMNOTEQUAL,
+    OP.OP_VERIFY,
+    ...pushNumber(partnerSum),
+    OP.OP_LESSTHAN,
+    OP.OP_IF,
+    OP.OP_SWAP,
+    ...pushNumber(4),
+    OP.OP_ADD,
+    OP.OP_SWAP,
+    OP.OP_ELSE,
+    ...pushNumber(4),
+    OP.OP_SUB,
+    OP.OP_ENDIF,
+    OP.OP_0,
+    OP.OP_ENDIF,
+    OP.OP_UNTIL,
+  ];
+};
+
+/** TOS packed u32le sample pairs → same blob, or fail on duplicate or 4-to-1 partner. */
+const assertPackedPairsDistinct = (parameters) => {
+  const n = parameters.queryCount / 2;
+  const partnerSum = parameters.firstFoldPairCount - 1;
+  if (!Number.isInteger(n) || n < 2) return [];
+  return [
+    OP.OP_TOALTSTACK,
+    OP.OP_0,
+    OP.OP_BEGIN,
+    OP.OP_FROMALTSTACK,
+    OP.OP_SIZE,
+    OP.OP_NOT,
+    OP.OP_IF,
+    OP.OP_DROP,
+    OP.OP_1,
+    OP.OP_ELSE,
+    ...pushNumber(4),
+    OP.OP_SPLIT,
+    OP.OP_SWAP,
+    OP.OP_BIN2NUM,
+    OP.OP_SWAP,
+    OP.OP_TOALTSTACK,
+    ...insertKeyIntoSortedU32Blob(),
+    OP.OP_0,
+    OP.OP_ENDIF,
+    OP.OP_UNTIL,
+    ...assertSortedU32BlobNoPartnerSum(n, partnerSum),
+    OP.OP_DROP,
+  ];
+};
 
 const buildPackedSampleOnce = (parameters) => {
   const { domainLength, firstFoldPairCount } = parameters;
@@ -1257,18 +1539,13 @@ const buildPackedSampleOnce = (parameters) => {
     OP.OP_SWAP,
     OP.OP_SUB,
     OP.OP_ENDIF,
-    ...packedPairSearch(),
-    OP.OP_IF,
+    OP.OP_FROMALTSTACK,
     ...packedAcceptIndex(),
-    OP.OP_ELSE,
-    ...packedRejectIndex(),
-    OP.OP_ENDIF,
   ];
 };
 
 const buildPackedFourToOnePartnerOnce = (parameters) => [
-  ...pushNumber(1),
-  OP.OP_PICK,
+  OP.OP_OVER,
   OP.OP_SIZE,
   OP.OP_NIP,
   ...pushNumber(4),
@@ -1287,14 +1564,13 @@ const buildPackedFourToOnePartnerOnce = (parameters) => [
   OP.OP_ROLL,
   OP.OP_FROMALTSTACK,
   OP.OP_DUP,
-  ...packedPairSearch(),
-  OP.OP_VERIFY,
-  ...packedAcceptIndex(),
+  OP.OP_FROMALTSTACK,
+  ...packedAcceptIndexOnly(),
 ];
 
 const buildPackedUniqueQueryDerivation = (parameters) => {
   const { queryCount } = parameters;
-  const fourToOne = parameters.logDegreeBound >= 8;
+  const fourToOne = circleFriUsesFourToOne(parameters);
   const body = fourToOne
     ? [
         OP.OP_DUP,
@@ -1320,6 +1596,9 @@ const buildPackedUniqueQueryDerivation = (parameters) => {
     OP.OP_UNTIL,
     OP.OP_DROP,
     OP.OP_FROMALTSTACK,
+    // packedPairs is a search copy of packedIndices. Derivation already
+    // rejects duplicate and 4-to-1-partner samples; the O(n²) insertion
+    // post-pass is redundant and dominates density at large k.
     OP.OP_DROP,
     OP.OP_SWAP,
   ];
@@ -1406,6 +1685,67 @@ const buildPackedTranscriptQuerySelection = (offsets, queryCount) => [
     OP.OP_INPUTINDEX,
     ...pushNumber(8),
     OP.OP_MUL,
+    OP.OP_SPLIT,
+    OP.OP_NIP,
+    ...pushNumber(8),
+    OP.OP_SPLIT,
+    OP.OP_DROP,
+    OP.OP_DUP,
+    OP.OP_FROMALTSTACK,
+    OP.OP_EQUALVERIFY,
+    OP.OP_TOALTSTACK,
+    OP.OP_FROMALTSTACK,
+];
+
+/**
+ * TOS = numeric cluster base, encoded as u32le so 0 is not empty.
+ * hasTranscript: unique-derivation layout [d, r, w, b, packed, t, base4]
+ *   (PICK 4 = witness; SWAP DROP transcript).
+ * no transcript: [d, r, w, b, packed, base4] (PICK 3 = witness).
+ * savePacked: OVER-copy packed onto alt before consuming it, so a later
+ * cluster can unique-once.
+ */
+const buildPackedTranscriptQuerySelectionFromBase = (
+  offsets,
+  queryCount,
+  { hasTranscript = true, savePacked = false } = {},
+) => [
+    ...pushNumber(4),
+    OP.OP_NUM2BIN,
+    ...pushNumber(hasTranscript ? 4 : 3),
+    OP.OP_PICK,
+    ...extractTopBytes(offsets.queryOrdinals, 4),
+    OP.OP_OVER,
+    OP.OP_BIN2NUM,
+    OP.OP_DUP,
+    OP.OP_2,
+    OP.OP_MUL,
+    ...pushNumber(2),
+    OP.OP_NUM2BIN,
+    OP.OP_SWAP,
+    OP.OP_2,
+    OP.OP_MUL,
+    OP.OP_1ADD,
+    ...pushNumber(2),
+    OP.OP_NUM2BIN,
+    OP.OP_CAT,
+    OP.OP_EQUALVERIFY,
+    ...(hasTranscript ? [OP.OP_SWAP, OP.OP_DROP] : []),
+    ...(savePacked ? [OP.OP_OVER, OP.OP_TOALTSTACK] : []),
+    ...pushNumber(3),
+    OP.OP_PICK,
+    ...extractTopBytes(offsets.queryIndices, 8),
+    OP.OP_TOALTSTACK,
+    OP.OP_OVER,
+    OP.OP_SIZE,
+    ...pushNumber(queryCount * 4),
+    OP.OP_NUMEQUALVERIFY,
+    OP.OP_DROP,
+    OP.OP_DUP,
+    OP.OP_BIN2NUM,
+    ...pushNumber(8),
+    OP.OP_MUL,
+    OP.OP_NIP,
     OP.OP_SPLIT,
     OP.OP_NIP,
     ...pushNumber(8),
@@ -1536,6 +1876,126 @@ const encodeSampledChallenge = () => [
   OP.OP_NUM2BIN,
 ];
 
+/** One squeeze → two M31 (re||im). TOS = state; packed betas at depth 1. */
+const sampleCm31FoldBeta = () => [
+  ...pushLabelWithRound('fri-fold-beta-', 1, 8),
+  OP.OP_DUP,
+  ...encodeMinimalDataPush(concat(u16le(5), utf8('label'))),
+  OP.OP_SWAP,
+  OP.OP_DUP,
+  OP.OP_SIZE,
+  OP.OP_NIP,
+  ...pushNumber(4),
+  OP.OP_NUM2BIN,
+  OP.OP_SWAP,
+  OP.OP_CAT,
+  OP.OP_CAT,
+  ...encodeMinimalDataPush(framePrefix('attempt', 4)),
+  OP.OP_CAT,
+  OP.OP_SWAP,
+  ...encodeMinimalDataPush(concat(u16le(24), utf8('accepted-challenge-label'))),
+  OP.OP_SWAP,
+  OP.OP_DUP,
+  OP.OP_SIZE,
+  OP.OP_NIP,
+  ...pushNumber(4),
+  OP.OP_NUM2BIN,
+  OP.OP_SWAP,
+  OP.OP_CAT,
+  OP.OP_CAT,
+  ...pushNumber(M31_MODULUS),
+  ...pushNumber(Number(M31_MODULUS) * 2),
+  OP.OP_0,
+  OP.OP_BEGIN,
+  ...pushNumber(5),
+  OP.OP_PICK,
+  ...encodeMinimalDataPush(CIRCLE_FRI_SQUEEZE_DOMAIN),
+  OP.OP_SWAP,
+  OP.OP_CAT,
+  ...pushNumber(5),
+  OP.OP_PICK,
+  OP.OP_CAT,
+  OP.OP_OVER,
+  ...pushNumber(4),
+  OP.OP_NUM2BIN,
+  OP.OP_CAT,
+  OP.OP_SHA256,
+  OP.OP_DUP,
+  ...pushNumber(4),
+  OP.OP_SPLIT,
+  OP.OP_SWAP,
+  OP.OP_TOALTSTACK,
+  ...pushNumber(4),
+  OP.OP_SPLIT,
+  OP.OP_DROP,
+  OP.OP_FROMALTSTACK,
+  ...encodeMinimalDataPush(ZERO_BYTE),
+  OP.OP_CAT,
+  OP.OP_BIN2NUM,
+  OP.OP_SWAP,
+  ...encodeMinimalDataPush(ZERO_BYTE),
+  OP.OP_CAT,
+  OP.OP_BIN2NUM,
+  OP.OP_OVER,
+  ...pushNumber(5),
+  OP.OP_PICK,
+  OP.OP_LESSTHAN,
+  OP.OP_TOALTSTACK,
+  OP.OP_DUP,
+  ...pushNumber(5),
+  OP.OP_PICK,
+  OP.OP_LESSTHAN,
+  OP.OP_FROMALTSTACK,
+  OP.OP_BOOLAND,
+  OP.OP_IF,
+  OP.OP_OVER,
+  ...pushNumber(6),
+  OP.OP_PICK,
+  OP.OP_MOD,
+  OP.OP_TOALTSTACK,
+  OP.OP_DUP,
+  ...pushNumber(6),
+  OP.OP_PICK,
+  OP.OP_MOD,
+  OP.OP_TOALTSTACK,
+  OP.OP_2DROP,
+  ...pushNumber(6),
+  OP.OP_PICK,
+  ...pushNumber(5),
+  OP.OP_PICK,
+  OP.OP_CAT,
+  ...encodeMinimalDataPush(framePrefix('accepted-challenge-digest', 32)),
+  OP.OP_CAT,
+  OP.OP_OVER,
+  OP.OP_CAT,
+  ...encodeMinimalDataPush(framePrefix('accepted-challenge-attempt', 4)),
+  OP.OP_CAT,
+  ...pushNumber(2),
+  OP.OP_PICK,
+  ...pushNumber(4),
+  OP.OP_NUM2BIN,
+  OP.OP_CAT,
+  OP.OP_SHA256,
+  OP.OP_TOALTSTACK,
+  OP.OP_2DROP,
+  OP.OP_2DROP,
+  OP.OP_2DROP,
+  OP.OP_DROP,
+  OP.OP_FROMALTSTACK,
+  OP.OP_FROMALTSTACK,
+  OP.OP_FROMALTSTACK,
+  OP.OP_SWAP,
+  ...packCm31Top(),
+  OP.OP_1,
+  OP.OP_ELSE,
+  OP.OP_2DROP,
+  OP.OP_DROP,
+  OP.OP_1ADD,
+  OP.OP_0,
+  OP.OP_ENDIF,
+  OP.OP_UNTIL,
+];
+
 /**
  * One FRI transcript round. ABI top-to-bottom: state, packedBetas, witness, rootsBlob.
  * Round is packedBetas.length/betaBytes. Roots are the redeem blob under the witness (no CAT).
@@ -1557,16 +2017,7 @@ const buildTranscriptLayerFunction = ({ cm31 = false } = {}) => {
     ...extractTopBytesRuntime(32),
     ...pushLabelWithRound('fri-layer-root-', 2, betaBytes),
     ...absorbPayloadWithLabelOnTop(32),
-    ...(cm31
-      ? [
-          ...sampleAndEncode('-re'),
-          OP.OP_TOALTSTACK,
-          ...sampleAndEncode('-im'),
-          OP.OP_FROMALTSTACK,
-          OP.OP_SWAP,
-          OP.OP_CAT,
-        ]
-      : sampleAndEncode('')),
+    ...(cm31 ? sampleCm31FoldBeta() : sampleAndEncode('')),
     OP.OP_TOALTSTACK,
     OP.OP_SWAP,
     OP.OP_FROMALTSTACK,
@@ -1578,8 +2029,7 @@ const buildTranscriptLayerFunction = ({ cm31 = false } = {}) => {
 const buildLoopedTranscriptLayers = (parameters, { cm31 = false } = {}) => [
   OP.OP_BEGIN,
   ...invokeFunction(FUNCTION.TRANSCRIPT_LAYER),
-  ...pushNumber(1),
-  OP.OP_PICK,
+  OP.OP_OVER,
   OP.OP_SIZE,
   OP.OP_NIP,
   ...pushNumber(parameters.logDegreeBound * (cm31 ? 8 : 4)),
@@ -1587,7 +2037,7 @@ const buildLoopedTranscriptLayers = (parameters, { cm31 = false } = {}) => [
   OP.OP_UNTIL,
 ];
 
-const buildTranscriptReplay = (fixture, offsets) => {
+const buildTranscriptReplay = (fixture, offsets, { deferQuerySelection = false } = {}) => {
   const cm31 = circleFriUsesCm31Fold(fixture.parameters);
   const feltBytes = cm31 ? 8 : 4;
   const script = [
@@ -1629,16 +2079,20 @@ const buildTranscriptReplay = (fixture, offsets) => {
     ...pushNumber(5),
     OP.OP_PICK,
     OP.OP_EQUALVERIFY,
-    ...(fixture.parameters.queryCount === 4
-      ? [
-          ...buildCanonicalQueryDerivationAll(fixture.parameters),
-          ...buildQ4TranscriptQuerySelection(offsets),
-        ]
-      : [
-          ...buildPackedUniqueQueryDerivation(fixture.parameters),
-          ...buildPackedTranscriptQuerySelection(offsets, fixture.parameters.queryCount),
-        ]),
   );
+  if (deferQuerySelection) {
+    script.push(...buildPackedUniqueQueryDerivation(fixture.parameters));
+  } else if (fixture.parameters.queryCount === 4) {
+    script.push(
+      ...buildCanonicalQueryDerivationAll(fixture.parameters),
+      ...buildQ4TranscriptQuerySelection(offsets),
+    );
+  } else {
+    script.push(
+      ...buildPackedUniqueQueryDerivation(fixture.parameters),
+      ...buildPackedTranscriptQuerySelection(offsets, fixture.parameters.queryCount),
+    );
+  }
   return script;
 };
 
@@ -1775,7 +2229,9 @@ const buildSortedPlanIndices = ({ plan0Depth, plan1Depth }) => [
   ...invokeFunction(FUNCTION.SORT4),
 ];
 
-const buildPlanInverse = ({ queryDepth, selectedDepth, headerDepth }) => [
+const buildPlanInverse = ({
+  queryDepth, selectedDepth, headerDepth, inv0Offset = 4, inv1Offset = 8,
+}) => [
   ...pushNumber(queryDepth),
   OP.OP_PICK,
   ...pushNumber(selectedDepth + 1),
@@ -1784,11 +2240,11 @@ const buildPlanInverse = ({ queryDepth, selectedDepth, headerDepth }) => [
   OP.OP_IF,
   ...pushNumber(headerDepth),
   OP.OP_PICK,
-  ...extractTopBytes(4, 4),
+  ...extractTopBytes(inv0Offset, 4),
   OP.OP_ELSE,
   ...pushNumber(headerDepth),
   OP.OP_PICK,
-  ...extractTopBytes(8, 4),
+  ...extractTopBytes(inv1Offset, 4),
   OP.OP_ENDIF,
   ...invokeFunction(FUNCTION.DECODE_M31),
 ];
@@ -1804,13 +2260,11 @@ const buildVerifyLayerFunction = ({ toCm31 = false } = {}) => compileScript([
   OP.OP_ROLL,
   ...pushNumber(28),
   OP.OP_SPLIT,
-  ...pushNumber(1),
-  OP.OP_PICK,
+  OP.OP_OVER,
   ...extractTopBytes(0, 2),
   ...encodeMinimalDataPush(u16le(4)),
   OP.OP_EQUALVERIFY,
-  ...pushNumber(1),
-  OP.OP_PICK,
+  OP.OP_OVER,
   ...extractTopBytes(2, 2),
   ...decodeUnsignedTop(),
   ...pushNumber(32),
@@ -1960,12 +2414,6 @@ const sortedPairFromPlan = (planDepth) => [
   OP.OP_PICK,
   ...extractTopBytes(8, 4),
   ...decodeUnsignedTop(),
-  OP.OP_2DUP,
-  OP.OP_MIN,
-  OP.OP_TOALTSTACK,
-  OP.OP_MAX,
-  OP.OP_FROMALTSTACK,
-  OP.OP_SWAP,
 ];
 
 const packU32Pair = () => [
@@ -1976,6 +2424,56 @@ const packU32Pair = () => [
   OP.OP_NUM2BIN,
   OP.OP_FROMALTSTACK,
   OP.OP_CAT,
+];
+
+/** wanted on top; packed 16-byte indices then values below at the given depths. */
+const lookup4FromPacked = ({ indicesDepth, valuesDepth, valueBytes = 8 }) => [
+  OP.OP_DUP,
+  ...pushNumber(indicesDepth + 1),
+  OP.OP_PICK,
+  ...extractTopBytes(0, 4),
+  ...decodeUnsignedTop(),
+  OP.OP_EQUAL,
+  OP.OP_IF,
+  ...pushNumber(valuesDepth),
+  OP.OP_PICK,
+  ...extractTopBytes(0, valueBytes),
+  OP.OP_ELSE,
+  OP.OP_DUP,
+  ...pushNumber(indicesDepth + 1),
+  OP.OP_PICK,
+  ...extractTopBytes(4, 4),
+  ...decodeUnsignedTop(),
+  OP.OP_EQUAL,
+  OP.OP_IF,
+  ...pushNumber(valuesDepth),
+  OP.OP_PICK,
+  ...extractTopBytes(valueBytes, valueBytes),
+  OP.OP_ELSE,
+  OP.OP_DUP,
+  ...pushNumber(indicesDepth + 1),
+  OP.OP_PICK,
+  ...extractTopBytes(8, 4),
+  ...decodeUnsignedTop(),
+  OP.OP_EQUAL,
+  OP.OP_IF,
+  ...pushNumber(valuesDepth),
+  OP.OP_PICK,
+  ...extractTopBytes(2 * valueBytes, valueBytes),
+  OP.OP_ELSE,
+  OP.OP_DUP,
+  ...pushNumber(indicesDepth + 1),
+  OP.OP_PICK,
+  ...extractTopBytes(12, 4),
+  ...decodeUnsignedTop(),
+  OP.OP_EQUALVERIFY,
+  ...pushNumber(valuesDepth),
+  OP.OP_PICK,
+  ...extractTopBytes(3 * valueBytes, valueBytes),
+  OP.OP_ENDIF,
+  OP.OP_ENDIF,
+  OP.OP_ENDIF,
+  OP.OP_NIP,
 ];
 
 /** wanted on top; packed indices then values below at the given depths. */
@@ -2072,21 +2570,26 @@ const buildLayer2FoldAfter = ({ parked = true, cm31 = false } = {}) => {
   const continuityEq = cm31
     ? [OP.OP_EQUALVERIFY]
     : [...invokeFunction(FUNCTION.DECODE_M31), OP.OP_NUMEQUALVERIFY];
+  // 4-to-1 later rounds EQUALVERIFY the two plans as the same π-pair, so
+  // both folds are identical. Pack once and DUP.
   const packFolds = cm31
     ? [
         ...packCm31Top(),
-        OP.OP_TOALTSTACK,
-        ...packCm31Top(),
-        OP.OP_FROMALTSTACK,
+        OP.OP_DUP,
         OP.OP_CAT,
       ]
-    : packU32Pair();
+    : [
+        ...pushNumber(4),
+        OP.OP_NUM2BIN,
+        OP.OP_DUP,
+        OP.OP_CAT,
+      ];
   return [
     ...sortedPairFromPlan(9 + p),
     ...packU32Pair(),
     ...pushNumber(1 + p),
     OP.OP_PICK,
-    ...extractTopBytes(12, 2 * foldBytes),
+    ...extractTopBytes(cm31 ? 10 : 10, 2 * foldBytes),
 
     ...pushNumber(11 + p),
     OP.OP_PICK,
@@ -2121,35 +2624,10 @@ const buildLayer2FoldAfter = ({ parked = true, cm31 = false } = {}) => {
       queryDepth: 11 + p,
       selectedDepth: 9 + p,
       headerDepth: 4 + p,
+      inv0Offset: 2,
+      inv1Offset: 6,
     }),
     ...pushNumber(9 + p),
-    OP.OP_PICK,
-    ...foldInvoke,
-
-    ...pushNumber(12 + p + (cm31 ? 1 : 0)),
-    OP.OP_PICK,
-    ...extractTopBytes(4, 4),
-    ...decodeUnsignedTop(),
-    ...lookup2FromPacked({
-      indicesDepth: 3 + (cm31 ? 1 : 0),
-      valuesDepth: 2 + (cm31 ? 1 : 0),
-      valueBytes: foldBytes,
-    }),
-    ...pushNumber(13 + p + (cm31 ? 1 : 0)),
-    OP.OP_PICK,
-    ...extractTopBytes(8, 4),
-    ...decodeUnsignedTop(),
-    ...lookup2FromPacked({
-      indicesDepth: 4 + (cm31 ? 1 : 0),
-      valuesDepth: 3 + (cm31 ? 1 : 0),
-      valueBytes: foldBytes,
-    }),
-    ...buildPlanInverse({
-      queryDepth: 12 + p + (cm31 ? 1 : 0),
-      selectedDepth: 10 + p + (cm31 ? 1 : 0),
-      headerDepth: 5 + p + (cm31 ? 1 : 0),
-    }),
-    ...pushNumber(10 + p + (cm31 ? 1 : 0)),
     OP.OP_PICK,
     ...foldInvoke,
 
@@ -2335,25 +2813,19 @@ const VERIFY_LAYER2_FOLD_AFTER_PARKED = [
 ];
 
 const buildVerifyLayer2Function = ({ cm31 = false } = {}) => {
-  const headerBytes = cm31 ? 28 : 20;
+  const headerBytes = cm31 ? 26 : 18;
   const valueBytes = cm31 ? 8 : 4;
   const hashLeaf = cm31 ? FUNCTION.HASH_CM31_LEAF : FUNCTION.HASH_M31_LEAF;
   return compileScript([
   // Same ABI as VERIFY_LAYER, including firstRoundFlag (always 0 here).
+  // Later 2-leaf header omits valueCount: sibCount||inv||values.
   ...pushNumber(9),
   OP.OP_ROLL,
   ...pushNumber(headerBytes),
   OP.OP_SPLIT,
   ...pushNumber(1),
   OP.OP_PICK,
-  ...(cm31 ? [] : [
-    ...extractTopBytes(0, 2),
-    ...encodeMinimalDataPush(u16le(2)),
-    OP.OP_EQUALVERIFY,
-    ...pushNumber(1),
-    OP.OP_PICK,
-  ]),
-  ...extractTopBytes(cm31 ? 2 : 2, 2),
+  ...extractTopBytes(0, 2),
   ...decodeUnsignedTop(),
   ...pushNumber(32),
   OP.OP_MUL,
@@ -2374,11 +2846,11 @@ const buildVerifyLayer2Function = ({ cm31 = false } = {}) => {
   ...domainPairToMerklePair(),
   ...pushNumber(3),
   OP.OP_PICK,
-  ...extractTopBytes(12, valueBytes),
+  ...extractTopBytes(10, valueBytes),
   ...invokeFunction(hashLeaf),
   ...pushNumber(4),
   OP.OP_PICK,
-  ...extractTopBytes(12 + valueBytes, valueBytes),
+  ...extractTopBytes(10 + valueBytes, valueBytes),
   ...invokeFunction(hashLeaf),
   ...pushNumber(4),
   OP.OP_ROLL,
@@ -2404,14 +2876,252 @@ const buildVerifyLayer2Function = ({ cm31 = false } = {}) => {
 
 const VERIFY_LAYER2_FUNCTION = buildVerifyLayer2Function();
 
+/** Pack two independent domain pairs in merkle order (by pairIndex = min). */
+const packTwoDomainPairsMerkleOrder = () => [
+  ...pushNumber(3),
+  OP.OP_PICK,
+  ...pushNumber(2),
+  OP.OP_PICK,
+  OP.OP_GREATERTHAN,
+  OP.OP_IF,
+  OP.OP_2SWAP,
+  OP.OP_ENDIF,
+  ...packSortedIndices(),
+];
+
+/**
+ * Later independent rounds: four authenticated CM31 leaves (two π-pairs).
+ * packed indices are domain min||max||min||max in merkle order.
+ */
+const buildLayer4FoldAfter = ({ parked = true } = {}) => {
+  const p = parked ? 0 : 1;
+  return [
+    ...sortedPairFromPlan(9 + p),
+    ...sortedPairFromPlan(10 + p),
+    ...packTwoDomainPairsMerkleOrder(),
+    ...pushNumber(1 + p),
+    OP.OP_PICK,
+    ...extractTopBytes(12, 32),
+
+    ...pushNumber(11 + p),
+    OP.OP_PICK,
+    ...extractTopBytes(0, 4),
+    ...decodeUnsignedTop(),
+    ...lookup4FromPacked({ indicesDepth: 2, valuesDepth: 1, valueBytes: 8 }),
+    ...pushNumber(13 + p),
+    OP.OP_PICK,
+    ...extractTopBytes(0, 8),
+    OP.OP_EQUALVERIFY,
+    ...pushNumber(10 + p),
+    OP.OP_PICK,
+    ...extractTopBytes(0, 4),
+    ...decodeUnsignedTop(),
+    ...lookup4FromPacked({ indicesDepth: 2, valuesDepth: 1, valueBytes: 8 }),
+    ...pushNumber(13 + p),
+    OP.OP_PICK,
+    ...extractTopBytes(8, 8),
+    OP.OP_EQUALVERIFY,
+
+    ...pushNumber(11 + p),
+    OP.OP_PICK,
+    ...extractTopBytes(4, 4),
+    ...decodeUnsignedTop(),
+    ...lookup4FromPacked({ indicesDepth: 2, valuesDepth: 1, valueBytes: 8 }),
+    ...pushNumber(12 + p),
+    OP.OP_PICK,
+    ...extractTopBytes(8, 4),
+    ...decodeUnsignedTop(),
+    ...lookup4FromPacked({ indicesDepth: 3, valuesDepth: 2, valueBytes: 8 }),
+    ...buildPlanInverse({
+      queryDepth: 11 + p,
+      selectedDepth: 9 + p,
+      headerDepth: 4 + p,
+    }),
+    ...pushNumber(9 + p),
+    OP.OP_PICK,
+    ...foldCm31FromBlobs(),
+
+    ...pushNumber(13 + p),
+    OP.OP_PICK,
+    ...extractTopBytes(4, 4),
+    ...decodeUnsignedTop(),
+    ...lookup4FromPacked({ indicesDepth: 4, valuesDepth: 3, valueBytes: 8 }),
+    ...pushNumber(14 + p),
+    OP.OP_PICK,
+    ...extractTopBytes(8, 4),
+    ...decodeUnsignedTop(),
+    ...lookup4FromPacked({ indicesDepth: 5, valuesDepth: 4, valueBytes: 8 }),
+    ...buildPlanInverse({
+      queryDepth: 13 + p,
+      selectedDepth: 11 + p,
+      headerDepth: 6 + p,
+    }),
+    ...pushNumber(11 + p),
+    OP.OP_PICK,
+    ...foldCm31FromBlobs(),
+
+    ...packCm31Top(),
+    OP.OP_TOALTSTACK,
+    ...packCm31Top(),
+    OP.OP_FROMALTSTACK,
+    OP.OP_CAT,
+    OP.OP_TOALTSTACK,
+    ...(parked
+      ? [
+          OP.OP_2DROP,
+          OP.OP_2DROP,
+          OP.OP_2DROP,
+          OP.OP_2DROP,
+          OP.OP_2DROP,
+          OP.OP_2DROP,
+          OP.OP_DROP,
+        ]
+      : [
+          OP.OP_2DROP,
+          OP.OP_TOALTSTACK,
+          OP.OP_2DROP,
+          OP.OP_2DROP,
+          OP.OP_2DROP,
+          OP.OP_2DROP,
+          OP.OP_2DROP,
+          OP.OP_DROP,
+        ]),
+    OP.OP_FROMALTSTACK,
+    OP.OP_FROMALTSTACK,
+    ...(parked ? [] : [OP.OP_SWAP]),
+  ];
+};
+
+const buildVerifyLayer4Function = () => compileScript([
+  ...pushNumber(9),
+  OP.OP_ROLL,
+  ...pushNumber(44),
+  OP.OP_SPLIT,
+  ...pushNumber(1),
+  OP.OP_PICK,
+  ...extractTopBytes(0, 2),
+  ...encodeMinimalDataPush(u16le(4)),
+  OP.OP_EQUALVERIFY,
+  ...pushNumber(1),
+  OP.OP_PICK,
+  ...extractTopBytes(2, 2),
+  ...decodeUnsignedTop(),
+  ...pushNumber(32),
+  OP.OP_MUL,
+  OP.OP_SPLIT,
+  OP.OP_SWAP,
+  OP.OP_SWAP,
+  OP.OP_TOALTSTACK,
+  ...sortedPairFromPlan(10),
+  ...domainPairToMerklePair(),
+  ...sortedPairFromPlan(11),
+  ...domainPairToMerklePair(),
+  ...pushNumber(3),
+  OP.OP_PICK,
+  ...pushNumber(2),
+  OP.OP_PICK,
+  OP.OP_GREATERTHAN,
+  OP.OP_IF,
+  OP.OP_2SWAP,
+  OP.OP_ENDIF,
+  ...[0, 1, 2, 3].flatMap((slot) => [
+    ...pushNumber(5 + slot),
+    OP.OP_PICK,
+    ...extractTopBytes(12 + slot * 8, 8),
+    ...invokeFunction(FUNCTION.HASH_CM31_LEAF),
+  ]),
+  ...pushNumber(8),
+  OP.OP_ROLL,
+  OP.OP_TOALTSTACK,
+  OP.OP_TOALTSTACK,
+  OP.OP_TOALTSTACK,
+  OP.OP_TOALTSTACK,
+  OP.OP_TOALTSTACK,
+  OP.OP_TOALTSTACK,
+  OP.OP_TOALTSTACK,
+  OP.OP_TOALTSTACK,
+  OP.OP_TOALTSTACK,
+  ...pushNumber(3),
+  OP.OP_PICK,
+  OP.OP_FROMALTSTACK,
+  OP.OP_FROMALTSTACK,
+  OP.OP_FROMALTSTACK,
+  OP.OP_FROMALTSTACK,
+  OP.OP_FROMALTSTACK,
+  OP.OP_FROMALTSTACK,
+  OP.OP_FROMALTSTACK,
+  OP.OP_FROMALTSTACK,
+  OP.OP_FROMALTSTACK,
+  ...pushNumber(12),
+  OP.OP_PICK,
+  ...invokeFunction(FUNCTION.HASHED_MULTIPROOF4),
+  OP.OP_VERIFY,
+  ...buildLayer4FoldAfter({ parked: true }),
+], 'reusable q2 four-leaf CM31 layer function');
+
+
 /**
  * Domain ≤16: remaining codec is a full codeword. Hash it to the layer root,
  * rebuild a 20-byte 2-leaf header, then the same fold as VERIFY_LAYER2.
  */
-const buildVerifyFullLayerFunction = ({ cm31 = false } = {}) => {
+const extractCodewordFelt = (valueBytes, widthMul, pickDepth) => [
+  OP.OP_DUP,
+  widthMul,
+  OP.OP_MUL,
+  ...pushNumber(pickDepth),
+  OP.OP_PICK,
+  OP.OP_SWAP,
+  ...extractTopBytesRuntime(valueBytes),
+];
+
+const buildVerifyFullLayerFunction = ({ cm31 = false, independent = false } = {}) => {
   const valueBytes = cm31 ? 8 : 4;
   const widthMul = cm31 ? OP.OP_8 : OP.OP_4;
   const hashBody = cm31 ? HASH_CODEWORD_BODY_CM31 : HASH_CODEWORD_BODY;
+  const leafCount = independent ? 4 : 2;
+  const extractLeaves = independent
+    ? [
+        ...sortedPairFromPlan(10),
+        ...domainPairToMerklePair(),
+        ...extractCodewordFelt(valueBytes, widthMul, 3),
+        OP.OP_TOALTSTACK,
+        OP.OP_DROP,
+        ...extractCodewordFelt(valueBytes, widthMul, 2),
+        OP.OP_FROMALTSTACK,
+        OP.OP_SWAP,
+        OP.OP_CAT,
+        OP.OP_NIP,
+        OP.OP_TOALTSTACK,
+        OP.OP_DROP,
+        ...sortedPairFromPlan(10),
+        ...domainPairToMerklePair(),
+        ...extractCodewordFelt(valueBytes, widthMul, 3),
+        OP.OP_TOALTSTACK,
+        OP.OP_DROP,
+        ...extractCodewordFelt(valueBytes, widthMul, 2),
+        OP.OP_FROMALTSTACK,
+        OP.OP_SWAP,
+        OP.OP_CAT,
+        OP.OP_NIP,
+        OP.OP_TOALTSTACK,
+        OP.OP_DROP,
+        OP.OP_FROMALTSTACK,
+        OP.OP_SWAP,
+        OP.OP_CAT,
+      ]
+    : [
+        ...sortedPairFromPlan(10),
+        ...domainPairToMerklePair(),
+        ...extractCodewordFelt(valueBytes, widthMul, 3),
+        OP.OP_TOALTSTACK,
+        OP.OP_DROP,
+        ...extractCodewordFelt(valueBytes, widthMul, 2),
+        OP.OP_FROMALTSTACK,
+        OP.OP_CAT,
+        OP.OP_NIP,
+        OP.OP_TOALTSTACK,
+        OP.OP_DROP,
+      ];
   return compileScript([
   ...pushNumber(9),
   OP.OP_ROLL,
@@ -2435,72 +3145,73 @@ const buildVerifyFullLayerFunction = ({ cm31 = false } = {}) => {
   ...pushNumber(12),
   OP.OP_SPLIT,
   OP.OP_NIP,
-  ...sortedPairFromPlan(10),
-  ...domainPairToMerklePair(),
-  OP.OP_DUP,
-  widthMul,
-  OP.OP_MUL,
-  ...pushNumber(3),
-  OP.OP_PICK,
-  OP.OP_SWAP,
-  ...extractTopBytesRuntime(valueBytes),
-  OP.OP_TOALTSTACK,
-  OP.OP_DROP,
-  OP.OP_DUP,
-  widthMul,
-  OP.OP_MUL,
-  ...pushNumber(2),
-  OP.OP_PICK,
-  OP.OP_SWAP,
-  ...extractTopBytesRuntime(valueBytes),
-  OP.OP_FROMALTSTACK,
-  OP.OP_CAT,
-  OP.OP_NIP,
-  OP.OP_TOALTSTACK,
-  OP.OP_DROP,
+  ...extractLeaves,
   OP.OP_DUP,
   ...extractTopBytes(4, 8),
-  ...encodeMinimalDataPush(u16le(2)),
-  ...encodeMinimalDataPush(u16le(0)),
-  OP.OP_CAT,
-  OP.OP_SWAP,
-  OP.OP_CAT,
+  ...(independent
+    ? [
+        ...encodeMinimalDataPush(u16le(leafCount)),
+        ...encodeMinimalDataPush(u16le(0)),
+        OP.OP_CAT,
+        OP.OP_SWAP,
+        OP.OP_CAT,
+      ]
+    : [
+        ...encodeMinimalDataPush(u16le(0)),
+        OP.OP_SWAP,
+        OP.OP_CAT,
+      ]),
   OP.OP_FROMALTSTACK,
   OP.OP_CAT,
   OP.OP_NIP,
-  OP.OP_FROMALTSTACK,
+  ...(independent
+    ? [OP.OP_FROMALTSTACK]
+    : []),
   ...invokeFunction(FUNCTION.FOLD_AFTER_MERKLE),
 ], 'reusable q2 full-codeword layer function');
 };
 
 const VERIFY_FULL_LAYER_FUNCTION = buildVerifyFullLayerFunction();
 
-/** Domain <16 after a full-eval: 20-byte 2-leaf header, no merkle. */
-const buildVerifyFoldOnlyFunction = ({ cm31 = false } = {}) => compileScript([
+/** Domain <16 after a full-eval: 2-leaf or independent 4-leaf header, no merkle. */
+const buildVerifyFoldOnlyFunction = ({ cm31 = false, independent = false } = {}) => compileScript([
   ...pushNumber(9),
   OP.OP_ROLL,
-  ...pushNumber(cm31 ? 28 : 20),
+  ...pushNumber(independent ? 44 : (cm31 ? 26 : 18)),
   OP.OP_SPLIT,
   OP.OP_TOALTSTACK,
   OP.OP_DUP,
-  ...extractTopBytes(0, 2),
-  ...encodeMinimalDataPush(u16le(2)),
-  OP.OP_EQUALVERIFY,
-  OP.OP_DUP,
-  ...extractTopBytes(2, 2),
-  ...decodeUnsignedTop(),
-  OP.OP_0,
-  OP.OP_NUMEQUALVERIFY,
-  OP.OP_FROMALTSTACK,
+  ...(independent
+    ? [
+        ...extractTopBytes(0, 2),
+        ...encodeMinimalDataPush(u16le(4)),
+        OP.OP_EQUALVERIFY,
+        OP.OP_DUP,
+        ...extractTopBytes(2, 2),
+        ...decodeUnsignedTop(),
+        OP.OP_0,
+        OP.OP_NUMEQUALVERIFY,
+      ]
+    : [
+        ...extractTopBytes(0, 2),
+        ...decodeUnsignedTop(),
+        OP.OP_0,
+        OP.OP_NUMEQUALVERIFY,
+      ]),
+  ...(independent
+    ? [OP.OP_FROMALTSTACK]
+    : []),
   ...invokeFunction(FUNCTION.FOLD_AFTER_MERKLE),
 ], 'reusable q2 fold-only small layer');
 
 const VERIFY_FOLD_ONLY_FUNCTION = buildVerifyFoldOnlyFunction();
 
 const buildLayerInvocation = (fixture, round) => {
-  const roundOffset = 14 + round * 21;
+  const omitRecords = fixture.parameters.logDegreeBound >= 8;
+  const roundOffset = omitRecords ? 0 : 14 + round * 21;
+  const queryOffset = omitRecords ? 0 : 10;
   const layerLength = fixture.parameters.domainLength / (2 ** round);
-  const clustered = fixture.parameters.logDegreeBound >= 8 && round > 0;
+  const clustered = circleFriUsesFourToOne(fixture.parameters) && round > 0;
   return [
     ...pushNumber(3),
     OP.OP_PICK,
@@ -2510,20 +3221,20 @@ const buildLayerInvocation = (fixture, round) => {
     ...extractTopBytes(roundOffset, 21),
     ...pushNumber(5),
     OP.OP_PICK,
-    ...extractTopBytes(10, 4),
+    ...extractTopBytes(queryOffset, 4),
     ...pushNumber(5),
     OP.OP_PICK,
-    ...extractTopBytes(10, 4),
-    ...pushNumber(10),
+    ...extractTopBytes(queryOffset, 4),
+    ...pushNumber(omitRecords ? 8 : 10),
     OP.OP_PICK,
     ...extractTopBytes(0, 4),
-    ...pushNumber(12),
+    ...pushNumber(omitRecords ? 11 : 12),
     OP.OP_PICK,
     ...extractTopBytes(
       round * (circleFriUsesCm31Fold(fixture.parameters) ? 8 : 4),
       circleFriUsesCm31Fold(fixture.parameters) ? 8 : 4,
     ),
-    ...pushNumber(10),
+    ...pushNumber(omitRecords ? 13 : 10),
     OP.OP_PICK,
     ...extractTopBytes(round * 32, 32),
     ...pushNumber(layerLength),
@@ -2587,15 +3298,18 @@ const buildClusteredLaterLayerLoop = (fixture) => {
   const { logDegreeBound, domainLength } = fixture.parameters;
   const cm31 = circleFriUsesCm31Fold(fixture.parameters);
   const betaBytes = cm31 ? 8 : 4;
-  const foldOnly = buildVerifyFoldOnlyFunction({ cm31 });
+  const foldOnly = buildVerifyFoldOnlyFunction({
+    cm31,
+    independent: !circleFriUsesFourToOne(fixture.parameters),
+  });
   return [
     ...pushNumber(3),
     OP.OP_PICK,
-    ...extractTopBytes(26, 4),
+    ...extractTopBytes(fixture.parameters.logDegreeBound >= 8 ? 12 : 26, 4),
     ...decodeUnsignedTop(),
     ...pushNumber(3),
     OP.OP_PICK,
-    ...extractTopBytes(26, 4),
+    ...extractTopBytes(fixture.parameters.logDegreeBound >= 8 ? 12 : 26, 4),
     ...decodeUnsignedTop(),
     OP.OP_TOALTSTACK,
     OP.OP_TOALTSTACK,
@@ -2615,20 +3329,20 @@ const buildClusteredLaterLayerLoop = (fixture) => {
     ...invokeFunction(FUNCTION.PACK_LATER_PLAN),
     ...pushNumber(5),
     OP.OP_PICK,
-    ...extractTopBytes(10, 4),
+    ...extractTopBytes(0, 4),
     ...pushNumber(5),
     OP.OP_PICK,
-    ...extractTopBytes(10, 4),
-    ...pushNumber(10),
+    ...extractTopBytes(0, 4),
+    ...pushNumber(8),
     OP.OP_PICK,
     ...extractTopBytes(0, 4),
-    ...pushNumber(12),
+    ...pushNumber(11),
     OP.OP_PICK,
     ...copyRoundFromAlt(),
     ...pushNumber(betaBytes),
     OP.OP_MUL,
     ...extractTopBytesRuntime(betaBytes),
-    ...pushNumber(10),
+    ...pushNumber(13),
     OP.OP_PICK,
     ...copyRoundFromAlt(),
     ...pushNumber(32),
@@ -2644,8 +3358,16 @@ const buildClusteredLaterLayerLoop = (fixture) => {
     ...pushNumber(16),
     OP.OP_GREATERTHAN,
     OP.OP_IF,
+    ...copyRoundFromAlt(),
+    ...pushNumber(CIRCLE_FRI_MERKLE_STRIDE),
+    OP.OP_MOD,
+    OP.OP_IF,
+    OP.OP_0,
+    ...foldOnly,
+    OP.OP_ELSE,
     OP.OP_0,
     ...invokeFunction(FUNCTION.VERIFY_LAYER2),
+    OP.OP_ENDIF,
     OP.OP_ELSE,
     OP.OP_DUP,
     ...pushNumber(16),
@@ -2699,78 +3421,51 @@ const buildClusteredLaterLayerLoop = (fixture) => {
   ];
 };
 
-const compileQ2RedeemScript = (fixture, digestBinding) => {
-  assertBatchFixture(fixture);
+const buildVerifyClusterAfterTranscript = (fixture, offsets) => {
   const parameters = fixture.parameters;
   const cm31 = circleFriUsesCm31Fold(parameters);
   const feltBytes = cm31 ? 8 : 4;
-  const offsets = Object.freeze({
-    queryOrdinals: 10,
-    queryIndices: 14,
-    finalCodeword: 22,
-  });
+  const omitRecords = parameters.logDegreeBound >= 8;
   const record0 = offsets.finalCodeword + parameters.blowup * feltBytes;
   const record1 = record0 + fixture.topologyRecordBytes;
-  const afterRecords = record1 + fixture.topologyRecordBytes;
-  const fixedHeader = concat(
-    utf8('CFBW'),
-    Uint8Array.of(3),
-    encodeCircleFriParameters(parameters),
-  );
+  const afterRecords = omitRecords ? record0 : record1 + fixture.topologyRecordBytes;
   const script = [
-    ...buildCommonFunctionDefinitions({ cm31 }),
-    ...(cm31
-      ? concat(
-        defineFunction(FUNCTION.M31_WRAP_SUB, M31_WRAP_SUB_FUNCTION),
-        defineFunction(FUNCTION.HASH_CM31_LEAF, HASH_CM31_LEAF_FUNCTION),
-        defineFunction(FUNCTION.FOLD_M31_TO_CM31, FOLD_M31_TO_CM31_FUNCTION),
-        defineFunction(FUNCTION.FOLD_CM31, FOLD_CM31_FUNCTION),
-      )
-      : new Uint8Array()),
-    ...defineFunction(FUNCTION.VERIFY_LAYER, buildVerifyLayerFunction({ toCm31: cm31 })),
-    ...(parameters.logDegreeBound >= 8
-      ? concat(
-        defineFunction(FUNCTION.VERIFY_LAYER2, buildVerifyLayer2Function({ cm31 })),
-        defineFunction(FUNCTION.TRANSCRIPT_LAYER, buildTranscriptLayerFunction({ cm31 })),
-        defineFunction(FUNCTION.FOLD_AFTER_MERKLE, compileScript(
-          buildLayer2FoldAfter({ parked: false, cm31 }),
-          'q2 fold after merkle',
-        )),
-        defineFunction(FUNCTION.VERIFY_FULL_LAYER, buildVerifyFullLayerFunction({ cm31 })),
-        defineFunction(FUNCTION.PACK_LATER_PLAN, PACK_LATER_PLAN_FUNCTION),
-      )
-      : []),
-    ...digestBinding,
-    OP.OP_DUP,
-    ...extractTopBytes(0, fixedHeader.length),
-    ...encodeMinimalDataPush(fixedHeader),
-    OP.OP_EQUALVERIFY,
-    // Roots live in redeem. Park the blob under the witness (no full-witness CAT).
-    ...encodeMinimalDataPush(concat(...fixture.witness.roots)),
-    OP.OP_SWAP,
-    ...buildTranscriptReplay(fixture, offsets),
     ...pushNumber(2),
     OP.OP_PICK,
     ...extractTopBytes(offsets.finalCodeword, parameters.blowup * feltBytes),
     ...buildFinalConstantValidation(parameters.blowup, { cm31 }),
-    ...pushNumber(4),
-    OP.OP_PICK,
-    ...pushNumber(4),
-    OP.OP_PICK,
-    ...extractTopBytes(record0, fixture.topologyRecordBytes),
-    ...pushNumber(5),
-    OP.OP_PICK,
-    ...extractTopBytes(record1, fixture.topologyRecordBytes),
-    ...pushNumber(6),
-    OP.OP_ROLL,
-    ...pushNumber(afterRecords),
-    OP.OP_SPLIT,
-    OP.OP_SWAP,
-    OP.OP_DROP,
-    ...pushNumber(7),
-    OP.OP_ROLL,
-    OP.OP_DROP,
-    ...buildTopologyVerification(),
+    ...(omitRecords
+      ? [
+          ...pushNumber(1),
+          OP.OP_PICK,
+          ...synthesizeRound0PlansFromSelected(parameters),
+          ...pushNumber(5),
+          OP.OP_ROLL,
+          ...pushNumber(afterRecords),
+          OP.OP_SPLIT,
+          OP.OP_SWAP,
+          OP.OP_DROP,
+        ]
+      : [
+          ...pushNumber(4),
+          OP.OP_PICK,
+          ...pushNumber(4),
+          OP.OP_PICK,
+          ...extractTopBytes(record0, fixture.topologyRecordBytes),
+          ...pushNumber(5),
+          OP.OP_PICK,
+          ...extractTopBytes(record1, fixture.topologyRecordBytes),
+          ...pushNumber(6),
+          OP.OP_ROLL,
+          ...pushNumber(afterRecords),
+          OP.OP_SPLIT,
+          OP.OP_SWAP,
+          OP.OP_DROP,
+          ...pushNumber(7),
+          OP.OP_ROLL,
+          OP.OP_DROP,
+          ...buildTopologyVerification(),
+        ]),
     OP.OP_0,
     OP.OP_SWAP,
   ];
@@ -2791,7 +3486,7 @@ const compileQ2RedeemScript = (fixture, digestBinding) => {
     ...extractTopBytes(0, feltBytes),
     ...(cm31
       ? [
-          ...pushNumber(5),
+          ...pushNumber(omitRecords ? 4 : 5),
           OP.OP_PICK,
           OP.OP_EQUALVERIFY,
         ]
@@ -2805,7 +3500,7 @@ const compileQ2RedeemScript = (fixture, digestBinding) => {
     ...extractTopBytes(feltBytes, feltBytes),
     ...(cm31
       ? [
-          ...pushNumber(5),
+          ...pushNumber(omitRecords ? 4 : 5),
           OP.OP_PICK,
           OP.OP_EQUALVERIFY,
         ]
@@ -2815,12 +3510,159 @@ const compileQ2RedeemScript = (fixture, digestBinding) => {
           OP.OP_PICK,
           OP.OP_NUMEQUALVERIFY,
         ]),
-    OP.OP_2DROP,
-    OP.OP_2DROP,
-    OP.OP_2DROP,
-    OP.OP_2DROP,
-    OP.OP_1,
   );
+  return script;
+};
+
+const compileQ2RedeemScript = (fixture, digestBinding, { clustersPerInput = 1 } = {}) => {
+  assertBatchFixture(fixture);
+  const parameters = fixture.parameters;
+  const cm31 = circleFriUsesCm31Fold(parameters);
+  const offsets = Object.freeze({
+    queryOrdinals: 10,
+    queryIndices: 14,
+    finalCodeword: 22,
+  });
+  const fixedHeader = concat(
+    utf8('CFBW'),
+    Uint8Array.of(QUERY_BATCH_WITNESS_VERSION),
+    encodeCircleFriParameters(parameters),
+  );
+  const dual = clustersPerInput > 1;
+  const clusterBody = buildVerifyClusterAfterTranscript(fixture, offsets);
+  const script = [
+    ...buildCommonFunctionDefinitions({ cm31 }),
+    ...(cm31
+      ? concat(
+        defineFunction(FUNCTION.HASH_CM31_LEAF, HASH_CM31_LEAF_FUNCTION),
+        defineFunction(FUNCTION.FOLD_M31_TO_CM31, FOLD_M31_TO_CM31_FUNCTION),
+        defineFunction(FUNCTION.FOLD_CM31, FOLD_CM31_FUNCTION),
+      )
+      : new Uint8Array()),
+    ...defineFunction(FUNCTION.VERIFY_LAYER, buildVerifyLayerFunction({ toCm31: cm31 })),
+    ...(parameters.logDegreeBound >= 8
+      ? concat(
+        ...(circleFriUsesFourToOne(parameters)
+          ? []
+          : [defineFunction(
+            FUNCTION.HASHED_MULTIPROOF4,
+            buildBchM31Multiproof4VerificationBytecode({ hashedLeaves: true }),
+          )]),
+        defineFunction(
+          FUNCTION.VERIFY_LAYER2,
+          circleFriUsesFourToOne(parameters)
+            ? buildVerifyLayer2Function({ cm31 })
+            : buildVerifyLayer4Function(),
+        ),
+        defineFunction(FUNCTION.TRANSCRIPT_LAYER, buildTranscriptLayerFunction({ cm31 })),
+        defineFunction(FUNCTION.FOLD_AFTER_MERKLE, compileScript(
+          circleFriUsesFourToOne(parameters)
+            ? buildLayer2FoldAfter({ parked: true, cm31 })
+            : buildLayer4FoldAfter({ parked: false }),
+          'q2 fold after merkle',
+        )),
+        defineFunction(FUNCTION.VERIFY_FULL_LAYER, buildVerifyFullLayerFunction({
+          cm31,
+          independent: !circleFriUsesFourToOne(parameters),
+        })),
+        defineFunction(FUNCTION.PACK_LATER_PLAN, PACK_LATER_PLAN_FUNCTION),
+      )
+      : []),
+    ...(dual
+      ? concat(
+        defineFunction(FUNCTION.VERIFY_CLUSTER, compileScript(clusterBody, 'q2 cluster body')),
+        defineFunction(FUNCTION.TRANSCRIPT_UNIQUE, compileScript([
+          OP.OP_INPUTINDEX,
+          OP.OP_0,
+          OP.OP_NUMEQUAL,
+          OP.OP_IF,
+          ...buildTranscriptReplay(fixture, offsets, { deferQuerySelection: true }),
+          OP.OP_TOALTSTACK,
+          OP.OP_SIZE,
+          OP.OP_NOT,
+          OP.OP_IF,
+          OP.OP_DROP,
+          OP.OP_ENDIF,
+          OP.OP_FROMALTSTACK,
+          OP.OP_OVER,
+          OP.OP_FROMALTSTACK,
+          OP.OP_EQUALVERIFY,
+          OP.OP_2,
+          OP.OP_PICK,
+          OP.OP_FROMALTSTACK,
+          OP.OP_EQUALVERIFY,
+          OP.OP_ELSE,
+          OP.OP_FROMALTSTACK,
+          OP.OP_DUP,
+          ...extractPackedQueryIndicesFromInput(0, parameters.queryCount),
+          OP.OP_EQUALVERIFY,
+          OP.OP_FROMALTSTACK,
+          OP.OP_DUP,
+          ...extractPackedBetasFromInput(0, parameters.queryCount, parameters),
+          OP.OP_EQUALVERIFY,
+          OP.OP_SWAP,
+          OP.OP_0,
+          OP.OP_ENDIF,
+        ], 'q2 transcript unique')),
+      )
+      : new Uint8Array()),
+    ...digestBinding,
+    OP.OP_DUP,
+    ...extractTopBytes(0, fixedHeader.length),
+    ...encodeMinimalDataPush(fixedHeader),
+    OP.OP_EQUALVERIFY,
+    // Roots live in redeem. Park the blob under the witness (no full-witness CAT).
+    ...encodeMinimalDataPush(concat(...fixture.witness.roots)),
+    OP.OP_SWAP,
+    ...(dual ? [] : buildTranscriptReplay(fixture, offsets, { deferQuerySelection: false })),
+  ];
+  if (!dual) {
+    script.push(
+      ...clusterBody,
+      OP.OP_2DROP,
+      OP.OP_2DROP,
+      OP.OP_2DROP,
+      OP.OP_2DROP,
+      OP.OP_1,
+    );
+  } else {
+    script.push(
+      ...invokeFunction(FUNCTION.TRANSCRIPT_UNIQUE),
+    );
+    for (let cluster = 0; cluster < clustersPerInput; cluster += 1) {
+      if (cluster > 0) {
+        script.push(
+          OP.OP_2DROP,
+          OP.OP_2DROP,
+          OP.OP_DROP,
+          OP.OP_FROMALTSTACK,
+          OP.OP_FROMALTSTACK,
+          OP.OP_SWAP,
+          OP.OP_ROT,
+          OP.OP_SWAP,
+        );
+      }
+      script.push(
+        OP.OP_INPUTINDEX,
+        ...pushNumber(clustersPerInput),
+        OP.OP_MUL,
+        ...pushNumber(cluster),
+        OP.OP_ADD,
+        ...buildPackedTranscriptQuerySelectionFromBase(offsets, parameters.queryCount, {
+          hasTranscript: cluster === 0,
+          savePacked: cluster < clustersPerInput - 1,
+        }),
+        ...invokeFunction(FUNCTION.VERIFY_CLUSTER),
+      );
+    }
+    script.push(
+      OP.OP_2DROP,
+      OP.OP_2DROP,
+      OP.OP_2DROP,
+      OP.OP_2DROP,
+      OP.OP_1,
+    );
+  }
   const redeem = compileScript(script, 'q2 batch redeem');
   require(
     redeem.length <= 10_000,
@@ -2835,7 +3677,7 @@ export const buildBchCircleFriQ2BatchRedeemBytecode = (fixture) => compileQ2Rede
   buildCrossInputProofDigestBinding(publicBatchCount(fixture.parameters)),
 );
 
-const buildInput0OnlyDigestBinding = (batchCount) => [
+const buildInput0OnlyDigestBinding = (batchCount, { clustersPerInput = 1 } = {}) => [
   OP.OP_TXINPUTCOUNT,
   ...pushNumber(batchCount),
   OP.OP_NUMEQUALVERIFY,
@@ -2845,6 +3687,13 @@ const buildInput0OnlyDigestBinding = (batchCount) => [
   OP.OP_WITHIN,
   OP.OP_VERIFY,
   OP.OP_DROP,
+  // Density pad was TOS. Operand is digest, packed, witness, extras.
+  // Park extras then packed so OVER copies digest. Input 0 derives packed
+  // and EQUALVERIFYes this copy; later inputs FROMALTSTACK it.
+  ...Array.from({ length: Math.max(0, clustersPerInput - 1) }, () => OP.OP_TOALTSTACK),
+  ...(clustersPerInput > 1
+    ? [OP.OP_SWAP, OP.OP_TOALTSTACK, OP.OP_SWAP, OP.OP_TOALTSTACK]
+    : []),
   OP.OP_OVER,
   ...extractInputProofDigestPrefix(0),
   OP.OP_EQUALVERIFY,
@@ -2893,10 +3742,23 @@ export const countOpInputBytecode = (bytecode) => {
   return count;
 };
 
-export const buildBchCircleFriQ2PartitionRedeemBytecode = (fixture) => compileQ2RedeemScript(
+export const buildBchCircleFriQ2PartitionRedeemBytecode = (
   fixture,
-  buildInput0OnlyDigestBinding(publicBatchCount(fixture.parameters)),
-);
+  { clustersPerInput = 1 } = {},
+) => {
+  const batchCount = publicBatchCount(fixture.parameters);
+  require(
+    Number.isInteger(clustersPerInput)
+      && clustersPerInput >= 1
+      && batchCount % clustersPerInput === 0,
+    'clustersPerInput must divide the q2 batch count',
+  );
+  return compileQ2RedeemScript(
+    fixture,
+    buildInput0OnlyDigestBinding(batchCount / clustersPerInput, { clustersPerInput }),
+    { clustersPerInput },
+  );
+};
 
 const encodeUnlockingWithPad = ({ operand, redeem, floor }) => {
   const redeemPush = encodeMinimalDataPush(redeem);
@@ -2952,10 +3814,10 @@ const encodeP2sUnlockingWithPad = ({ operand, floor }) => {
 
 export const materializeBchCircleFriQ2PartitionP2s = (
   fixture,
-  { unlockingFloor = PARTITION_UNLOCKING_FLOOR } = {},
+  { unlockingFloor = PARTITION_UNLOCKING_FLOOR, clustersPerInput = 1 } = {},
 ) => {
   assertBatchFixture(fixture);
-  const redeemBytecode = buildBchCircleFriQ2PartitionRedeemBytecode(fixture);
+  const redeemBytecode = buildBchCircleFriQ2PartitionRedeemBytecode(fixture, { clustersPerInput });
   const operandUnlockingBytecode = buildBchCircleFriQ2BatchOperandUnlockingBytecode(fixture);
   const { unlockingBytecode, padLength } = encodeP2sUnlockingWithPad({
     operand: operandUnlockingBytecode,
@@ -2975,10 +3837,44 @@ export const materializeBchCircleFriQ2PartitionP2s = (
 
 export const encodeBchCircleFriQ2PartitionP2sTransactionFixture = (
   fixtures,
-  { unlockingFloor = PARTITION_UNLOCKING_FLOOR } = {},
+  { unlockingFloor = PARTITION_UNLOCKING_FLOOR, clustersPerInput = 1 } = {},
 ) => {
-  const materialized = fixtures.map((fixture) => (
-    materializeBchCircleFriQ2PartitionP2s(fixture, { unlockingFloor })
+  require(Array.isArray(fixtures) && fixtures.length >= 1, 'q2 partition requires fixtures');
+  require(
+    Number.isInteger(clustersPerInput) && clustersPerInput >= 1
+      && fixtures.length % clustersPerInput === 0,
+    'fixtures length must be divisible by clustersPerInput',
+  );
+  const packedQueryIndices = clustersPerInput > 1
+    ? concat(...fixtures.map((item) => item.encodedWitness.subarray(14, 22)))
+    : null;
+  const packedBetas = clustersPerInput > 1 ? encodePackedBetas(fixtures[0]) : null;
+  const grouped = [];
+  for (let index = 0; index < fixtures.length; index += clustersPerInput) {
+    const slice = fixtures.slice(index, index + clustersPerInput);
+    grouped.push({
+      ...slice[0],
+      partnerWitnesses: slice.slice(1).map((item) => item.encodedWitness),
+      packedQueryIndices,
+      packedBetas,
+      clustersPerInput,
+    });
+  }
+  const floorForInput = (inputIndex) => {
+    if (typeof unlockingFloor === 'number') return unlockingFloor;
+    if (unlockingFloor !== null && typeof unlockingFloor === 'object') {
+      if (Array.isArray(unlockingFloor)) return unlockingFloor[inputIndex] ?? unlockingFloor.at(-1);
+      return inputIndex === 0
+        ? (unlockingFloor.input0 ?? unlockingFloor.other ?? PARTITION_UNLOCKING_FLOOR)
+        : (unlockingFloor.other ?? unlockingFloor.input0 ?? PARTITION_UNLOCKING_FLOOR);
+    }
+    return PARTITION_UNLOCKING_FLOOR;
+  };
+  const materialized = grouped.map((fixture, inputIndex) => (
+    materializeBchCircleFriQ2PartitionP2s(fixture, {
+      unlockingFloor: floorForInput(inputIndex),
+      clustersPerInput,
+    })
   ));
   const sourceOutputs = materialized.map(({ lockingBytecode }) => ({
     lockingBytecode,
@@ -3063,9 +3959,19 @@ export const evaluateBchCircleFriQ2PartitionTransactionFixture = (
 /** Build the exact two-operand prefix; the redeem push is appended separately. */
 export const buildBchCircleFriQ2BatchOperandUnlockingBytecode = (fixture) => {
   assertBatchFixture(fixture);
+  const partners = fixture.partnerWitnesses ?? [];
+  const packed = fixture.packedQueryIndices;
+  const betas = fixture.packedBetas;
   return concat(
     encodeMinimalDataPush(fixture.publicProofDigest),
+    ...(packed instanceof Uint8Array && packed.length > 0
+      ? [encodeMinimalDataPush(packed)]
+      : []),
+    ...(betas instanceof Uint8Array && betas.length > 0
+      ? [encodeMinimalDataPush(betas)]
+      : []),
     encodeMinimalDataPush(fixture.encodedWitness),
+    ...partners.map((witness) => encodeMinimalDataPush(witness)),
   );
 };
 

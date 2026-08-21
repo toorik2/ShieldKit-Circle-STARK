@@ -272,7 +272,7 @@ export const PUBLISHED_CIRCLE_HASH_LANE_WALL = [
 export const REMAINING_PRODUCTION_WALLS = [
   'LDE-only absorb-in-Q bind holds (TRACE merkle forbidden; proveHonestLdeGarbageTraceAbsorb rejects).',
   'Nested CFFT H⊂LDE fails (x(H10)∩x(LDE14)=0/512; stride-16 J-fiber x=1543902459).',
-  'AIR q=26 blowup-4 CM31 fold Libauth 13/13. Redeem 5184, unlocking 7647×13, tx 99990. Protocol 1 λ absorbed as 0. HLP24 Thm 6 applies; list-decoding 10 bits on CM31=M31^2. Proven unique-decoding 2^{-26}. q=28 k=14 density miss (14×7098 cap 5_711_200; need ≈437k op-cost cut). logBlowup=3 unique-decoding 39 bits misses redeem 5220 and density. Independent k=26 encoded 7700 misses 100k unpadded. Conjectural floor 255 (HASH256-limited). v2 not-qualified.',
+  'AIR q=90 cpi=3 blowup-8 merkle-stride-16 CM31 fold Libauth 15/15. Redeem 5015, unlocking 9000/6400×15, tx 99265, op ≤6766735≤7232800. Uniqueness and transcript replay on input 0 only; later inputs bind packed queries and fold-βs to input 0. Two-tier density pad. Later 4-to-1 fold-once+DUP. v6 skip-layer fold-only later headers. Round-0 π-pair Merkle; later large layers fold-only. Host fail-on-collision uniqueness; on-chain Fiat-Shamir rejection sampling. MULTIPROOF4 PICK1→OVER, ROLL1→SWAP, ROLL2→ROT. Protocol 1 λ absorbed as 0. HLP24 Thm 6 needs even k; k=45 odd so not instantiated. Proven unique-decoding (1/8)^45=2^{-135}. Conjectural floor 255 (HASH256-limited). v2 not-qualified.',
   'Not a STARK. Not a lane-cannot for the AIR bind.',
 ].join(' ');
 

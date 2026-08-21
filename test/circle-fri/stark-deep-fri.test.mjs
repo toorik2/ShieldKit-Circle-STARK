@@ -120,8 +120,8 @@ test('DEEP is pinned; FRI-of-DEEP is a named wall, not a relabel', () => {
   assert.equal(air.rowMerkleRoot, undefined);
   assert.ok((air.quotientNonzero ?? 0) > 0);
   assert.equal(air.evenXDeep.parameters.logDegreeBound, 14);
-  assert.equal(air.evenXDeep.parameters.logBlowup, 2);
-  assert.equal(air.evenXDeep.parameters.queryCount, 26);
+  assert.equal(air.evenXDeep.parameters.logBlowup, 3);
+  assert.equal(air.evenXDeep.parameters.queryCount, 90);
   assert.equal(air.evenXDeep.zhR.onChain, true);
   assert.ok(air.transitions > 0);
   console.log('DEEP_FRI', {

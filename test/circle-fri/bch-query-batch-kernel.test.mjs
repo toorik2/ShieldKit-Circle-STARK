@@ -26,7 +26,9 @@ import {
   buildBchCircleFriQ2BatchRedeemBytecode,
   createBchCircleFriQ2BatchFixture,
   encodeBchCircleFriQ2BatchTransactionFixture,
+  encodeBchCircleFriQ2PartitionP2sTransactionFixture,
   evaluateBchCircleFriQ2BatchTransactionFixture,
+  evaluateBchCircleFriQ2PartitionTransactionFixture,
   materializeBchCircleFriQ2BatchP2sh32,
 } from '../../src/circle-fri/bch-query-batch-kernel.mjs';
 
@@ -122,13 +124,13 @@ test('one fixed P2SH32 redeem accepts both canonical q2 witnesses in one standar
   assert.deepEqual(wires.materialized[0].redeemBytecode, wires.materialized[1].redeemBytecode);
   assert.deepEqual(wires.materialized[0].lockingBytecode, wires.materialized[1].lockingBytecode);
   assert.equal(wires.materialized[0].lockingBytecode.length, 35);
-  assert.equal(wires.materialized[0].redeemBytecode.length, 4_235);
+  assert.equal(wires.materialized[0].redeemBytecode.length, 4_109);
   assert.deepEqual(wires.materialized.map(({ operandUnlockingBytecode }) => operandUnlockingBytecode.length), [3_866, 3_866]);
-  assert.deepEqual(wires.materialized.map(({ unlockingBytecode }) => unlockingBytecode.length), [8_104, 8_104]);
-  assert.equal(wires.transactionBytes, 16_314);
+  assert.deepEqual(wires.materialized.map(({ unlockingBytecode }) => unlockingBytecode.length), [7_978, 7_978]);
+  assert.equal(wires.transactionBytes, 16_062);
   assert.equal(wires.sourceOutputsBytes, 89);
-  assert.deepEqual(results.map(({ metrics }) => metrics.operationCost), [3_051_810, 3_051_832]);
-  assert.deepEqual(results.map(({ metrics }) => metrics.hashDigestIterations), [552, 552]);
+  assert.deepEqual(results.map(({ metrics }) => metrics.operationCost), [2_841_852, 2_841_870]);
+  assert.deepEqual(results.map(({ metrics }) => metrics.hashDigestIterations), [550, 550]);
   assert.deepEqual(results.map(({ metrics }) => metrics.signatureCheckCount), [0, 0]);
   assert.ok(wires.transactionBytes <= 100_000);
   assert.ok(wires.materialized.every(({ redeemBytecode, unlockingBytecode }) => (
@@ -306,5 +308,42 @@ test('4-to-1 clustered q2: round 0 is 4-leaf, later rounds 2-leaf, Libauth accep
   assert.equal(results[1].accepted, true, results[1].error);
   assert.ok(wires.materialized[0].redeemBytecode.length <= 5_200);
   assert.ok(wires.materialized.every(({ unlockingBytecode }) => unlockingBytecode.length <= 10_000));
+  assert.ok(wires.transactionBytes <= 100_000);
+});
+
+test('dual-cluster q=4 blowup-8: one input, two q2, Libauth accepts, redeem ≤5200', () => {
+  const parameters = Object.freeze({ logDegreeBound: 14, logBlowup: 3, queryCount: 4 });
+  const context = utf8('ShieldKit Circle-FRI dual-cluster q4 v1');
+  let seed = 0x465249n;
+  const coefficients = Array.from({ length: 1 << parameters.logDegreeBound }, () => {
+    seed = (seed * 2_862_933_555_777_941_757n + 3_037_000_493n) & ((1n << 64n) - 1n);
+    return (seed >> 11n) % M31_MODULUS;
+  });
+  const proof = proveCircleFriQueries({
+    coefficients,
+    logBlowup: parameters.logBlowup,
+    queryCount: parameters.queryCount,
+    protocolContext: context,
+  });
+  const fixtures = [[0, 1], [2, 3]].map((queryOrdinals) => createBchCircleFriQ2BatchFixture({
+    witness: createCircleFriQ2BatchWitness({
+      proof,
+      expected: parameters,
+      protocolContext: context,
+      queryOrdinals,
+    }),
+    expected: parameters,
+    protocolContext: context,
+  }));
+  const wires = encodeBchCircleFriQ2PartitionP2sTransactionFixture(fixtures, {
+    unlockingFloor: 10_000,
+    clustersPerInput: 2,
+  });
+  const results = evaluateBchCircleFriQ2PartitionTransactionFixture(wires);
+  assert.equal(wires.materialized.length, 1);
+  assert.equal(results.length, 1);
+  assert.equal(results[0].accepted, true, results[0].error);
+  assert.ok(wires.materialized[0].redeemBytecode.length <= 5_200);
+  assert.ok(wires.materialized[0].unlockingBytecode.length <= 10_000);
   assert.ok(wires.transactionBytes <= 100_000);
 });

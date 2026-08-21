@@ -4,7 +4,7 @@
   "label": "conjectural-unselected",
   "roles": {
     "B": "M31 working convention for this component; not selected",
-    "D": "half-step-shifted standard coset; shipped Z_H·R FRI domain 2^16 (logDegreeBound 14, logBlowup 2); TRACE 64 / LDE 512 is not this object",
+    "D": "half-step-shifted standard coset; shipped Z_H·R FRI domain 2^17 (logDegreeBound 14, logBlowup 3); TRACE 64 / LDE 512 is not this object",
     "E": "CM31 = M31[i]/(i^2+1) fold-challenge and later-layer code alphabet on logDegreeBound≥8; round-0 leaves stay M31; Re/Im DEEP remains a named wall",
     "F_batch": "single-constraint batching over M31",
     "F_fri": "CM31 FRI fold challenges on logDegreeBound≥8 (challengeCm31 re/im); cheap deg-6 stays M31",
@@ -12,7 +12,7 @@
     "Q_deep": "circle-deep-even-x-quotient-v1",
     "H_outer": "domain-separated HASH256 Merkle + labeled SHA-256 transcript",
     "grind": "no grinding in this component; role reserved so the DAG is not silent on PoW",
-    "S_total": "conjectural union of unique systemic summands (FRI (2^16/M31^2)^13 at q=26 4-to-1 CM31 fold plus HASH256 2^-256); proven unique-decoding is (1/4)^13=2^-26 and is not this union; AIR/DEEP/parser/grind are derivation-only; conjectural floor 255 (HASH256-limited; FRI term 597 bits); v2 not-qualified; not a selected tuple"
+    "S_total": "conjectural union of unique systemic summands (FRI (2^17/M31^2)^45 at q=90 cpi=3 4-to-1 CM31 skip-layer fold plus HASH256 2^-256); proven unique-decoding is (1/8)^45=2^-135 and is not this union; AIR/DEEP/parser/grind are derivation-only; conjectural floor 255 (HASH256-limited; FRI term 2024 bits); v2 not-qualified; not a selected tuple"
   },
   "worksheet": {
     "schema": "shieldkit-labs/security/soundness-worksheet/v2",
@@ -154,10 +154,10 @@
             "status": "derived",
             "form": "exact-rational",
             "exactUpperBound": {
-              "numerator": "411376139330301510538742295639337626245683966408394965837152256",
-              "denominator": "426752918537530492438970121052703522648267239372591076064826362174457081932164497074690263260790111209495916194215851883234965621522016692098425770433562777622749297254575275697253706764155920467881137514036256030668358295123819702059037360129"
+              "numerator": "194064761537588616893622436057812819407110752139587076392381504753256369085797110791359801103580809743810966337141384150771447505514351798930535909380147642400556872002606238193783160703949805603157874899214558593861605856727007232",
+              "denominator": "747632004499243740296762280969131935089401750934256588302599259892458708474430610833113426952004978313951948392296141389208694820619386189057409390925538429203172069969912087355850353745603665035860285313629271580643033790434077891000073466260399819192367901970330332363251905455498284785870424121142207038149446995326802465594817020639453868887658694951605546834144673844057981867453034904075546914492875447489676360515570673642280849652243292407704485552165691230624837612488776780162487322893904762338054383480949552427892235165611275314375522916196853943450162582775649357828758035085967300661506688715302582891414142016922546594544642680769596665311548910892894819957858057364163848313211610509426692491083616748707768315858392797338207167613574005304510500870607891769277742228961816770344789448030794331534073526092759605441302888449"
             },
-            "expression": "CONJECTURAL Circle-FRI proximity (domainLength/M31^2)^(queryCount/2): domainLength=2^16, fold field CM31=M31^2, queryCount=26. Odd queries are 4-to-1 derived (fourToOnePartnerIndex), so k=13 independent first-fold pairs. Proven unique-decoding on this blowup-4 domain is (1/4)^k=2^-26 and is NOT this union term. Not proven list-decoding. Not a 2^-50 slot. Not HASH256 as F_fri. 36x4=144 is not this number and is not S_total",
+            "expression": "CONJECTURAL Circle-FRI proximity (domainLength/M31^2)^(queryCount/2): domainLength=2^17, fold field CM31=M31^2, queryCount=90. Odd queries are 4-to-1 derived (fourToOnePartnerIndex), so k=45 independent first-fold pairs (three clusters per input). Proven unique-decoding on this blowup-8 domain is (1/8)^k=2^-135 and is NOT this union term. Not proven list-decoding. Not a 2^-50 slot. Not HASH256 as F_fri. 36x4=144 is not this number and is not S_total",
             "multiplicity": 1,
             "multiplicityIncludedInBound": true,
             "assumptionRefs": [
@@ -275,8 +275,8 @@
         "method": "union-bound",
         "boundExpression": "min(1,sum(unique systemic summands))",
         "exactUpperBound": {
-          "numerator": "426752918537530492438970121052703522648267239372591076064826362174457081932164497074690263260790111209543550296851288776414006106595764957261826010647566854021357038948077652083053353067261177167458346546626388646656618532175943354391927455745",
-          "denominator": "49414612025582859633938910547642219014296394079571318303661286243939779752588825718757729038255635199343330728898042140616018028245869951311551462225750336791819596022704071298431686491397688424290207671683010747083822531332415959346403994586147279446296995560556779599318776050520778573509502575919681439372365732511744"
+          "numerator": "747632004499243740296762280969131935089401750934256588302599259892458708474430610833113426952004978313951948392296141389208694820619386189057409390925538429203172069969912087355850353745603665035860285313629271580643033790434077891000073466260399819192367901970330332363251905455498284785870424121142207038149446995326802465594817020639453868887658694951605546834144673844057981867453034904075546914492875447489676360515570673642280849652243292407704485552165691230624837612488776780162487322893904762338054383480949552427892235165633746478561301865043470258335025391945874070065536867245146060806223273190990203283002701682223488597184656915753520835018897631994696897769463986194098113860432597187534878150621394198863530080790028166348832888718342840597318361054847030586881146874380630605918076728024200073844038064197179146644330905601",
+          "denominator": "86569871781650014493794213844380987415558285650923295282513452172665046235459895962484182089102760227519995253426467160606298542582352417664192670529738510388537413862097209094164307583772310831657501293211096603936721389627670031435475918461990137210066600817376952265168759664641422148059480963413116234935729127342793124652957884960844827658586090029976934266579667931930788852486427664220368156228573692786937641584407552754440651866255960292400241487094487637784322863966124681528501115306964908354671187697389681894116088179778693716957023581951389882930047082697940084977071489591049202389562461908396866128959846370765921163221255018696253483458792294184228943917877732558048570268130178364927636090283591578284699420216648626186725611797440800896153033770124404079691861818614768007274563781341222001992384368005739735066748704479145352644434247617454615945975541642311885353574259743961389768055152143499264"
         },
         "floorSecurityBits": 255,
         "evidenceRefs": [
@@ -294,11 +294,11 @@
       "minimumBits": 100,
       "selectionAllowed": false,
       "fallbackAuthorized": false,
-      "reason": "LDE-only absorb-in-Q bind holds. AIR/DEEP are FRI-of-Q (derivation-only). Parser is fail-closed HASH256. No grind. Shipped object is 4-to-1 clustered q=26 blowup 4 Z_H·R domain 2^16 with on-chain CM31 fold β. Conjectural S_total floor 255 bits (FRI (2^16/M31^2)^13 + HASH256 2^-256; HASH256-limited). Proven unique-decoding is (1/4)^13=2^-26 and is not this union. HLP24 Theorem 6 list-decoding ε_C+α^k floors to 10 bits on CM31=M31^2; Protocol 1 λ is absorbed as 0 (FFT-space encoding). Not a selected tuple. Queries were not dropped. ethSTARK 36x4=144 is not this union. v2 cannot express 128-bit-pass."
+      "reason": "LDE-only absorb-in-Q bind holds. AIR/DEEP are FRI-of-Q (derivation-only). Parser is fail-closed HASH256. No grind. Shipped object is 4-to-1 cpi=3 q=90 blowup 8 Z_H·R domain 2^17 with on-chain CM31 fold β, round-0 π-pair Merkle, merkle stride 16 skip-layer, later fold-once, input-0 uniqueness, two-tier density pad, and MULTIPROOF4 OVER/SWAP/ROT. Conjectural S_total floor 255 bits (FRI (2^17/M31^2)^45 + HASH256 2^-256; HASH256-limited; FRI term 2024 bits). Proven unique-decoding is (1/8)^45=2^-135 and is not this union. HLP24 Theorem 6 at ρ=1/8 needs even k; k=45 odd so not instantiated. Protocol 1 λ is absorbed as 0 (FFT-space encoding). Not a selected tuple. Queries were not dropped. ethSTARK 36x4=144 is not this union. v2 cannot express 128-bit-pass."
     },
     "notes": [
       "36/1024 is a measured query-kernel schedule, not this tuple and not a selection.",
-      "S_total union is conjectural. Proven unique-decoding on blowup 4 is (1/4)^k with k=q/2; that number is 26 bits at q=26 and is not a union summand. AIR/DEEP are derivation-only because a verifying proof is FRI of Q. Parser is fail-closed HASH256. No grind. Proven vs conjectural: unique-decoding (1/4)^k is proven SZ on the query domain; (2^16/M31^2)^k and HASH256-as-RO are conjectural; only the rational arithmetic of the conjectural union is checked. Independent samples k=q/2 are evidenced by deriveUniqueQueryIndices (odd indices are 4-to-1 partners, not transcript challenges). BCH v3 codec parks FRI roots (PICK), ships round-0-only topology records, π-pair Merkle later layers, CM31 fold β on logDegreeBound≥8, and derives later π pairs as N-1-P."
+      "S_total union is conjectural. Proven unique-decoding on blowup 8 is (1/8)^k with k=q/2; that number is 135 bits at q=90 cpi=3 and is not a union summand. AIR/DEEP are derivation-only because a verifying proof is FRI of Q. Parser is fail-closed HASH256. No grind. Proven vs conjectural: unique-decoding (1/8)^k is proven SZ on the query domain; (2^17/M31^2)^k and HASH256-as-RO are conjectural; only the rational arithmetic of the conjectural union is checked. Independent samples k=q/2 are evidenced by deriveUniqueQueryIndices (odd indices are 4-to-1 partners, not transcript challenges; host fails closed on first-draw collision). BCH v6 codec parks FRI roots (PICK), omits clustered topology records (round-0 J-plan synthesized), π-pair Merkle including round 0, merkle stride 16 skip-layer (later large layers fold-only; domain≤16 merkelized), implied 2-leaf later headers, later 4-to-1 fold-once+DUP, CM31 fold β on logDegreeBound≥8, one-squeeze challengeCm31, input-0 Fiat-Shamir uniqueness with later inputs bound to input 0 packed queries and fold-βs, two-tier density pad, and derives later π pairs as N-1-P."
     ]
   }
 }

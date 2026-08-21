@@ -117,15 +117,13 @@ const deriveUniqueQueryIndices = (transcript, parameters) => {
       indices.push(partner);
       continue;
     }
-    for (;;) {
-      const index = transcript.challengeIndex(CIRCLE_FRI_QUERY_CANDIDATE_LABEL, parameters.domainLength);
-      const pairIndex = firstFoldPairIndex(index, parameters.domainLength);
-      if (!seenFirstFoldPairs.has(pairIndex)) {
-        seenFirstFoldPairs.add(pairIndex);
-        indices.push(index);
-        break;
-      }
+    const index = transcript.challengeIndex(CIRCLE_FRI_QUERY_CANDIDATE_LABEL, parameters.domainLength);
+    const pairIndex = firstFoldPairIndex(index, parameters.domainLength);
+    if (seenFirstFoldPairs.has(pairIndex)) {
+      throw new TypeError('query first-fold pair collided');
     }
+    seenFirstFoldPairs.add(pairIndex);
+    indices.push(index);
   }
   return indices;
 };

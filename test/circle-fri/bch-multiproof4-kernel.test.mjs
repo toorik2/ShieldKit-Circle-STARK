@@ -184,7 +184,7 @@ test('runtime-width verification body executes as one BCH-2026 defined function 
     [512, [7, 128, 383, 510]],
   ];
   const body = buildBchM31Multiproof4VerificationBytecode();
-  assert.equal(body.length, 598);
+  assert.equal(body.length, 464);
   for (const [width, indices] of cases) {
     const fixture = createBchM31Multiproof4Fixture({ values: codeword(width), indices });
     const result = evaluateDefinedVerificationFunction(fixture, width);
@@ -371,13 +371,13 @@ test('512-leaf four-leaf multiproof records real standard-VM transaction metrics
   assert.equal(result.accepted, true, result.error ?? 'rejected');
   assert.equal(result.standard, true);
   assert.equal(fixture.frontier.length, 27);
-  assert.equal(materialized.redeemBytecode.length, 601);
+  assert.equal(materialized.redeemBytecode.length, 467);
   assert.equal(materialized.operandUnlockingBytecode.length, 929);
-  assert.equal(materialized.unlockingBytecode.length, 1_533);
-  assert.equal(wires.transactionHex.length / 2, 1_596);
-  assert.equal(result.metrics.operationCost, 541_574);
-  assert.equal(result.metrics.hashDigestIterations, 109);
-  assert.equal(result.metrics.stackMaximums.cumulativeMemoryItems, 15);
+  assert.equal(materialized.unlockingBytecode.length, 1_399);
+  assert.equal(wires.transactionHex.length / 2, 1_462);
+  assert.equal(result.metrics.operationCost, 422_820);
+  assert.equal(result.metrics.hashDigestIterations, 107);
+  assert.equal(result.metrics.stackMaximums.cumulativeMemoryItems, 13);
   assert.equal(result.metrics.stackMaximums.elementBytes, 864);
   assert.equal(result.metrics.signatureCheckCount, 0);
   assert.ok(result.metrics.operationCost < result.metrics.limits.maximumOperationCost);

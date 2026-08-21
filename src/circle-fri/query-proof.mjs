@@ -52,7 +52,7 @@ export const CIRCLE_FRI_QUERY_CANDIDATE_LABEL = 'fri-query-candidate';
 export const CIRCLE_FRI_DIMENSION_GAP_LAMBDA_LABEL = 'fri-dimension-gap-lambda';
 /** FFT-space encoding: coefficients length is 2^n, so Protocol 1 λ is 0. */
 export const CIRCLE_FRI_DIMENSION_GAP_LAMBDA = 0n;
-export const DEFAULT_MAXIMUM_LOG_DOMAIN = 20;
+export const DEFAULT_MAXIMUM_LOG_DOMAIN = 24;
 
 const fail = (message) => {
   throw new TypeError(message);
@@ -76,6 +76,7 @@ export const assertCircleFriParameters = ({
   logDegreeBound,
   logBlowup,
   queryCount,
+  fourToOneClustering = true,
   maximumLogDomain = DEFAULT_MAXIMUM_LOG_DOMAIN,
 }) => {
   const logDegree = assertLog(logDegreeBound, 'logDegreeBound', 1);
@@ -97,13 +98,14 @@ export const assertCircleFriParameters = ({
     domainLength,
     firstFoldPairCount,
     queryCount,
+    fourToOneClustering: fourToOneClustering !== false,
   });
 };
 
-/** Clustered later π layers commit N-1-P pairs as adjacent Merkle leaves. */
+/** Clustered J and π layers commit N-1-P pairs as adjacent Merkle leaves. */
 export const circleFriUsesPiPairMerkle = (parameters, round) => (
   Number.isSafeInteger(round)
-  && round > 0
+  && round >= 0
   && parameters.logDegreeBound >= 8
 );
 
@@ -111,6 +113,31 @@ export const circleFriUsesPiPairMerkle = (parameters, round) => (
 export const circleFriUsesCm31Fold = (parameters) => (
   parameters.logDegreeBound >= 8
 );
+
+/** 4-to-1: odd queries are π-partners of the previous J-pair (k=q/2). Independent k=q when false. */
+export const circleFriUsesFourToOne = (parameters) => (
+  parameters.fourToOneClustering !== false
+  && Number.isInteger(parameters.queryCount)
+  && parameters.queryCount % 2 === 0
+  && parameters.logDegreeBound >= 8
+);
+
+/**
+ * Clustered FRI merkelizes round 0, then every CIRCLE_FRI_MERKLE_STRIDE
+ * later round, plus every domain-≤16 layer (full codeword). Skipped rounds
+ * are verifier-computed folds. Unique-decoding of the committed f_0 openings
+ * stays ρ^k; HLP24 Thm 6 does not instantiate on the sparse-commit fold.
+ */
+export const CIRCLE_FRI_MERKLE_STRIDE = 16;
+
+export const circleFriCommitsMerkleRound = (parameters, round) => {
+  if (!Number.isSafeInteger(round) || round < 0) return false;
+  if (round === 0) return true;
+  if (parameters.logDegreeBound < 8) return true;
+  const layerLength = parameters.domainLength / (2 ** round);
+  if (!Number.isFinite(layerLength) || layerLength <= 16) return true;
+  return round % CIRCLE_FRI_MERKLE_STRIDE === 0;
+};
 
 export const encodeCircleFriParameters = (parameters) => Uint8Array.of(
   CIRCLE_FRI_QUERY_PROOF_VERSION,
@@ -143,7 +170,7 @@ const deriveUniqueQueryIndices = (transcript, parameters) => {
   const indices = [];
   const seenFirstFoldPairs = new Set();
   for (let query = 0; query < parameters.queryCount; query += 1) {
-    if (query % 2 === 1 && parameters.queryCount % 2 === 0 && parameters.logDegreeBound >= 8) {
+    if (query % 2 === 1 && circleFriUsesFourToOne(parameters)) {
       const partner = fourToOnePartnerIndex(
         firstFoldPairIndex(indices[query - 1], parameters.domainLength),
         parameters.domainLength,
@@ -154,17 +181,37 @@ const deriveUniqueQueryIndices = (transcript, parameters) => {
       indices.push(partner);
       continue;
     }
-    for (;;) {
-      const index = transcript.challengeIndex(CIRCLE_FRI_QUERY_CANDIDATE_LABEL, parameters.domainLength);
-      const pairIndex = firstFoldPairIndex(index, parameters.domainLength);
-      if (!seenFirstFoldPairs.has(pairIndex)) {
-        seenFirstFoldPairs.add(pairIndex);
-        indices.push(index);
-        break;
-      }
-    }
+    const index = transcript.challengeIndex(CIRCLE_FRI_QUERY_CANDIDATE_LABEL, parameters.domainLength);
+    const pairIndex = firstFoldPairIndex(index, parameters.domainLength);
+    if (seenFirstFoldPairs.has(pairIndex)) fail('query first-fold pair collided');
+    seenFirstFoldPairs.add(pairIndex);
+    indices.push(index);
   }
   return indices;
+};
+
+/** Host skip-search uniqueness: first-draw collision fails closed. Retry a new nonce; do not resample in-transcript. */
+export const isCircleFriQueryCollision = (error) => {
+  const message = String(error?.message ?? error);
+  return message.includes('collided') || message.includes('collides');
+};
+
+export const CIRCLE_FRI_QUERY_COLLISION_MAX_RETRY = 32;
+
+export const retryCircleFriQueryCollision = (prove, {
+  startNonce = 0,
+  maxAttempts = CIRCLE_FRI_QUERY_COLLISION_MAX_RETRY,
+} = {}) => {
+  let lastError = null;
+  for (let attempt = 0; attempt <= maxAttempts; attempt += 1) {
+    try {
+      return prove(startNonce + attempt);
+    } catch (error) {
+      if (!isCircleFriQueryCollision(error)) throw error;
+      lastError = error;
+    }
+  }
+  throw lastError ?? new TypeError('query first-fold pair collided');
 };
 
 export const encodeCircleFriDimensionGapLambda = (
@@ -216,6 +263,7 @@ export const proveCircleFriQueries = ({
   coefficients,
   logBlowup,
   queryCount,
+  fourToOneClustering = true,
   protocolContext = new Uint8Array(),
   maximumLogDomain = DEFAULT_MAXIMUM_LOG_DOMAIN,
 }) => {
@@ -225,6 +273,7 @@ export const proveCircleFriQueries = ({
   const logDegreeBound = Math.log2(coefficients.length);
   const parameters = assertCircleFriParameters({
     logDegreeBound,
+    fourToOneClustering,
     logBlowup,
     queryCount,
     maximumLogDomain,
@@ -305,6 +354,7 @@ export const proveCircleFriQueries = ({
     logDegreeBound: parameters.logDegreeBound,
     logBlowup: parameters.logBlowup,
     queryCount: parameters.queryCount,
+    fourToOneClustering: parameters.fourToOneClustering,
     dimensionGapLambda: CIRCLE_FRI_DIMENSION_GAP_LAMBDA,
     roots,
     finalCodeword,
@@ -328,6 +378,7 @@ const assertProofShape = (proof, maximumLogDomain = DEFAULT_MAXIMUM_LOG_DOMAIN) 
     logDegreeBound: proof.logDegreeBound,
     logBlowup: proof.logBlowup,
     queryCount: proof.queryCount,
+    fourToOneClustering: proof.fourToOneClustering,
     maximumLogDomain,
   });
   if (!Array.isArray(proof.roots) || proof.roots.length !== parameters.logDegreeBound) {

@@ -103,6 +103,41 @@ export const sampleCircleFriTranscriptState = ({ state, label, upperBound }) => 
   });
 };
 
+/** One squeeze → two M31 limbs. Same absorb as sampleCircleFriTranscriptState. */
+export const sampleCircleFriTranscriptCm31 = ({ state, label }) => {
+  const upperBound = Number(M31_MODULUS);
+  const acceptanceBound = Math.floor(TWO_TO_32 / upperBound) * upperBound;
+  const beforeState = new Uint8Array(assertState(state));
+  const challengeLabel = assertLabel(label);
+  for (let attempt = 0; attempt < 1_000_000; attempt += 1) {
+    const digest = sha256(concatBytes(
+      CIRCLE_FRI_SQUEEZE_DOMAIN,
+      beforeState,
+      frameBytes('label', utf8(challengeLabel)),
+      frameBytes('attempt', u32le(attempt)),
+    ));
+    const re = readU32le(digest, 0);
+    const im = readU32le(digest, 4);
+    if (re < acceptanceBound && im < acceptanceBound) {
+      const nextState = sha256(concatBytes(
+        beforeState,
+        frameBytes('accepted-challenge-label', utf8(challengeLabel)),
+        frameBytes('accepted-challenge-digest', digest),
+        frameBytes('accepted-challenge-attempt', u32le(attempt)),
+      ));
+      return Object.freeze({
+        value: cm31(BigInt(re % upperBound), BigInt(im % upperBound)),
+        label: challengeLabel,
+        beforeState,
+        digest: new Uint8Array(digest),
+        attempt,
+        state: nextState,
+      });
+    }
+  }
+  fail('CM31 rejection sampling exceeded maximumAttempts');
+};
+
 export class CircleFriTranscript {
   #state;
 
@@ -130,10 +165,9 @@ export class CircleFriTranscript {
   }
 
   challengeCm31(label) {
-    return cm31(
-      this.challengeField(`${label}-re`),
-      this.challengeField(`${label}-im`),
-    );
+    const sample = sampleCircleFriTranscriptCm31({ state: this.#state, label });
+    this.#state = sample.state;
+    return sample.value;
   }
 
   challengeIndex(label, range) {

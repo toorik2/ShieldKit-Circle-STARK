@@ -23,14 +23,14 @@ export const SOUNDNESS_ROLES = Object.freeze([
   'B', 'D', 'E', 'F_batch', 'F_fri', 'F_deep', 'Q_deep', 'H_outer', 'grind', 'S_total',
 ]);
 
-/** Conjectural unselected union of the shipped q=26 clustered object. v2 cannot express 128-bit-pass. */
+/** Conjectural unselected union of the shipped q=90 cpi=3 skip-layer object. v2 cannot express 128-bit-pass. */
 export const SOUNDNESS_128_WALL = [
-  'Unselected conjectural S_total floor is 255 bits (FRI (2^16/M31^2)^(q/2) at q=26 plus HASH256 2^-256). HASH256 limits the union; the FRI term is 597 bits.',
-  'Proven unique-decoding on this blowup-4 domain is (1/4)^k = 2^-26 (k=13 independent 4-to-1 clusters). That proven term is not the union.',
-  '4-to-1 derived odd queries so k=13 independent first-fold pairs. Domain 2^16, blowup 4, π-pair Merkle later layers. Fold β sampled in CM31 on logDegreeBound≥8.',
+  'Unselected conjectural S_total floor is 255 bits (FRI (2^17/M31^2)^(q/2) at q=90 plus HASH256 2^-256). HASH256 limits the union; the FRI term is 2024 bits.',
+  'Proven unique-decoding on this blowup-8 domain is (1/8)^k = 2^-135 (k=45 independent 4-to-1 clusters). That proven term is not the union. It is ≥128 as a unique-decoding proximity bound.',
+  '4-to-1 derived odd queries so k=45 independent first-fold pairs, three clusters per input. Domain 2^17, blowup 8, π-pair Merkle including round 0. Merkle stride 16: later large layers are fold-only; domain≤16 merkelized. v6 implied 2-leaf fold-only headers, sibCount 0. Later 4-to-1 rounds fold the shared π-pair once and DUP. Fold β sampled in CM31 on logDegreeBound≥8. One-squeeze challengeCm31. Host fail-on-collision uniqueness; on-chain Fiat-Shamir rejection sampling on input 0, later inputs bind packed queries and fold-βs to input 0. Two-tier density pad. Clustered codec omits topology records (round-0 J-plan synthesized).',
   'AIR/DEEP are derivation-only on FRI-of-Q; parser is fail-closed on HASH256; no grind.',
-  'HLP24 Theorem 6 list-decoding ε_C+α^k floors to 10 bits on CM31=M31^2 (L=1, m=3, r=14; commit-phase ~38 bits, query α^13 ~10 bits). Protocol 1 λ is absorbed as 0 (FFT-space encoding). Neither unique-decoding 2^-26 nor HLP24 10 bits is 128. Unique-decoding 128 needs k≥64. HLP24 128 needs s≥165. q=28 density-miss (cap 5_711_200 vs ~6.15M). logBlowup=3 redeem 5220. Independent k=q encoded 7700 misses 100k.',
-  'Not a selected tuple. Queries were not dropped. 36×4=144 is not this union. HASH256 is not F_fri.',
+  'HLP24 Theorem 6 list-decoding at ρ=1/8 needs even k; k=45 is odd so not instantiated. Unique-decoding 2^-135 is the proven proximity term. Conjectural union stays HASH256-limited 255. Independent k=q encoded 7566>6205. q=64 k=32 dual-cluster density abort 4996896>4996800. AIR q=90 k=45 cpi=3 Libauth 15/15 redeem 5015 unlocking 9000/6400 tx 99265 op ≤6766735≤7232800.',
+  'Not a selected tuple. Queries were not dropped. 36×4=144 is not this union. HASH256 is not F_fri. Not a STARK until the conjectural union is replaced by a proven one in S_total.',
 ].join(' ');
 
 export const SOUNDNESS_EVENT_FAMILIES = Object.freeze([
@@ -80,8 +80,8 @@ export const computeStarkSoundnessArtifactDigests = () => {
     zk: 'zh-r-even-x-deep-v1',
     partition: 'air-lde-only-even-x',
     logDegreeBound: 14,
-    logBlowup: 2,
-    queryCount: 26,
+    logBlowup: 3,
+    queryCount: 90,
   })));
   const sourceCommit = sha256hex(Buffer.concat([
     readNeighbor(SOUNDNESS_EVEN_X_NEIGHBORS.deep),

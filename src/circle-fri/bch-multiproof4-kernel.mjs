@@ -55,6 +55,7 @@ const OP = Object.freeze({
   OP_OVER: 0x78,
   OP_PICK: 0x79,
   OP_ROLL: 0x7a,
+  OP_ROT: 0x7b,
   OP_SWAP: 0x7c,
   OP_CAT: 0x7e,
   OP_SPLIT: 0x7f,
@@ -217,8 +218,7 @@ const mergeKnownSibling = () => [
   OP.OP_TOALTSTACK,
 
   // Consume the next complete record from remainingCurrent.
-  OP.OP_1,
-  OP.OP_ROLL,
+  OP.OP_SWAP,
   ...pushNumber(RECORD_BYTES),
   OP.OP_SPLIT,
   OP.OP_SWAP,
@@ -228,8 +228,7 @@ const mergeKnownSibling = () => [
   OP.OP_DROP,
 
   // Normalize to frontier, remainingCurrent, leftHash, rightHash.
-  OP.OP_2,
-  OP.OP_ROLL,
+  OP.OP_ROT,
   OP.OP_SWAP,
   ...hashNode(),
 
@@ -262,11 +261,9 @@ const mergeFrontierSibling = () => [
   OP.OP_TOALTSTACK,
 
   // Move parentIndex aside, then order children from runtime parity.
-  OP.OP_1,
-  OP.OP_ROLL,
+  OP.OP_SWAP,
   OP.OP_TOALTSTACK,
-  OP.OP_1,
-  OP.OP_ROLL,
+  OP.OP_SWAP,
   OP.OP_IF,
     OP.OP_SWAP,
   OP.OP_ENDIF,
@@ -275,10 +272,8 @@ const mergeFrontierSibling = () => [
   // Restore parentIndex and remaining frontier, then normalize the state.
   OP.OP_FROMALTSTACK,
   OP.OP_FROMALTSTACK,
-  OP.OP_2,
-  OP.OP_ROLL,
-  OP.OP_2,
-  OP.OP_ROLL,
+  OP.OP_ROT,
+  OP.OP_ROT,
 ];
 
 /** Input: root, nextBlob, remainingCurrent, frontier, parentHash, parentIndex. */
@@ -293,17 +288,14 @@ const appendParentRecord = () => [
   OP.OP_ROLL,
   OP.OP_SWAP,
   OP.OP_CAT,
-  OP.OP_2,
-  OP.OP_ROLL,
-  OP.OP_2,
-  OP.OP_ROLL,
+  OP.OP_ROT,
+  OP.OP_ROT,
 ];
 
 /** Input and output state: root, nextBlob, currentBlob, frontier. */
 const reduceOneCurrentRecord = () => [
   // Split and decode the first complete current record.
-  OP.OP_1,
-  OP.OP_ROLL,
+  OP.OP_SWAP,
   ...pushNumber(RECORD_BYTES),
   OP.OP_SPLIT,
   OP.OP_SWAP,
@@ -351,11 +343,11 @@ const validateRuntimeIndices = () => [
   ]),
 ];
 
-const buildInitialCurrentBlob = () => [
+const buildInitialCurrentBlob = ({ hashedLeaves = false } = {}) => [
   // Keep the caller's packed frontier below four internally built records.
   OP.OP_TOALTSTACK,
   ...[4, 3, 2, 1].flatMap((indexDepth) => [
-    ...hashLeaf(),
+    ...(hashedLeaves ? [] : hashLeaf()),
     ...pushNumber(indexDepth),
     OP.OP_ROLL,
     OP.OP_4,
@@ -377,10 +369,8 @@ const buildInitialCurrentBlob = () => [
 
   // Normalize to root, emptyNextBlob, currentBlob, frontier.
   OP.OP_0,
-  OP.OP_2,
-  OP.OP_ROLL,
-  OP.OP_2,
-  OP.OP_ROLL,
+  OP.OP_ROT,
+  OP.OP_ROT,
 ];
 
 /**
@@ -389,27 +379,27 @@ const buildInitialCurrentBlob = () => [
  * Input suffix, bottom-to-top (any lower caller prefix is preserved):
  * `root, i0, i1, i2, i3, rawM31v0, rawM31v1, rawM31v2, rawM31v3,
  * packedCanonicalFrontier, treeWidth`.
+ * `hashedLeaves: true` takes 32-byte leaf hashes instead of raw M31 values.
  *
  * The four indices must be strictly increasing. `treeWidth` is consumed from
  * the top, must be a power of two by runtime reduction, and independently
  * determines both the exact number of tree levels and exact frontier
  * consumption. Output is one boolean replacing the complete suffix.
  */
-export const buildBchM31Multiproof4VerificationBytecode = () => {
+export const buildBchM31Multiproof4VerificationBytecode = ({ hashedLeaves = false } = {}) => {
   const script = [
     // Keep the runtime width above any pre-existing alternate-stack caller
     // state. All temporary alternate-stack use in this body remains balanced.
     OP.OP_TOALTSTACK,
     ...validateRuntimeIndices(),
-    ...buildInitialCurrentBlob(),
+    ...buildInitialCurrentBlob({ hashedLeaves }),
 
     // Tree width is independent of caller-supplied frontier length.
     OP.OP_BEGIN,
       // Reduce all known nodes in this level, consuming the canonical frontier.
       OP.OP_BEGIN,
         ...reduceOneCurrentRecord(),
-        OP.OP_1,
-        OP.OP_PICK,
+        OP.OP_OVER,
         OP.OP_SIZE,
         OP.OP_NIP,
         OP.OP_0,
@@ -417,14 +407,11 @@ export const buildBchM31Multiproof4VerificationBytecode = () => {
       OP.OP_UNTIL,
 
       // Drop the proven-empty current blob and promote nextBlob.
-      OP.OP_1,
-      OP.OP_ROLL,
+      OP.OP_SWAP,
       OP.OP_DROP,
       OP.OP_0,
-      OP.OP_2,
-      OP.OP_ROLL,
-      OP.OP_2,
-      OP.OP_ROLL,
+      OP.OP_ROT,
+      OP.OP_ROT,
 
       // Consume exactly one committed tree level.
       OP.OP_FROMALTSTACK,
@@ -445,8 +432,7 @@ export const buildBchM31Multiproof4VerificationBytecode = () => {
     OP.OP_NUMEQUALVERIFY,
 
     // Final state must be one index-0 record, no frontier, and no next blob.
-    OP.OP_2,
-    OP.OP_ROLL,
+    OP.OP_ROT,
     OP.OP_SIZE,
     OP.OP_0,
     OP.OP_NUMEQUALVERIFY,

@@ -25,8 +25,52 @@ import {
 
 export const CIRCLE_FRI_TOPOLOGY_RECORD_MAGIC = utf8('CFTP');
 export const CIRCLE_FRI_TOPOLOGY_LEAF_DOMAIN = utf8('ShieldKit/CircleFRI/TopologyLeaf/v1\0');
+export const CIRCLE_FRI_CLUSTERED_ROOT_DOMAIN = utf8('ShieldKit/CircleFRI/ClusteredTopologyRoot/v1\0');
 export const CIRCLE_FRI_TOPOLOGY_RECORD_VERSION = 1;
 export const CIRCLE_FRI_TOPOLOGY_ROUND_BYTES = 21;
+
+const publicTopologyCache = new Map();
+const publicTopologiesFor = (parameters) => {
+  const normalized = assertCircleFriParameters(parameters);
+  const key = `${normalized.logDegreeBound}:${normalized.logBlowup}:${normalized.queryCount}`;
+  const cached = publicTopologyCache.get(key);
+  if (cached) return cached;
+  const topologies = buildCircleFriPublicTopologies(normalized);
+  publicTopologyCache.set(key, topologies);
+  return topologies;
+};
+
+/** One query's J-then-π walk. Does not materialize a 2^n Merkle of records. */
+export const walkCircleFriTopologyRecord = (parameters, queryIndex) => {
+  const normalized = assertCircleFriParameters(parameters);
+  if (!Number.isSafeInteger(queryIndex) || queryIndex < 0 || queryIndex >= normalized.domainLength) {
+    fail('topology queryIndex is out of range');
+  }
+  const topologies = publicTopologiesFor(normalized);
+  let currentIndex = queryIndex;
+  const rounds = topologies.map((topology, round) => {
+    const nextIndex = topology.pairByLeaf[currentIndex];
+    const pair = topology.pairs[nextIndex];
+    const entry = Object.freeze({
+      round,
+      currentIndex,
+      leftIndex: pair.leftIndex,
+      rightIndex: pair.rightIndex,
+      nextIndex,
+      coordinate: pair.coordinate,
+      continuitySide: round === 0 ? 0 : (currentIndex === pair.leftIndex ? 1 : 2),
+    });
+    currentIndex = nextIndex;
+    return entry;
+  });
+  return encodeCircleFriTopologyRecord({ parameters: normalized, queryIndex, rounds });
+};
+
+/** Canonical clustered topology root: parameters, not a 2^n record Merkle. */
+export const clusteredTopologyRoot = (parameters) => hash256(concatBytes(
+  CIRCLE_FRI_CLUSTERED_ROOT_DOMAIN,
+  encodeCircleFriParameters(assertCircleFriParameters(parameters)),
+));
 
 const fail = (message) => {
   throw new TypeError(message);
