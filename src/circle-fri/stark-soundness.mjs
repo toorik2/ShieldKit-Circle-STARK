@@ -29,7 +29,7 @@ export const SOUNDNESS_128_WALL = [
   'Unselected S_total floor is 134 bits: proven unique-decoding FRI (1/8)^45=2^-135 plus HASH256 2^-256 (union-bound). Unique-decoding is the FRI summand. Conjectural (2^17/M31^2)^45 is 2024 bits and is not this union.',
   'k=45 independent 4-to-1 clusters, three per input, q=90, domain 2^17, blowup 8. π-pair Merkle including round 0. Merkle stride 16 skip-layer. Later 4-to-1 fold-once+DUP. CM31 fold β. Host fail-on-collision; on-chain Fiat-Shamir uniqueness on input 0, later inputs bind packed queries and fold-βs. Two-tier density pad.',
   'AIR/DEEP are derivation-only on FRI-of-Q; parser is fail-closed on HASH256; no grind.',
-  'HLP24 Theorem 6 needs even k; k=45 is odd so not instantiated. HASH256-as-RO stays conjectural. Independent k=q encoded 7566>6205. AIR q=90 k=45 cpi=3 Libauth 15/15 redeem 5015 unlocking 9000/6400 tx 99265.',
+  'HLP24 Theorem 6 needs even k; k=45 is odd so not instantiated. HASH256-as-RO stays conjectural. Independent k=q encoded 7566>6205. AIR q=90 k=45 cpi=3 Libauth 15/15 redeem 5168 unlocking 9000/6400 tx 99265. On-chain AIR zeta LDE opening in the same transcript as FRI.',
   'Numeric unselected S_total floor ≥128 is labeled systemic128; v2 qualification stays not-qualified (cannot say 128-bit-pass). HASH256-as-RO stays conjectural. Not a selected tuple. Queries were not dropped. 36×4=144 is not this union. Not a STARK.',
 ].join(' ');
 

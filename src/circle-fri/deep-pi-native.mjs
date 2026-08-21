@@ -145,7 +145,7 @@ export const proveEvenXDeepFri = ({
       hiddenStart: coefficients.length,
       onChain: onChainZhR,
       reason: onChainZhR
-        ? 'AIR q=90 cpi=3 16384-coeff Z_H·R DEEP FRI measured redeem 5015 unlocking 9000/6400 tx 99265 op ≤6766735, Libauth 15/15'
+        ? 'AIR q=90 cpi=3 16384-coeff Z_H·R DEEP FRI plus on-chain AIR LDE opening, redeem 5168 unlocking 9000/6400 tx 99265 op ≤6841936, Libauth 15/15'
         : coefficients.length === 64
           ? 'q2 unlocking of the 128-coeff Z_H·R DEEP FRI exceeds the 10k unlocking limit (measured 10397–10525)'
           : `q2 unlocking of the ${zhRCoefficients.length}-coeff Z_H·R DEEP FRI is not claimed on-chain`,

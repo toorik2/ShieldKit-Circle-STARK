@@ -23,6 +23,7 @@ import {
 } from './pool-action-relation.mjs';
 
 import {
+  encodeAirZetaLdeOpening,
   provePoseidon2Air,
 } from './poseidon2-air.mjs';
 
@@ -30,7 +31,9 @@ import {
   hexToBytes,
 } from '../../research-lanes/bch-shielded-pool-design/p1/codec/common.mjs';
 
-const buildAirFixtures = (deep) => {
+const buildAirFixtures = (deep, airProof) => {
+  const airLdeOpening = encodeAirZetaLdeOpening(airProof);
+  const airLdeRoot = new Uint8Array(airProof.ldeMerkleRoot);
   const fixtures = [];
   for (let batch = 0; batch < deep.parameters.queryCount / 2; batch += 1) {
     fixtures.push(createBchCircleFriQ2BatchFixture({
@@ -42,6 +45,8 @@ const buildAirFixtures = (deep) => {
       }),
       expected: deep.parameters,
       protocolContext: deep.protocolContext,
+      airLdeOpening,
+      airLdeRoot,
     }));
   }
   return fixtures;
@@ -79,7 +84,7 @@ export const evaluateRelationBoundPartition = ({
         lastError = new TypeError('AIR composition FRI is degenerate (zero codeword)');
         continue;
       }
-      fixtures = buildAirFixtures(deep);
+      fixtures = buildAirFixtures(deep, poseidon2Air);
       lastError = null;
       break;
     } catch (error) {

@@ -175,6 +175,7 @@ const FUNCTION = Object.freeze({
   HASHED_MULTIPROOF4: 22,
   VERIFY_CLUSTER: 23,
   TRANSCRIPT_UNIQUE: 24,
+  VERIFY_AIR_LDE: 25,
   SORT4: 10,
   VERIFY_LAYER: 11,
   VERIFY_LAYER2: 12,
@@ -308,6 +309,71 @@ const framePrefix = (label, payloadLength) => {
   const labelBytes = utf8(label);
   return concat(u16le(labelBytes.length), labelBytes, u32le(payloadLength));
 };
+
+const AIR_ROW_LEAF_DOMAIN = utf8('poseidon2-air-row-v1\0');
+const AIR_LDE_SIBLING_COUNT = 14;
+const AIR_LDE_LEAF_BYTES = 16 * 4;
+const AIR_LDE_OPENING_BYTES = 2 + AIR_LDE_LEAF_BYTES + AIR_LDE_SIBLING_COUNT * 32;
+
+/** TOS blob: u16le index || 64-byte AIR LDE row || 14×32 siblings. Baked LDE root. */
+const buildVerifyAirLdeFunction = (root) => compileScript([
+  ...pushNumber(2),
+  OP.OP_SPLIT,
+  OP.OP_SWAP,
+  OP.OP_BIN2NUM,
+  OP.OP_SWAP,
+  ...pushNumber(AIR_LDE_LEAF_BYTES),
+  OP.OP_SPLIT,
+  OP.OP_SWAP,
+  ...encodeMinimalDataPush(AIR_ROW_LEAF_DOMAIN),
+  OP.OP_SWAP,
+  OP.OP_CAT,
+  OP.OP_HASH256,
+  ...pushNumber(AIR_LDE_SIBLING_COUNT),
+  OP.OP_TOALTSTACK,
+  OP.OP_BEGIN,
+  OP.OP_FROMALTSTACK,
+  OP.OP_DUP,
+  OP.OP_NOT,
+  OP.OP_IF,
+  OP.OP_DROP,
+  OP.OP_1,
+  OP.OP_ELSE,
+  OP.OP_1SUB,
+  OP.OP_TOALTSTACK,
+  ...pushNumber(2),
+  OP.OP_PICK,
+  OP.OP_2,
+  OP.OP_MOD,
+  OP.OP_TOALTSTACK,
+  OP.OP_TOALTSTACK,
+  ...pushNumber(32),
+  OP.OP_SPLIT,
+  OP.OP_SWAP,
+  OP.OP_FROMALTSTACK,
+  OP.OP_SWAP,
+  OP.OP_FROMALTSTACK,
+  OP.OP_IF,
+  OP.OP_SWAP,
+  OP.OP_ENDIF,
+  OP.OP_CAT,
+  ...encodeMinimalDataPush(M31_MERKLE_NODE_DOMAIN),
+  OP.OP_SWAP,
+  OP.OP_CAT,
+  OP.OP_HASH256,
+  OP.OP_ROT,
+  OP.OP_2,
+  OP.OP_DIV,
+  OP.OP_ROT,
+  OP.OP_ROT,
+  OP.OP_0,
+  OP.OP_ENDIF,
+  OP.OP_UNTIL,
+  ...encodeMinimalDataPush(root),
+  OP.OP_EQUALVERIFY,
+  OP.OP_DROP,
+  OP.OP_DROP,
+], 'verify AIR note-squeeze LDE opening');
 
 const HASH_NODE_FUNCTION = compileScript([
   OP.OP_CAT,
@@ -921,6 +987,9 @@ export const createBchCircleFriQ2BatchFixture = ({
   witness,
   expected,
   protocolContext = new Uint8Array(),
+  airLdeOpening = null,
+  airLdeRoot = null,
+  airNoteFelts = null,
 }) => {
   const parameters = assertCircleFriParameters(expected);
   const batchCount = publicBatchCount(parameters);
@@ -977,6 +1046,9 @@ export const createBchCircleFriQ2BatchFixture = ({
     publicProofDigest: new Uint8Array(publicProofDigest),
     encodedWitness,
     witness,
+    airLdeOpening: airLdeOpening instanceof Uint8Array ? new Uint8Array(airLdeOpening) : null,
+    airLdeRoot: airLdeRoot instanceof Uint8Array ? new Uint8Array(airLdeRoot) : null,
+    airNoteFelts: airNoteFelts instanceof Uint8Array ? new Uint8Array(airNoteFelts) : null,
   });
 };
 
@@ -3568,6 +3640,12 @@ const compileQ2RedeemScript = (fixture, digestBinding, { clustersPerInput = 1 } 
         defineFunction(FUNCTION.PACK_LATER_PLAN, PACK_LATER_PLAN_FUNCTION),
       )
       : []),
+    ...(fixture.airLdeOpening instanceof Uint8Array
+      ? defineFunction(
+        FUNCTION.VERIFY_AIR_LDE,
+        buildVerifyAirLdeFunction(fixture.airLdeRoot),
+      )
+      : new Uint8Array()),
     ...(dual
       ? concat(
         defineFunction(FUNCTION.VERIFY_CLUSTER, compileScript(clusterBody, 'q2 cluster body')),
@@ -3677,7 +3755,7 @@ export const buildBchCircleFriQ2BatchRedeemBytecode = (fixture) => compileQ2Rede
   buildCrossInputProofDigestBinding(publicBatchCount(fixture.parameters)),
 );
 
-const buildInput0OnlyDigestBinding = (batchCount, { clustersPerInput = 1 } = {}) => [
+const buildInput0OnlyDigestBinding = (batchCount, { clustersPerInput = 1, verifyAirLde = false } = {}) => [
   OP.OP_TXINPUTCOUNT,
   ...pushNumber(batchCount),
   OP.OP_NUMEQUALVERIFY,
@@ -3687,7 +3765,9 @@ const buildInput0OnlyDigestBinding = (batchCount, { clustersPerInput = 1 } = {})
   OP.OP_WITHIN,
   OP.OP_VERIFY,
   OP.OP_DROP,
-  // Density pad was TOS. Operand is digest, packed, witness, extras.
+  // Density pad was TOS. Optional AIR note-squeeze LDE opening is next.
+  ...(verifyAirLde ? invokeFunction(FUNCTION.VERIFY_AIR_LDE) : []),
+  // Operand is digest, packed, witness, extras.
   // Park extras then packed so OVER copies digest. Input 0 derives packed
   // and EQUALVERIFYes this copy; later inputs FROMALTSTACK it.
   ...Array.from({ length: Math.max(0, clustersPerInput - 1) }, () => OP.OP_TOALTSTACK),
@@ -3755,7 +3835,10 @@ export const buildBchCircleFriQ2PartitionRedeemBytecode = (
   );
   return compileQ2RedeemScript(
     fixture,
-    buildInput0OnlyDigestBinding(batchCount / clustersPerInput, { clustersPerInput }),
+    buildInput0OnlyDigestBinding(batchCount / clustersPerInput, {
+      clustersPerInput,
+      verifyAirLde: fixture.airLdeOpening instanceof Uint8Array,
+    }),
     { clustersPerInput },
   );
 };
@@ -3972,6 +4055,9 @@ export const buildBchCircleFriQ2BatchOperandUnlockingBytecode = (fixture) => {
       : []),
     encodeMinimalDataPush(fixture.encodedWitness),
     ...partners.map((witness) => encodeMinimalDataPush(witness)),
+    ...(fixture.airLdeOpening instanceof Uint8Array
+      ? [encodeMinimalDataPush(fixture.airLdeOpening)]
+      : []),
   );
 };
 

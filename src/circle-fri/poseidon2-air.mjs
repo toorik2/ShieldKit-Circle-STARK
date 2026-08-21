@@ -17,6 +17,7 @@ import {
   equalBytes,
   hash256,
   sha256,
+  u16le,
   utf8,
 } from './bytes.mjs';
 
@@ -79,6 +80,7 @@ import {
   poseidon2DomainFelt,
 } from './poseidon2-m31.mjs';
 
+export const AIR_ROW_LEAF_DOMAIN = utf8('poseidon2-air-row-v1\0');
 export const POSEIDON2_AIR_KIND = 'poseidon2-m31-four-predicate-air-v1';
 export const POSEIDON2_AIR_ROWS = 1024;
 export const POSEIDON2_AIR_ROW_LOG = 10;
@@ -385,9 +387,22 @@ export const buildFourPredicateAirTable = ({
 };
 
 const hashAirRow = (values16) => {
-  const parts = [utf8('poseidon2-air-row-v1\0')];
+  const parts = [AIR_ROW_LEAF_DOMAIN];
   for (const value of values16) parts.push(encodeM31(value));
   return hash256(concatBytes(...parts));
+};
+
+/** Zeta LDE opening of the committed AIR table, used by the on-chain AIR bind. */
+export const encodeAirZetaLdeOpening = (proof) => {
+  const lde = proof?.ldeOpenings;
+  if (!lde || !Array.isArray(lde.state) || !lde.path?.siblings) {
+    fail('AIR zeta LDE opening is required');
+  }
+  return concatBytes(
+    u16le(lde.index),
+    ...lde.state.map((value) => encodeM31(value)),
+    ...lde.path.siblings,
+  );
 };
 
 const buildWideMerkle = (rows) => {
