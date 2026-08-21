@@ -125,7 +125,7 @@ test('public AIR+DEEP proof does not reveal rho, owner, or secret amount slot; d
       'AIR-bound-to-the-table (LDE-only; TRACE merkle forbidden)',
     ],
     failed: [nestedSubset.wall, hashLane.wall, hashLane.remainingProductionWalls],
-    speculative: ['nested CFFT H⊂LDE still failed; conjectural FRI (2^17/M31^2)^45 ∪ HASH256 floors to 255 bits and is not proven; unique-decoding is (1/8)^45=2^-135; HLP24 Thm 6 needs even k and k=45 is odd; v2 cannot express 128-bit-pass'],
+    speculative: ['nested CFFT H⊂LDE still failed; S_total union is unique-decoding (1/8)^45 plus HASH256 2^-256, floor 134 bits; conjectural (2^17/M31^2)^45 is not the union; HASH256-as-RO stays conjectural; HLP24 Thm 6 needs even k and k=45 is odd; v2 cannot express 128-bit-pass'],
     nestedCoset: nesting,
     nestedLdeSubset: nestedSubset,
     publishedHashLane: hashLane,

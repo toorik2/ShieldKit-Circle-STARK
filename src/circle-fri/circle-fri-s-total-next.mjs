@@ -1,7 +1,7 @@
 /**
  * Next S_total constructions on the shipped q=90 cpi=3 CM31 blowup-8
- * skip-layer object. Measured 2026-08-21. Unique-decoding 2^-135 is the
- * proven proximity term. Conjectural (2^17/M31^2)^45 ∪ HASH256 floors 255.
+ * skip-layer object. Measured 2026-08-21. S_total union is unique-decoding
+ * (1/8)^45 plus HASH256 2^-256, floor 134. Conjectural FRI is 2024 bits.
  */
 export const S_TOTAL_NEXT = Object.freeze({
   shipped: Object.freeze({
@@ -14,7 +14,8 @@ export const S_TOTAL_NEXT = Object.freeze({
     uniqueDecodingBits: 135,
     hlp24Bits: null,
     hlp24Applies: false,
-    conjecturalBits: 255,
+    conjecturalBits: 2024,
+    sTotalFloorBits: 134,
     envelope: Object.freeze({
       redeem: 5015,
       unlockingInput0: 9000,
@@ -354,5 +355,5 @@ export const S_TOTAL_NEXT_WALL = [
   'Proven unique-decoding is 2^-135 (k=45, ρ=1/8). HLP24 Thm 6 needs even k; k=45 odd so not instantiated.',
   'Unique-decoding 128 needs k≥43 at blowup-8; cpi=3 q=90 supplies k=45. blowup-16 q=32 redeem 5267>5200 tx 109300. Independent k=q encoded 7566>6205. Dual-cluster q=64 density abort 4996896>4996800.',
   '4-to-1 π-pair merkle including round 0 stays required. Merkle stride 16 merkelizes round 0 and domain≤16 only.',
-  'Conjectural floor 255 is HASH256-limited, not proven. Unique-decoding 135 is the proven proximity term and is not the union. Not a STARK.',
+  'S_total union is proven unique-decoding (1/8)^45 plus HASH256 2^-256, floor 134 bits. Conjectural (2^17/M31^2)^45 is 2024 bits and is not the union. HASH256-as-RO stays conjectural. v2 cannot express 128-bit-pass. Not a STARK.',
 ].join(' ');

@@ -1,6 +1,7 @@
 /**
  * Unselected prequalification soundness DAG for the AIR+DEEP component tuple.
- * Conjectural union only. Not 128-bit systemic. Not a selected tuple.
+ * S_total FRI summand is proven unique-decoding (1/8)^k. HASH256-as-RO stays
+ * conjectural. v2 cannot express 128-bit-pass. Not a selected tuple.
  */
 
 import { createHash } from 'node:crypto';
@@ -23,14 +24,13 @@ export const SOUNDNESS_ROLES = Object.freeze([
   'B', 'D', 'E', 'F_batch', 'F_fri', 'F_deep', 'Q_deep', 'H_outer', 'grind', 'S_total',
 ]);
 
-/** Conjectural unselected union of the shipped q=90 cpi=3 skip-layer object. v2 cannot express 128-bit-pass. */
+/** Unselected S_total of the shipped q=90 cpi=3 skip-layer object. v2 cannot express 128-bit-pass. */
 export const SOUNDNESS_128_WALL = [
-  'Unselected conjectural S_total floor is 255 bits (FRI (2^17/M31^2)^(q/2) at q=90 plus HASH256 2^-256). HASH256 limits the union; the FRI term is 2024 bits.',
-  'Proven unique-decoding on this blowup-8 domain is (1/8)^k = 2^-135 (k=45 independent 4-to-1 clusters). That proven term is not the union. It is ≥128 as a unique-decoding proximity bound.',
-  '4-to-1 derived odd queries so k=45 independent first-fold pairs, three clusters per input. Domain 2^17, blowup 8, π-pair Merkle including round 0. Merkle stride 16: later large layers are fold-only; domain≤16 merkelized. v6 implied 2-leaf fold-only headers, sibCount 0. Later 4-to-1 rounds fold the shared π-pair once and DUP. Fold β sampled in CM31 on logDegreeBound≥8. One-squeeze challengeCm31. Host fail-on-collision uniqueness; on-chain Fiat-Shamir rejection sampling on input 0, later inputs bind packed queries and fold-βs to input 0. Two-tier density pad. Clustered codec omits topology records (round-0 J-plan synthesized).',
+  'Unselected S_total floor is 134 bits: proven unique-decoding FRI (1/8)^45=2^-135 plus HASH256 2^-256 (union-bound). Unique-decoding is the FRI summand. Conjectural (2^17/M31^2)^45 is 2024 bits and is not this union.',
+  'k=45 independent 4-to-1 clusters, three per input, q=90, domain 2^17, blowup 8. π-pair Merkle including round 0. Merkle stride 16 skip-layer. Later 4-to-1 fold-once+DUP. CM31 fold β. Host fail-on-collision; on-chain Fiat-Shamir uniqueness on input 0, later inputs bind packed queries and fold-βs. Two-tier density pad.',
   'AIR/DEEP are derivation-only on FRI-of-Q; parser is fail-closed on HASH256; no grind.',
-  'HLP24 Theorem 6 list-decoding at ρ=1/8 needs even k; k=45 is odd so not instantiated. Unique-decoding 2^-135 is the proven proximity term. Conjectural union stays HASH256-limited 255. Independent k=q encoded 7566>6205. q=64 k=32 dual-cluster density abort 4996896>4996800. AIR q=90 k=45 cpi=3 Libauth 15/15 redeem 5015 unlocking 9000/6400 tx 99265 op ≤6766735≤7232800.',
-  'Not a selected tuple. Queries were not dropped. 36×4=144 is not this union. HASH256 is not F_fri. Not a STARK until the conjectural union is replaced by a proven one in S_total.',
+  'HLP24 Theorem 6 needs even k; k=45 is odd so not instantiated. HASH256-as-RO stays conjectural. Independent k=q encoded 7566>6205. AIR q=90 k=45 cpi=3 Libauth 15/15 redeem 5015 unlocking 9000/6400 tx 99265.',
+  'Not a selected tuple. Queries were not dropped. 36×4=144 is not this union. v2 cannot express 128-bit-pass. Not a STARK.',
 ].join(' ');
 
 export const SOUNDNESS_EVENT_FAMILIES = Object.freeze([
