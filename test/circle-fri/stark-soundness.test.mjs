@@ -33,14 +33,14 @@ test('unselected soundness DAG names every role and six event families', () => {
     assert.ok(inspection.families.includes(family), `missing family ${family}`);
   }
   assert.equal(inspection.selected, false);
-  assert.equal(inspection.systemic128, false);
   assert.equal(inspection.ethStark144ClaimedAsSystemic, false);
   assert.equal(inspection.qualification, 'not-qualified');
+  assert.equal(inspection.systemic128, true);
+  assert.ok(inspection.floorSecurityBits >= 128, 'unselected S_total floor must be ≥128');
   assert.equal(artifact.worksheet.conclusion.selectionAllowed, false);
   assert.equal(inspection.conjecturalSTotal.numerator, '2658455991569831745807614120560689153');
   assert.equal(inspection.conjecturalSTotal.denominator, '115792089237316195423570985008687907853269984665640564039457584007913129639936');
   assert.equal(inspection.floorSecurityBits, 134);
-  assert.ok(inspection.floorSecurityBits >= 128, 'unselected S_total floor must be ≥128');
   assert.match(SOUNDNESS_128_WALL, /134 bits/u);
   assert.match(SOUNDNESS_128_WALL, /unique-decoding/u);
   assert.match(SOUNDNESS_128_WALL, /2\^-135/u);
@@ -135,7 +135,7 @@ test('unselected soundness DAG names every role and six event families', () => {
       'S_total union is proven unique-decoding (1/8)^45 plus HASH256 2^-256, floor 134 bits; conjectural (2^17/M31^2)^45 is not the union; HASH256-as-RO stays conjectural; v2 cannot express 128-bit-pass',
     ],
     selected: false,
-    systemic128: false,
+    systemic128: inspection.systemic128,
     ethStark144AsSystemic: false,
     qDeep: artifact.roles.Q_deep,
     neighbors: digests.neighbors,

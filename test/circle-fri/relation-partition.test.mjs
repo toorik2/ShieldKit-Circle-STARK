@@ -10,6 +10,22 @@ import {
 } from '../../src/circle-fri/relation-partition.mjs';
 
 import {
+  evaluateBchCircleFriQ2PartitionTransactionFixture,
+} from '../../src/circle-fri/bch-query-batch-kernel.mjs';
+
+import {
+  forgeUnboundQuotientFri,
+  proveDummyZeroTableAir,
+  proveGarbageAbsorbAir,
+  proveHonestLdeGarbageTraceAbsorb,
+  verifyPoseidon2Air,
+} from '../../src/circle-fri/poseidon2-air.mjs';
+
+import {
+  hexToBytes,
+} from '../../research-lanes/bch-shielded-pool-design/p1/codec/common.mjs';
+
+import {
   buildHonestDeposit,
   buildHonestWithdrawal,
 } from '../../src/circle-fri/pool-action-fixtures.mjs';
@@ -89,9 +105,64 @@ const runPartition = (label, bundle) => {
 };
 
 test('partition accepts honest deposit and withdrawal on the same relation-bound path', () => {
-  const deposit = runPartition('deposit', buildHonestDeposit());
-  const withdrawal = runPartition('withdrawal', buildHonestWithdrawal());
+  const depositBundle = buildHonestDeposit();
+  const withdrawalBundle = buildHonestWithdrawal();
+  const deposit = runPartition('deposit', depositBundle);
+  const withdrawal = runPartition('withdrawal', withdrawalBundle);
+  assert.ok(deposit.results.every(({ accepted: ok }) => ok), 'Libauth deposit must accept');
+  assert.ok(withdrawal.results.every(({ accepted: ok }) => ok), 'Libauth withdrawal must accept');
   assert.equal(deposit.inputBytecodeOps, withdrawal.inputBytecodeOps);
+  const tamperedUnlocking = Uint8Array.from(withdrawal.wires.materialized[0].unlockingBytecode);
+  tamperedUnlocking[33] ^= 0x01;
+  const tampered = {
+    ...withdrawal.wires,
+    materialized: withdrawal.wires.materialized.map((item, index) => (
+      index === 0 ? { ...item, unlockingBytecode: tamperedUnlocking } : item
+    )),
+    transaction: {
+      ...withdrawal.wires.transaction,
+      inputs: withdrawal.wires.transaction.inputs.map((input, index) => (
+        index === 0 ? { ...input, unlockingBytecode: tamperedUnlocking } : input
+      )),
+    },
+  };
+  const tamperedResults = evaluateBchCircleFriQ2PartitionTransactionFixture(tampered);
+  assert.ok(
+    tamperedResults.some((row) => row.accepted === false),
+    'Libauth must reject a tampered unlocking',
+  );
+  const dummyZero = proveDummyZeroTableAir({ statement: depositBundle.statement });
+  assert.equal(verifyPoseidon2Air({
+    proof: dummyZero,
+    expectedStatement: depositBundle.statement,
+  }).ok, false, 'dummy last-snapshots must reject');
+  const garbageAbsorb = proveGarbageAbsorbAir({
+    statement: depositBundle.statement,
+    poolInstanceId: hexToBytes(depositBundle.statement.poolInstanceIdHex, 'pool'),
+    owner: depositBundle.witness.owner,
+    rho: depositBundle.witness.rho,
+  });
+  assert.equal(verifyPoseidon2Air({
+    proof: garbageAbsorb,
+    expectedStatement: depositBundle.statement,
+  }).ok, false, 'garbage absorb must reject');
+  const unlink = proveHonestLdeGarbageTraceAbsorb({
+    statement: depositBundle.statement,
+    poolInstanceId: hexToBytes(depositBundle.statement.poolInstanceIdHex, 'pool'),
+    owner: depositBundle.witness.owner,
+    rho: depositBundle.witness.rho,
+  });
+  const unlinkVerdict = verifyPoseidon2Air({
+    proof: unlink,
+    expectedStatement: depositBundle.statement,
+  });
+  assert.equal(unlinkVerdict.ok, false, 'TRACE-LDE-unlink must reject');
+  assert.equal(unlinkVerdict.ok === false, deposit.host.poseidon2Air.labeledFriOfAir === true);
+  const forgedQ = forgeUnboundQuotientFri(deposit.proof.poseidon2Air);
+  assert.equal(verifyPoseidon2Air({
+    proof: forgedQ,
+    expectedStatement: depositBundle.statement,
+  }).ok, false, 'forged-Q must reject');
   const wall = measureInScriptAirDeepWall({ friRedeemBytes: deposit.redeemBytes });
   assert.match(wall.wall, /even-x DEEP FRI/u);
   assert.match(wall.wall, /owner\|\|rho/u);

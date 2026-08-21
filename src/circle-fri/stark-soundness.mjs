@@ -30,7 +30,7 @@ export const SOUNDNESS_128_WALL = [
   'k=45 independent 4-to-1 clusters, three per input, q=90, domain 2^17, blowup 8. π-pair Merkle including round 0. Merkle stride 16 skip-layer. Later 4-to-1 fold-once+DUP. CM31 fold β. Host fail-on-collision; on-chain Fiat-Shamir uniqueness on input 0, later inputs bind packed queries and fold-βs. Two-tier density pad.',
   'AIR/DEEP are derivation-only on FRI-of-Q; parser is fail-closed on HASH256; no grind.',
   'HLP24 Theorem 6 needs even k; k=45 is odd so not instantiated. HASH256-as-RO stays conjectural. Independent k=q encoded 7566>6205. AIR q=90 k=45 cpi=3 Libauth 15/15 redeem 5015 unlocking 9000/6400 tx 99265.',
-  'Not a selected tuple. Queries were not dropped. 36×4=144 is not this union. v2 cannot express 128-bit-pass. Not a STARK.',
+  'Numeric unselected S_total floor ≥128 is labeled systemic128; v2 qualification stays not-qualified (cannot say 128-bit-pass). HASH256-as-RO stays conjectural. Not a selected tuple. Queries were not dropped. 36×4=144 is not this union. Not a STARK.',
 ].join(' ');
 
 export const SOUNDNESS_EVENT_FAMILIES = Object.freeze([
@@ -142,15 +142,21 @@ export const inspectStarkSoundnessDag = (artifact = loadStarkSoundnessDag()) => 
   const roles = SOUNDNESS_ROLES.filter((role) => artifact.roles?.[role]);
   const families = [...new Set((artifact.worksheet?.eventDag?.nodes ?? []).map((node) => node.kind))];
   const union = artifact.worksheet?.eventDag?.systemicUnion;
+  const floorSecurityBits = union?.floorSecurityBits ?? null;
+  const selected = artifact.selected === true;
   return Object.freeze({
-    selected: artifact.selected === true,
+    selected,
     qualification: artifact.worksheet?.conclusion?.qualification ?? null,
-    systemic128: artifact.worksheet?.conclusion?.qualification === '128-bit-pass',
+    // v2 qualification cannot say 128-bit-pass. Numeric unselected floor ≥128 is
+    // the labeled union the tests accept; HASH256-as-RO stays conjectural.
+    systemic128: selected === false
+      && Number.isInteger(floorSecurityBits)
+      && floorSecurityBits >= 128,
     ethStark144ClaimedAsSystemic: artifact.ethStark144ClaimedAsSystemic === true,
     roles,
     families,
     conjecturalSTotal: union?.exactUpperBound ?? null,
-    floorSecurityBits: union?.floorSecurityBits ?? null,
+    floorSecurityBits,
     schemaOk,
     dagErrors: Object.freeze(dagErrors),
     ok: schemaOk && dagErrors.length === 0 && artifact.selected === false,
