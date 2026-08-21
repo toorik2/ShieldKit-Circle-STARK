@@ -23,6 +23,7 @@ repositories should be explicit and reviewable rather than automatic.
 
 The Telegram-derived source package under
 `research-lanes/bch-shielded-pool-design/sources/telegram-2026-07-29/` is
-intentionally excluded from this public mirror.
+intentionally excluded from this public mirror, including chat exports and
+source images (the architecture JPEG is not published here).
 The complete LABS lane validator remains bound to that private source package,
 so it is not a clean-clone validation entrypoint for this public mirror.
