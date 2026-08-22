@@ -92,9 +92,9 @@ test('honest deposit and withdrawal relation proofs accept', () => {
   assert.equal(depositProof.poseidon2Air.evenXDeep.parameters.logBlowup, 3);
   assert.equal(depositProof.poseidon2Air.evenXDeep.parameters.queryCount, 90);
   assert.equal(depositProof.poseidon2Air.evenXDeep.zhR.onChain, true);
-  assert.match(depositProof.poseidon2Air.evenXDeep.zhR.reason, /redeem 5168/u);
-  assert.match(depositProof.poseidon2Air.evenXDeep.zhR.reason, /unlocking 9000\/6400/u);
-  assert.match(depositProof.poseidon2Air.evenXDeep.zhR.reason, /tx 99265/u);
+  assert.match(depositProof.poseidon2Air.evenXDeep.zhR.reason, /redeem \d+/u);
+  assert.match(depositProof.poseidon2Air.evenXDeep.zhR.reason, /unlocking 9405\/8511\/6263/u);
+  assert.match(depositProof.poseidon2Air.evenXDeep.zhR.reason, /tx 100000/u);
   assert.doesNotMatch(depositProof.poseidon2Air.evenXDeep.zhR.reason, /4934|4122|Libauth 24\/24/u);
   const withoutSecrets = verifyPoseidon2Air({
     proof: depositProof.poseidon2Air,

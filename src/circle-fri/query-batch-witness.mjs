@@ -32,6 +32,7 @@ import {
   CIRCLE_FRI_QUERY_CANDIDATE_LABEL,
   CIRCLE_FRI_QUERY_PROOF_VERSION,
   DEFAULT_MAXIMUM_LOG_DOMAIN,
+  applyAirResidualTranscript,
   assertCircleFriParameters,
   circleFriCommitsMerkleRound,
   circleFriUsesCm31Fold,
@@ -313,10 +314,18 @@ const verifyHashedMerkleMulti = ({ root, length, indices, leafHashes, siblings, 
   return equalBytes(current.get(0), expectedRoot);
 };
 
-const derivePublicTranscript = ({ roots, finalCodeword, parameters, protocolContext }) => {
+const derivePublicTranscript = ({
+  roots,
+  finalCodeword,
+  parameters,
+  protocolContext,
+  airResidualQ = null,
+  airLdeRoot = null,
+}) => {
   const transcript = new CircleFriTranscript(assertBytes(protocolContext, 'protocolContext'));
   transcript.absorb('fri-parameters', encodeCircleFriParameters(parameters));
   transcript.absorb(CIRCLE_FRI_DIMENSION_GAP_LAMBDA_LABEL, encodeCircleFriDimensionGapLambda());
+  applyAirResidualTranscript(transcript, airResidualQ, airLdeRoot);
   const betas = roots.map((root, round) => {
     transcript.absorb(`fri-layer-root-${round}`, root);
     return circleFriUsesCm31Fold(parameters)
@@ -515,6 +524,8 @@ const verifyQ2WitnessOrThrow = ({
   protocolContext = new Uint8Array(),
   queryOrdinals,
   maximumLogDomain = DEFAULT_MAXIMUM_LOG_DOMAIN,
+  airResidualQ = null,
+  airLdeRoot = null,
 }) => {
   const parameters = assertWitnessShape(witness, maximumLogDomain);
   if (expected === null || typeof expected !== 'object') fail('expected parameters are required');
@@ -539,6 +550,8 @@ const verifyQ2WitnessOrThrow = ({
     finalCodeword: witness.finalCodeword,
     parameters,
     protocolContext,
+    airResidualQ,
+    airLdeRoot,
   });
   const scheduledIndices = expectedOrdinals.map((ordinal) => transcript.queryIndices[ordinal]);
   if (!equalNumbers(witness.queryIndices, scheduledIndices)) {
@@ -632,12 +645,16 @@ export const createCircleFriQ2BatchWitness = ({
   protocolContext = new Uint8Array(),
   queryOrdinals,
   maximumLogDomain = DEFAULT_MAXIMUM_LOG_DOMAIN,
+  airResidualQ = null,
+  airLdeRoot = null,
 }) => {
   const sourceVerdict = verifyCircleFriQueries({
     proof,
     expected,
     protocolContext,
     maximumLogDomain,
+    airResidualQ,
+    airLdeRoot,
   });
   if (!sourceVerdict.ok) fail(`source Circle-FRI proof is invalid: ${sourceVerdict.reason ?? 'invalid'}`);
   const parameters = assertCircleFriParameters({ ...expected, maximumLogDomain });
@@ -790,6 +807,8 @@ export const createCircleFriQ2BatchWitness = ({
     protocolContext,
     queryOrdinals: ordinals,
     maximumLogDomain,
+    airResidualQ,
+    airLdeRoot,
   });
   if (!packagedVerdict.ok) throw new Error('internal q2 witness verification failed');
   return witness;

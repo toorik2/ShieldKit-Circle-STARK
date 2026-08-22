@@ -68,7 +68,7 @@ test('unselected soundness DAG names every role and six event families', () => {
   assert.equal(S_TOTAL_NEXT.independentQueries.encodedWitness, 7566);
   assert.equal(S_TOTAL_NEXT.independentQueries.dummyQ8.redeem, 5910);
   assert.equal(S_TOTAL_NEXT.independentQueries.dummyQ8.accepted, false);
-  assert.equal(S_TOTAL_NEXT.independentQueries.measured, 'redeem-and-unlocking-miss');
+  assert.equal(S_TOTAL_NEXT.independentQueries.measured, 'encoded-witness-and-tx-miss');
   assert.equal(S_TOTAL_NEXT.dualCluster.dummyQ4.redeem, 4997);
   assert.equal(S_TOTAL_NEXT.dualCluster.dummyQ4.accepted, true);
   assert.equal(S_TOTAL_NEXT.dualCluster.dummyQ8.accepted, true);

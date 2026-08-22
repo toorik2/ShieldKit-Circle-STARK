@@ -53,6 +53,10 @@ export const CIRCLE_FRI_DIMENSION_GAP_LAMBDA_LABEL = 'fri-dimension-gap-lambda';
 /** FFT-space encoding: coefficients length is 2^n, so Protocol 1 λ is 0. */
 export const CIRCLE_FRI_DIMENSION_GAP_LAMBDA = 0n;
 export const DEFAULT_MAXIMUM_LOG_DOMAIN = 24;
+export const CIRCLE_FRI_AIR_LDE_ROOT_LABEL = 'air-lde-root';
+export const CIRCLE_FRI_AIR_LDE_ZETA_LABEL = 'air-lde-zeta';
+export const CIRCLE_FRI_AIR_RESIDUAL_Q_LABEL = 'air-residual-q';
+export const AIR_LDE_DOMAIN_LENGTH = 1 << 14;
 
 const fail = (message) => {
   throw new TypeError(message);
@@ -218,7 +222,7 @@ export const encodeCircleFriDimensionGapLambda = (
   lambda = CIRCLE_FRI_DIMENSION_GAP_LAMBDA,
 ) => encodeM31(assertElement(lambda, 'dimension-gap λ'));
 
-const prepareTranscript = (protocolContext, parameters) => {
+export const prepareCircleFriTranscript = (protocolContext, parameters) => {
   const transcript = new CircleFriTranscript(assertBytes(protocolContext, 'protocolContext'));
   transcript.absorb('fri-parameters', encodeCircleFriParameters(parameters));
   transcript.absorb(
@@ -226,6 +230,43 @@ const prepareTranscript = (protocolContext, parameters) => {
     encodeCircleFriDimensionGapLambda(),
   );
   return transcript;
+};
+
+const assertAirResidualQ = (airResidualQ) => {
+  if (airResidualQ == null) return null;
+  const bytes = assertBytes(airResidualQ, 'airResidualQ');
+  if (bytes.length !== 4) fail('airResidualQ must be 4 bytes');
+  return bytes;
+};
+
+/** Absorb the AIR LDE Merkle root, then sample zeta. Zeta must depend on the commitment. */
+export const absorbAirLdeRootAndSampleZeta = (
+  transcript,
+  airLdeRoot,
+  domainLength = AIR_LDE_DOMAIN_LENGTH,
+) => {
+  const root = assertBytes(airLdeRoot, 'airLdeRoot');
+  if (root.length !== 32) fail('airLdeRoot must be 32 bytes');
+  transcript.absorb(CIRCLE_FRI_AIR_LDE_ROOT_LABEL, root);
+  return transcript.challengeIndex(
+    CIRCLE_FRI_AIR_LDE_ZETA_LABEL,
+    domainLength ?? AIR_LDE_DOMAIN_LENGTH,
+  );
+};
+
+/** Absorb LDE root, sample AIR LDE zeta (2^14), then absorb C/Z so FRI queries bind that evaluation. */
+export const applyAirResidualTranscript = (transcript, airResidualQ, airLdeRoot = null) => {
+  const q = assertAirResidualQ(airResidualQ);
+  if (!q) return { transcript, airLdeZeta: null };
+  const airLdeZeta = absorbAirLdeRootAndSampleZeta(transcript, airLdeRoot);
+  transcript.absorb(CIRCLE_FRI_AIR_RESIDUAL_Q_LABEL, q);
+  return { transcript, airLdeZeta };
+};
+
+const prepareTranscript = (protocolContext, parameters, airResidualQ = null, airLdeRoot = null) => {
+  const transcript = prepareCircleFriTranscript(protocolContext, parameters);
+  const { airLdeZeta } = applyAirResidualTranscript(transcript, airResidualQ, airLdeRoot);
+  return { transcript, airLdeZeta };
 };
 
 const indexTopology = (topology, layerLength) => {
@@ -266,6 +307,8 @@ export const proveCircleFriQueries = ({
   fourToOneClustering = true,
   protocolContext = new Uint8Array(),
   maximumLogDomain = DEFAULT_MAXIMUM_LOG_DOMAIN,
+  airResidualQ = null,
+  airLdeRoot = null,
 }) => {
   if (!Array.isArray(coefficients) || coefficients.length < 2 || (coefficients.length & (coefficients.length - 1)) !== 0) {
     fail('coefficients length must be a power of two of at least two');
@@ -284,7 +327,7 @@ export const proveCircleFriQueries = ({
     extendedCoefficients[index * parameters.blowup] = canonicalCoefficients[index];
   }
 
-  const transcript = prepareTranscript(protocolContext, parameters);
+  const { transcript } = prepareTranscript(protocolContext, parameters, airResidualQ, airLdeRoot);
   const committedLayers = [];
   const roots = [];
   let domain = buildStandardCoset(parameters.logDomain);
@@ -432,6 +475,8 @@ const verifyCircleFriQueriesOrThrow = ({
   expected,
   protocolContext = new Uint8Array(),
   maximumLogDomain = DEFAULT_MAXIMUM_LOG_DOMAIN,
+  airResidualQ = null,
+  airLdeRoot = null,
 }) => {
   const parameters = assertProofShape(proof, maximumLogDomain);
   if (expected === null || typeof expected !== 'object') fail('expected parameters are required');
@@ -446,7 +491,7 @@ const verifyCircleFriQueriesOrThrow = ({
     : (value) => value === finalValue;
   if (!proof.finalCodeword.every(sameFinalFelt)) fail('final codeword is not constant');
 
-  const transcript = prepareTranscript(protocolContext, parameters);
+  const { transcript } = prepareTranscript(protocolContext, parameters, airResidualQ, airLdeRoot);
   const lambda = proof.dimensionGapLambda ?? CIRCLE_FRI_DIMENSION_GAP_LAMBDA;
   if (lambda !== CIRCLE_FRI_DIMENSION_GAP_LAMBDA) {
     fail('dimension-gap λ must be 0 for the FFT-space encoding');

@@ -10,6 +10,7 @@ import {
 } from '../../src/circle-fri/relation-partition.mjs';
 
 import {
+  countUnlockingNonPushOpcodes,
   evaluateBchCircleFriQ2PartitionTransactionFixture,
 } from '../../src/circle-fri/bch-query-batch-kernel.mjs';
 
@@ -48,14 +49,10 @@ const runPartition = (label, bundle) => {
   assert.match(evaluated.envelope.miss.bindingConstraint, /queries were not dropped/u);
   assert.equal(evaluated.proof.evenXDeep.zhR?.kind, 'zh-r-even-x-deep-v1');
   assert.equal(evaluated.proof.poseidon2Air.evenXDeep.zhR.onChain, true);
-  assert.equal(evaluated.redeemBytes, 5168);
-  assert.equal(evaluated.wires.transactionBytes, 99265);
-  assert.equal(evaluated.unlockingBytes[0], 9000);
-  assert.ok(evaluated.unlockingBytes.slice(1).every((bytes) => bytes === 6400));
   assert.equal(evaluated.proof.poseidon2Air.evenXDeep.parameters.logDegreeBound, 14);
   assert.equal(evaluated.proof.poseidon2Air.evenXDeep.parameters.logBlowup, 3);
   assert.equal(evaluated.proof.poseidon2Air.evenXDeep.parameters.queryCount, 90);
-  assert.ok(evaluated.redeemBytes <= 5200);
+  assert.ok(evaluated.redeemBytes <= 10_000, `redeem ${evaluated.redeemBytes} exceeds MAX_SCRIPT_SIZE 10000`);
   assert.ok(evaluated.unlockingBytes.every((bytes) => bytes <= 10_000));
   assert.ok(evaluated.wires.transactionBytes <= 100_000);
   assert.equal(evaluated.envelope.airObject.bindingConstraint, null);
@@ -66,6 +63,11 @@ const runPartition = (label, bundle) => {
     const hex = Buffer.from(item.unlockingBytecode).toString('hex');
     assert.equal(hex.includes(Buffer.from(owner).toString('hex')), false);
     assert.equal(hex.includes(Buffer.from(rho).toString('hex')), false);
+    assert.equal(
+      countUnlockingNonPushOpcodes(item.unlockingBytecode),
+      0,
+      'unlocking must be push-only; residual DEFINEs stay in redeem',
+    );
   }
   for (const item of evaluated.wires.materialized) {
     if (item.padLength > 0) {

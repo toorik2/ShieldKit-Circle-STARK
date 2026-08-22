@@ -76,7 +76,8 @@ export const extractEvenXDeepCoefficients = ({ evenCoefficients, ldeDomain, zeta
   })
 );
 
-const deepFriContext = (seed) => sha256(utf8(`even-x-deep-v1\0${seed}`));
+export const evenXDeepProtocolContext = (seed) => sha256(utf8(`even-x-deep-v1\0${seed}`));
+const deepFriContext = evenXDeepProtocolContext;
 
 const hashToM31 = (bytes) => {
   let value = 0n;
@@ -110,6 +111,8 @@ export const proveEvenXDeepFri = ({
   queryCount = 2,
   contextSeed = 'default',
   degreeBound,
+  airResidualQ = null,
+  airLdeRoot = null,
 }) => {
   const bound = degreeBound ?? (evenCoefficients.length <= 32 ? 64 : evenCoefficients.length);
   const coefficients = extractEvenXDeepCoefficients({
@@ -130,6 +133,8 @@ export const proveEvenXDeepFri = ({
     logBlowup,
     queryCount,
     protocolContext,
+    airResidualQ,
+    airLdeRoot,
   });
   return Object.freeze({
     strategy: CIRCLE_DEEP_EVEN_X,
@@ -145,7 +150,7 @@ export const proveEvenXDeepFri = ({
       hiddenStart: coefficients.length,
       onChain: onChainZhR,
       reason: onChainZhR
-        ? 'AIR q=90 cpi=3 16384-coeff Z_H·R DEEP FRI plus on-chain AIR LDE opening, redeem 5168 unlocking 9000/6400 tx 99265 op ≤6841936, Libauth 15/15'
+        ? 'AIR q=90 cpi=3 16384-coeff Z_H·R DEEP FRI plus on-chain public-bind C/Z=FRI Q, redeem 9913 unlocking 9405/8511/6263 tx 100000 op ≤7556196, Libauth 15/15. AIR LDE Merkle root absorbed before sampling zeta'
         : coefficients.length === 64
           ? 'q2 unlocking of the 128-coeff Z_H·R DEEP FRI exceeds the 10k unlocking limit (measured 10397–10525)'
           : `q2 unlocking of the ${zhRCoefficients.length}-coeff Z_H·R DEEP FRI is not claimed on-chain`,
@@ -166,6 +171,8 @@ export const verifyEvenXDeepFri = ({
   ldeDomain,
   zetaX,
   deepFri,
+  airResidualQ = null,
+  airLdeRoot = null,
 }) => {
   const degreeBound = deepFri.coefficients?.length ?? 2 ** (deepFri.parameters?.logDegreeBound ?? 6);
   const coefficients = extractEvenXDeepCoefficients({
@@ -187,6 +194,8 @@ export const verifyEvenXDeepFri = ({
     proof: deepFri.friProof,
     expected: deepFri.parameters,
     protocolContext: deepFri.protocolContext,
+    airResidualQ,
+    airLdeRoot,
   });
   if (!fri.ok) return Object.freeze({ ok: false, reason: fri.reason ?? 'DEEP FRI failed' });
   return Object.freeze({

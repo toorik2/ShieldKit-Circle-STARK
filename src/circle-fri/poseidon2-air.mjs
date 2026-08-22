@@ -26,6 +26,12 @@ import {
 } from './commitment.mjs';
 
 import {
+  encodeAirResidualPublic,
+  encodeAirResidualTape,
+  evaluateConstraintResidualAt,
+} from './bch-air-residual-kernel.mjs';
+
+import {
   encodePoolActionStatement,
 } from '../../research-lanes/bch-shielded-pool-design/p1/codec/pool-action-statement.mjs';
 
@@ -46,11 +52,16 @@ import {
 } from './deep.mjs';
 
 import {
+  evenXDeepProtocolContext,
   proveEvenXDeepFri,
   verifyEvenXDeepFri,
 } from './deep-pi-native.mjs';
 
 import {
+  AIR_LDE_DOMAIN_LENGTH,
+  absorbAirLdeRootAndSampleZeta,
+  assertCircleFriParameters,
+  prepareCircleFriTranscript,
   retryCircleFriQueryCollision,
 } from './query-proof.mjs';
 
@@ -393,16 +404,85 @@ const hashAirRow = (values16) => {
 };
 
 /** Zeta LDE opening of the committed AIR table, used by the on-chain AIR bind. */
-export const encodeAirZetaLdeOpening = (proof) => {
+export const encodeAirZetaLdeOpening = (proof, which = 'state') => {
   const lde = proof?.ldeOpenings;
-  if (!lde || !Array.isArray(lde.state) || !lde.path?.siblings) {
+  const spec = which === 'next'
+    ? { index: lde?.nextIndex, values: lde?.next, path: lde?.nextPath }
+    : which === 'prev'
+      ? { index: lde?.prevIndex, values: lde?.prev, path: lde?.prevPath }
+      : { index: lde?.index, values: lde?.state, path: lde?.path };
+  if (!lde || !Array.isArray(spec.values) || !spec.path?.siblings) {
     fail('AIR zeta LDE opening is required');
   }
   return concatBytes(
-    u16le(lde.index),
-    ...lde.state.map((value) => encodeM31(value)),
-    ...lde.path.siblings,
+    u16le(spec.index),
+    ...spec.values.map((value) => encodeM31(value)),
+    ...spec.path.siblings,
   );
+};
+
+/** Public residual tape + merkelized next/prev openings for on-chain C/Z=Q. */
+export const encodeAirResidualUnlocking = (proof) => {
+  const lde = proof?.ldeOpenings;
+  if (!lde || !Array.isArray(lde.state) || !Array.isArray(lde.next) || !Array.isArray(lde.prev)) {
+    fail('AIR residual unlocking requires zeta/next/prev LDE openings');
+  }
+  const cached = proof.residualPublic;
+  const LDE = buildStandardCoset(SNAPSHOT_QUOTIENT_LDE_LOG);
+  const H = buildStandardCoset(POSEIDON2_AIR_ROW_LOG);
+  const selAt = (column) => evaluateCirclePolynomial(circleIFFT(H, column), LDE[lde.index]);
+  const snapSelectors = cached?.snapSelectors
+    ?? buildPhaseSelectors(proof.layout).snap.map((column) => selAt(column));
+  const freshSelector = cached?.freshSelector
+    ?? selAt(buildPhaseSelectors(proof.layout).fresh);
+  const contSelector = cached?.contSelector
+    ?? selAt(buildPhaseSelectors(proof.layout).cont);
+  const x = cached?.x ?? LDE[lde.index].x;
+  const publicBinds = publicBindRows(
+    proof.layout,
+    proof.publicFelts,
+    proof.statementPublicFelts,
+  ).map((bind) => {
+    const column = new Array(POSEIDON2_AIR_ROWS).fill(0n);
+    column[bind.row] = 1n;
+    return Object.freeze({
+      selector: selAt(column),
+      values: bind.values,
+      width: bind.width,
+    });
+  });
+  const host = evaluateConstraintResidualAt({
+    state: lde.state,
+    next: lde.next,
+    prev: lde.prev,
+    snapSelectors,
+    freshSelector,
+    contSelector,
+    publicBinds,
+    x,
+  });
+  const publicBlob = encodeAirResidualPublic({
+    snapSelectors,
+    freshSelector,
+    contSelector,
+    publicBinds,
+    x,
+    expectedQ: host.expectedQ,
+    invZ: host.invZ,
+  });
+  return Object.freeze({
+    stateOpening: encodeAirZetaLdeOpening(proof, 'state'),
+    nextOpening: encodeAirZetaLdeOpening(proof, 'next'),
+    prevOpening: encodeAirZetaLdeOpening(proof, 'prev'),
+    publicBlob,
+    tape: encodeAirResidualTape({
+      state: lde.state,
+      next: lde.next,
+      prev: lde.prev,
+      publicBlob,
+    }),
+    host,
+  });
 };
 
 const buildWideMerkle = (rows) => {
@@ -448,11 +528,27 @@ const verifyWideMerkle = ({ root, length, index, values, siblings }) => {
   return equalBytes(current, root);
 };
 
-const ldeZetaIndex = (seed) => {
-  const digest = sha256(utf8(`absorb-lde-zeta\0${seed}`));
-  let index = 0;
-  for (let offset = 0; offset < 4; offset += 1) index = ((index << 8) | digest[offset]) >>> 0;
-  return index % (1 << SNAPSHOT_QUOTIENT_LDE_LOG);
+const airFriParameters = ({ logBlowup, queryCount }) => {
+  const onChainZhR = SNAPSHOT_QUOTIENT_DEGREE === 8192
+    && (logBlowup === 1 || logBlowup === 2 || logBlowup === 3)
+    && queryCount % 2 === 0;
+  return assertCircleFriParameters({
+    logDegreeBound: Math.log2(SNAPSHOT_QUOTIENT_DEGREE) + (onChainZhR ? 1 : 0),
+    logBlowup,
+    queryCount,
+  });
+};
+
+const sampleAirLdeZeta = ({ protocolContext, logBlowup, queryCount, domainLength, ldeRoot }) => {
+  const transcript = prepareCircleFriTranscript(
+    protocolContext,
+    airFriParameters({ logBlowup, queryCount }),
+  );
+  return absorbAirLdeRootAndSampleZeta(
+    transcript,
+    ldeRoot,
+    domainLength ?? AIR_LDE_DOMAIN_LENGTH,
+  );
 };
 
 const buildRowMerkle = (table) => {
@@ -785,6 +881,9 @@ export const buildSnapshotConstraintQuotient = ({
     coefficients,
     nonzero: coefficients.filter((value) => value !== 0n).length,
     colLde: includeAbsorb ? Object.freeze(colLde) : undefined,
+    selLde: includeAbsorb ? Object.freeze(selLde) : undefined,
+    freshLde: includeAbsorb ? Object.freeze(freshLde) : undefined,
+    contLde: includeAbsorb ? Object.freeze(contLde) : undefined,
   });
 };
 
@@ -892,7 +991,14 @@ export const provePoseidon2Air = ({
   const quotientDomain = buildStandardCoset(Math.log2(SNAPSHOT_QUOTIENT_DEGREE));
   const proved = retryCircleFriQueryCollision((nonce) => {
     const contextSeed = [...seedPrefix, `nonce:${nonce}`].join(':');
-    const zetaIndex = ldeZetaIndex(contextSeed);
+    const protocolContext = evenXDeepProtocolContext(contextSeed);
+    const zetaIndex = sampleAirLdeZeta({
+      protocolContext,
+      logBlowup,
+      queryCount,
+      domainLength: ldeLen,
+      ldeRoot: ldeTree.root,
+    });
     const nextIndex = (zetaIndex + stride) % ldeLen;
     const prevIndex = (zetaIndex - stride + ldeLen) % ldeLen;
     const ldeOpenings = Object.freeze({
@@ -906,6 +1012,8 @@ export const provePoseidon2Air = ({
       nextPath: openWideMerkle(ldeTree, nextIndex),
       prevPath: openWideMerkle(ldeTree, prevIndex),
     });
+    const airPoint = buildStandardCoset(SNAPSHOT_QUOTIENT_LDE_LOG)[zetaIndex];
+    const airResidualQ = encodeM31(evaluateExtractedQuotientAt(quotient.coefficients, airPoint));
     const evenXDeep = proveEvenXDeepFri({
       evenCoefficients: quotient.coefficients.slice(0, SNAPSHOT_QUOTIENT_DEGREE / 2),
       ldeDomain: buildStandardCoset(Math.log2(SNAPSHOT_QUOTIENT_DEGREE) + logBlowup),
@@ -914,11 +1022,19 @@ export const provePoseidon2Air = ({
       queryCount,
       contextSeed,
       degreeBound: SNAPSHOT_QUOTIENT_DEGREE,
+      airResidualQ,
+      airLdeRoot: ldeTree.root,
     });
-    return { contextSeed, ldeOpenings, evenXDeep, friNonce: nonce };
+    return { contextSeed, ldeOpenings, evenXDeep, friNonce: nonce, airResidualQ };
   }, { startNonce: friNonce });
-  const { ldeOpenings, evenXDeep } = proved;
+  const { ldeOpenings, evenXDeep, airResidualQ } = proved;
   const friNonceUsed = proved.friNonce;
+  const residualPublic = Object.freeze({
+    snapSelectors: Object.freeze(quotient.selLde.map((column) => column[ldeOpenings.index])),
+    freshSelector: quotient.freshLde[ldeOpenings.index],
+    contSelector: quotient.contLde[ldeOpenings.index],
+    x: buildStandardCoset(SNAPSHOT_QUOTIENT_LDE_LOG)[ldeOpenings.index].x,
+  });
   const publicProof = {
     kind: POSEIDON2_AIR_KIND,
     commitmentScheme: ALGEBRAIC_COMMITMENT_SCHEME,
@@ -931,6 +1047,8 @@ export const provePoseidon2Air = ({
     openings,
     ldeMerkleRoot: ldeTree.root,
     ldeOpenings,
+    residualPublic,
+    airResidualQ,
     evenXDeep,
     labeledFriOfAir: true,
     interpolantFri: false,
@@ -1028,10 +1146,20 @@ export const proveHonestLdeGarbageTraceAbsorb = ({
   for (let index = 0; index < ldeLen; index += 1) {
     ldeRows.push(colLde.map((column) => column[index]));
   }
-  const zetaIndex = ldeZetaIndex(contextSeed);
+  const protocolContext = evenXDeepProtocolContext(contextSeed);
+  const ldeTree = buildWideMerkle(ldeRows);
+  const zetaIndex = sampleAirLdeZeta({
+    protocolContext,
+    logBlowup,
+    queryCount,
+    domainLength: ldeLen,
+    ldeRoot: ldeTree.root,
+  });
   const nextIndex = (zetaIndex + stride) % ldeLen;
   const prevIndex = (zetaIndex - stride + ldeLen) % ldeLen;
-  const ldeTree = buildWideMerkle(ldeRows);
+  const airResidualQ = encodeM31(
+    evaluateExtractedQuotientAt(honest.quotientCoefficients, LDE[zetaIndex]),
+  );
   const evenXDeep = proveEvenXDeepFri({
     evenCoefficients: honest.quotientCoefficients.slice(0, SNAPSHOT_QUOTIENT_DEGREE / 2),
     ldeDomain: buildStandardCoset(Math.log2(SNAPSHOT_QUOTIENT_DEGREE) + logBlowup),
@@ -1040,6 +1168,8 @@ export const proveHonestLdeGarbageTraceAbsorb = ({
     queryCount,
     contextSeed,
     degreeBound: SNAPSHOT_QUOTIENT_DEGREE,
+    airResidualQ,
+    airLdeRoot: ldeTree.root,
   });
   return Object.freeze({
     ...honest,
@@ -1449,15 +1579,16 @@ export const verifyPoseidon2Air = ({ proof, expectedStatement }) => {
   const ldeLen = 1 << SNAPSHOT_QUOTIENT_LDE_LOG;
   const stride = ldeLen / POSEIDON2_AIR_ROWS;
   const lde = proof.ldeOpenings;
-  const expectedZeta = ldeZetaIndex([
-    Buffer.from(statementBytes).toString('hex'),
-    Buffer.from(layoutDigest).toString('hex'),
-    Buffer.from(proof.ldeMerkleRoot).toString('hex'),
-    Buffer.from(openingsDigest).toString('hex'),
-    ABSORB_SNAPSHOT_QUOTIENT_KIND,
-    LDE_ONLY_BIND,
-    `nonce:${proof.friNonce ?? 0}`,
-  ].join(':'));
+  const expectedContext = sha256(utf8(
+    `even-x-deep-v1\0${Buffer.from(statementBytes).toString('hex')}:${Buffer.from(layoutDigest).toString('hex')}:${Buffer.from(proof.ldeMerkleRoot).toString('hex')}:${Buffer.from(openingsDigest).toString('hex')}:${ABSORB_SNAPSHOT_QUOTIENT_KIND}:${LDE_ONLY_BIND}:nonce:${proof.friNonce ?? 0}`,
+  ));
+  const expectedZeta = sampleAirLdeZeta({
+    protocolContext: expectedContext,
+    logBlowup: proof.evenXDeep.parameters.logBlowup,
+    queryCount: proof.evenXDeep.parameters.queryCount,
+    domainLength: ldeLen,
+    ldeRoot: proof.ldeMerkleRoot,
+  });
   if (lde.index !== expectedZeta
       || lde.nextIndex !== (expectedZeta + stride) % ldeLen
       || lde.prevIndex !== (expectedZeta - stride + ldeLen) % ldeLen) {
@@ -1522,9 +1653,6 @@ export const verifyPoseidon2Air = ({ proof, expectedStatement }) => {
       reason: 'published Q is not C/Z of the committed LDE (absorb+snapshot) at zeta',
     });
   }
-  const expectedContext = sha256(utf8(
-    `even-x-deep-v1\0${Buffer.from(statementBytes).toString('hex')}:${Buffer.from(layoutDigest).toString('hex')}:${Buffer.from(proof.ldeMerkleRoot).toString('hex')}:${Buffer.from(openingsDigest).toString('hex')}:${ABSORB_SNAPSHOT_QUOTIENT_KIND}:${LDE_ONLY_BIND}:nonce:${proof.friNonce ?? 0}`,
-  ));
   const got = proof.evenXDeep?.protocolContext;
   if (!(got instanceof Uint8Array) || got.some((byte, index) => byte !== expectedContext[index])) {
     return Object.freeze({
@@ -1538,6 +1666,8 @@ export const verifyPoseidon2Air = ({ proof, expectedStatement }) => {
     ldeDomain: buildStandardCoset(Math.log2(SNAPSHOT_QUOTIENT_DEGREE) + logBlowup),
     zetaX: buildStandardCoset(Math.log2(SNAPSHOT_QUOTIENT_DEGREE))[1].x,
     deepFri: proof.evenXDeep,
+    airResidualQ: encodeM31(expectedQ),
+    airLdeRoot: proof.ldeMerkleRoot,
   });
   if (!deep.ok) {
     return Object.freeze({
@@ -1579,6 +1709,8 @@ export const forgeUnboundQuotientFri = (proof) => {
     queryCount: proof.evenXDeep.parameters.queryCount,
     contextSeed: proof.evenXDeep.contextSeed,
     degreeBound: SNAPSHOT_QUOTIENT_DEGREE,
+    airResidualQ: proof.airResidualQ ?? null,
+    airLdeRoot: proof.ldeMerkleRoot ?? null,
   });
   return Object.freeze({
     ...proof,

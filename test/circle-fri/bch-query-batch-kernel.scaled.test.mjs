@@ -31,7 +31,7 @@ import {
 
 const PARAMETERS = Object.freeze({ logDegreeBound: 6, logBlowup: 4, queryCount: 36 });
 const CONTEXT = utf8('ShieldKit Circle-FRI scaled q2 TRACE64-B16-N1024-Q36');
-const REDEEM_ENVELOPE = 5_200;
+const REDEEM_ENVELOPE = 10_000;
 const UNLOCK_ENVELOPE = 10_000;
 const TX_ENVELOPE = 100_000;
 
@@ -190,7 +190,7 @@ test('honest scaled q2 fixture metrics, hashes, envelopes, and Libauth 2026 verd
     hashDigestIterations: results.map(({ metrics }) => metrics.hashDigestIterations),
     standard: results.map(({ standard }) => standard),
     accepted: results.map(({ accepted }) => accepted),
-    envelopes: { redeem5200: redeemFits, unlock10000: unlockFits, tx100000: txFits },
+    envelopes: { redeem10000: redeemFits, unlock10000: unlockFits, tx100000: txFits },
     hashes: {
       redeem: sha256hex(wires.materialized[0].redeemBytecode),
       witness0: sha256hex(wires.materialized[0].encodedWitness),

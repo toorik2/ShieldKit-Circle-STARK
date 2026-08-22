@@ -27,9 +27,9 @@ export const SOUNDNESS_ROLES = Object.freeze([
 /** Unselected S_total of the shipped q=90 cpi=3 skip-layer object. v2 cannot express 128-bit-pass. */
 export const SOUNDNESS_128_WALL = [
   'Unselected S_total floor is 134 bits: proven unique-decoding FRI (1/8)^45=2^-135 plus HASH256 2^-256 (union-bound). Unique-decoding is the FRI summand. Conjectural (2^17/M31^2)^45 is 2024 bits and is not this union.',
-  'k=45 independent 4-to-1 clusters, three per input, q=90, domain 2^17, blowup 8. π-pair Merkle including round 0. Merkle stride 16 skip-layer. Later 4-to-1 fold-once+DUP. CM31 fold β. Host fail-on-collision; on-chain Fiat-Shamir uniqueness on input 0, later inputs bind packed queries and fold-βs. Two-tier density pad.',
+  'k=45 independent 4-to-1 clusters, three per input, q=90, domain 2^17, blowup 8. π-pair Merkle including round 0. Merkle stride 16 skip-layer. Later 4-to-1 fold-once+DUP. CM31 fold β. Host fail-on-collision; on-chain Fiat-Shamir uniqueness on input 1, later inputs bind packed queries and fold-βs to input 1. AIR LDE Merkle root is absorbed before sampling zeta. Two-tier density pad.',
   'AIR/DEEP are derivation-only on FRI-of-Q; parser is fail-closed on HASH256; no grind.',
-  'HLP24 Theorem 6 needs even k; k=45 is odd so not instantiated. HASH256-as-RO stays conjectural. Independent k=q encoded 7566>6205. AIR q=90 k=45 cpi=3 Libauth 15/15 redeem 5168 unlocking 9000/6400 tx 99265. On-chain AIR zeta LDE opening in the same transcript as FRI.',
+  'HLP24 Theorem 6 needs even k; k=45 is odd so not instantiated. HASH256-as-RO stays conjectural. Independent k=q encoded 7566>6205. AIR q=90 k=45 cpi=3 Libauth 15/15 redeem 9913 unlocking 9405/8511/6263 tx 100000. On-chain public-bind C/Z=FRI Q in the same transcript as FRI. AIR LDE Merkle root absorbed before sampling zeta. HASH_NODE-compressed VERIFY_AIR_LDE leaves the 64-byte zeta row.',
   'Numeric unselected S_total floor ≥128 is labeled systemic128; v2 qualification stays not-qualified (cannot say 128-bit-pass). HASH256-as-RO stays conjectural. Not a selected tuple. Queries were not dropped. 36×4=144 is not this union. Not a STARK.',
 ].join(' ');
 

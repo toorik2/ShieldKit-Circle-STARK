@@ -38,10 +38,35 @@ import {
 } from './commitment.mjs';
 
 import {
+  FUNCTION_AIR_ACCUM_NEXT,
+  FUNCTION_AIR_COPY16,
+  FUNCTION_AIR_EXT,
+  FUNCTION_AIR_FULL,
+  FUNCTION_AIR_LOADSEL,
+  FUNCTION_AIR_PART,
+  FUNCTION_AIR_RESIDUAL,
+  FUNCTION_AIR_RESTORE,
+  FUNCTION_AIR_BINDCOL,
+  buildAccum16VsNextFunction,
+  buildApplyExternalFunction,
+  buildCopy16Function,
+  buildFullRoundFunction,
+  buildLoadSelectorFunction,
+  buildRestoreRcAccFunction,
+  buildPartialRoundFunction,
+  buildLoopResidualFromLeaf,
+  buildBindColFunction,
+} from './bch-air-residual-kernel.mjs';
+
+import {
   buildBchM31Multiproof4VerificationBytecode,
 } from './bch-multiproof4-kernel.mjs';
 
 import {
+  AIR_LDE_DOMAIN_LENGTH,
+  CIRCLE_FRI_AIR_LDE_ROOT_LABEL,
+  CIRCLE_FRI_AIR_LDE_ZETA_LABEL,
+  CIRCLE_FRI_AIR_RESIDUAL_Q_LABEL,
   CIRCLE_FRI_DIMENSION_GAP_LAMBDA_LABEL,
   CIRCLE_FRI_MERKLE_STRIDE,
   CIRCLE_FRI_QUERY_CANDIDATE_LABEL,
@@ -57,6 +82,10 @@ import {
   encodeCircleFriQ2BatchWitness,
   verifyCircleFriQ2BatchWitness,
 } from './query-batch-witness.mjs';
+
+import {
+  buildStandardCoset,
+} from './circle.mjs';
 
 import {
   CIRCLE_FRI_SQUEEZE_DOMAIN,
@@ -256,6 +285,27 @@ const invokeFunction = (identifier) => [
   OP.OP_INVOKE,
 ];
 
+/** Residual DEFINEs, VERIFY_AIR_LDE, and residual invoke run on input 0. */
+const residualInputPredicate = () => [
+  OP.OP_INPUTINDEX,
+  OP.OP_NOT,
+];
+
+/** Transcript uniqueness: input 0 if the tx has one input, else input 1. */
+const uniquenessPredicate = () => [
+  OP.OP_TXINPUTCOUNT,
+  OP.OP_1,
+  OP.OP_NUMEQUAL,
+  OP.OP_IF,
+  OP.OP_INPUTINDEX,
+  OP.OP_NOT,
+  OP.OP_ELSE,
+  OP.OP_INPUTINDEX,
+  OP.OP_1,
+  OP.OP_NUMEQUAL,
+  OP.OP_ENDIF,
+];
+
 const compileScript = (script, name = 'compiled script') => {
   require(Array.isArray(script), `${name} must be an array`);
   require(
@@ -314,17 +364,31 @@ const AIR_ROW_LEAF_DOMAIN = utf8('poseidon2-air-row-v1\0');
 const AIR_LDE_SIBLING_COUNT = 14;
 const AIR_LDE_LEAF_BYTES = 16 * 4;
 const AIR_LDE_OPENING_BYTES = 2 + AIR_LDE_LEAF_BYTES + AIR_LDE_SIBLING_COUNT * 32;
+/** TRACE 2^10 inside LDE 2^14; next/prev openings are this many domain steps from zeta. */
+const AIR_LDE_ROW_STRIDE = AIR_LDE_DOMAIN_LENGTH / 1024;
+let airLdeCoset = null;
+const airLdeZetaX = (index) => {
+  airLdeCoset ??= buildStandardCoset(Math.log2(AIR_LDE_DOMAIN_LENGTH));
+  return airLdeCoset[index].x;
+};
 
-/** TOS blob: u16le index || 64-byte AIR LDE row || 14×32 siblings. Baked LDE root. */
+/** Under TOS: expected index. TOS: u16le index || 64-byte AIR LDE row || 14×32 siblings.
+ * NUMEQUALVERIFYs the blob index to the expected index (zeta / zeta±stride).
+ * Leaves the 64-byte row on stack. */
 const buildVerifyAirLdeFunction = (root) => compileScript([
   ...pushNumber(2),
   OP.OP_SPLIT,
   OP.OP_SWAP,
   OP.OP_BIN2NUM,
+  OP.OP_ROT,
+  OP.OP_OVER,
+  OP.OP_NUMEQUALVERIFY,
   OP.OP_SWAP,
   ...pushNumber(AIR_LDE_LEAF_BYTES),
   OP.OP_SPLIT,
   OP.OP_SWAP,
+  OP.OP_DUP,
+  OP.OP_TOALTSTACK,
   ...encodeMinimalDataPush(AIR_ROW_LEAF_DOMAIN),
   OP.OP_SWAP,
   OP.OP_CAT,
@@ -356,11 +420,7 @@ const buildVerifyAirLdeFunction = (root) => compileScript([
   OP.OP_IF,
   OP.OP_SWAP,
   OP.OP_ENDIF,
-  OP.OP_CAT,
-  ...encodeMinimalDataPush(M31_MERKLE_NODE_DOMAIN),
-  OP.OP_SWAP,
-  OP.OP_CAT,
-  OP.OP_HASH256,
+  ...invokeFunction(FUNCTION.HASH_NODE),
   OP.OP_ROT,
   OP.OP_2,
   OP.OP_DIV,
@@ -373,7 +433,8 @@ const buildVerifyAirLdeFunction = (root) => compileScript([
   OP.OP_EQUALVERIFY,
   OP.OP_DROP,
   OP.OP_DROP,
-], 'verify AIR note-squeeze LDE opening');
+  OP.OP_FROMALTSTACK,
+], 'verify AIR LDE opening, leave leaf');
 
 const HASH_NODE_FUNCTION = compileScript([
   OP.OP_CAT,
@@ -750,6 +811,59 @@ const buildTranscriptAbsorbRuntime = (label, payloadLength) => [
   OP.OP_SHA256,
 ];
 
+const dividesTwoTo32 = (upperBound) => (
+  Number.isInteger(upperBound) && upperBound > 0
+    && Math.floor(TWO_TO_32 / upperBound) * upperBound === TWO_TO_32
+);
+
+/** One-shot squeeze when every 32-bit candidate is in range (upperBound | 2^32). Attempt 0.
+ * Stack in: state, drawPrefix, labelFrame. Out: newState, index. */
+const sampleQueryOnce = (upperBound) => [
+  ...pushNumber(2),
+  OP.OP_PICK,
+  ...encodeMinimalDataPush(CIRCLE_FRI_SQUEEZE_DOMAIN),
+  OP.OP_SWAP,
+  OP.OP_CAT,
+  ...pushNumber(2),
+  OP.OP_PICK,
+  OP.OP_CAT,
+  OP.OP_0,
+  ...pushNumber(4),
+  OP.OP_NUM2BIN,
+  OP.OP_CAT,
+  OP.OP_SHA256,
+  OP.OP_DUP,
+  ...pushNumber(4),
+  OP.OP_SPLIT,
+  OP.OP_DROP,
+  ...encodeMinimalDataPush(ZERO_BYTE),
+  OP.OP_CAT,
+  OP.OP_BIN2NUM,
+  ...pushNumber(upperBound),
+  OP.OP_MOD,
+  OP.OP_TOALTSTACK,
+  OP.OP_TOALTSTACK,
+  OP.OP_SWAP,
+  OP.OP_DROP,
+  OP.OP_CAT,
+  ...encodeMinimalDataPush(framePrefix('accepted-challenge-digest', 32)),
+  OP.OP_CAT,
+  OP.OP_FROMALTSTACK,
+  OP.OP_DUP,
+  OP.OP_TOALTSTACK,
+  OP.OP_CAT,
+  ...encodeMinimalDataPush(framePrefix('accepted-challenge-attempt', 4)),
+  OP.OP_CAT,
+  OP.OP_0,
+  ...pushNumber(4),
+  OP.OP_NUM2BIN,
+  OP.OP_CAT,
+  OP.OP_SHA256,
+  OP.OP_FROMALTSTACK,
+  OP.OP_FROMALTSTACK,
+  OP.OP_NIP,
+];
+
 const buildTranscriptChallenge = ({ label, upperBound }) => {
   const acceptanceBound = Math.floor(TWO_TO_32 / upperBound) * upperBound;
   return [
@@ -760,12 +874,14 @@ const buildTranscriptChallenge = ({ label, upperBound }) => {
     ...encodeMinimalDataPush(frameBytes('accepted-challenge-label', utf8(label))),
     ...(upperBound === Number(M31_MODULUS)
       ? invokeFunction(FUNCTION.SAMPLE_M31_TRANSCRIPT)
-      : [
-          ...pushNumber(upperBound),
-          ...pushNumber(acceptanceBound),
-          OP.OP_0,
-          ...invokeFunction(FUNCTION.SAMPLE_TRANSCRIPT),
-        ]),
+      : dividesTwoTo32(upperBound)
+        ? sampleQueryOnce(upperBound)
+        : [
+            ...pushNumber(upperBound),
+            ...pushNumber(acceptanceBound),
+            OP.OP_0,
+            ...invokeFunction(FUNCTION.SAMPLE_TRANSCRIPT),
+          ]),
   ];
 };
 
@@ -952,7 +1068,13 @@ const encodeFinalCodeword = (values) => concat(...values.map((value) => (
   isCm31(value) ? concat(encodeM31(value.re), encodeM31(value.im)) : encodeM31(value)
 )));
 
-const derivePublicProofDigest = ({ witness, parameters, protocolContext }) => {
+const derivePublicProofDigest = ({
+  witness,
+  parameters,
+  protocolContext,
+  airResidualQ = null,
+  airLdeRoot = null,
+}) => {
   let state = initializeCircleFriTranscriptState(protocolContext);
   state = absorbCircleFriTranscriptState(state, 'fri-parameters', encodeCircleFriParameters(parameters));
   state = absorbCircleFriTranscriptState(
@@ -960,6 +1082,19 @@ const derivePublicProofDigest = ({ witness, parameters, protocolContext }) => {
     CIRCLE_FRI_DIMENSION_GAP_LAMBDA_LABEL,
     encodeCircleFriDimensionGapLambda(),
   );
+  if (airResidualQ instanceof Uint8Array && airResidualQ.length === 4) {
+    require(
+      airLdeRoot instanceof Uint8Array && airLdeRoot.length === 32,
+      'air LDE root is required when residual Q is bound',
+    );
+    state = absorbCircleFriTranscriptState(state, CIRCLE_FRI_AIR_LDE_ROOT_LABEL, airLdeRoot);
+    state = sampleCircleFriTranscriptState({
+      state,
+      label: CIRCLE_FRI_AIR_LDE_ZETA_LABEL,
+      upperBound: AIR_LDE_DOMAIN_LENGTH,
+    }).state;
+    state = absorbCircleFriTranscriptState(state, CIRCLE_FRI_AIR_RESIDUAL_Q_LABEL, airResidualQ);
+  }
   for (let round = 0; round < parameters.logDegreeBound; round += 1) {
     state = absorbCircleFriTranscriptState(state, `fri-layer-root-${round}`, witness.roots[round]);
     if (circleFriUsesCm31Fold(parameters)) {
@@ -988,6 +1123,11 @@ export const createBchCircleFriQ2BatchFixture = ({
   expected,
   protocolContext = new Uint8Array(),
   airLdeOpening = null,
+  airLdeOpeningNext = null,
+  airLdeOpeningPrev = null,
+  airResidualPublic = null,
+  airResidualQ = null,
+  airLdeZeta = null,
   airLdeRoot = null,
   airNoteFelts = null,
 }) => {
@@ -1011,6 +1151,8 @@ export const createBchCircleFriQ2BatchFixture = ({
     expected: parameters,
     protocolContext,
     queryOrdinals: [batchOrdinal * BATCH_SIZE, batchOrdinal * BATCH_SIZE + 1],
+    airResidualQ,
+    airLdeRoot,
   });
   require(verdict.ok, `q2 witness must verify before BCH lowering: ${verdict.reason ?? 'invalid'}`);
   const fourToOne = circleFriUsesFourToOne(parameters);
@@ -1031,8 +1173,17 @@ export const createBchCircleFriQ2BatchFixture = ({
     ? clusteredTopologyRoot(parameters)
     : buildCircleFriTopologyTable(parameters).root;
   require(equalBytes(witness.topology.root, topologyRoot), 'q2 witness topology root is not canonical');
+  const hasAirBind = airResidualQ instanceof Uint8Array && airResidualQ.length === 4
+    && Number.isInteger(airLdeZeta) && airLdeZeta >= 0
+    && airLdeRoot instanceof Uint8Array && airLdeRoot.length === 32;
   const encodedWitness = encodeCircleFriQ2BatchWitness(witness);
-  const publicProofDigest = derivePublicProofDigest({ witness, parameters, protocolContext });
+  const publicProofDigest = derivePublicProofDigest({
+    witness,
+    parameters,
+    protocolContext,
+    airResidualQ: hasAirBind ? airResidualQ : null,
+    airLdeRoot: hasAirBind ? airLdeRoot : null,
+  });
   return Object.freeze({
     kind: 'bch-circle-fri-q2-batch-component-v1',
     proofVersion: 3,
@@ -1046,7 +1197,12 @@ export const createBchCircleFriQ2BatchFixture = ({
     publicProofDigest: new Uint8Array(publicProofDigest),
     encodedWitness,
     witness,
+    airResidualQ: hasAirBind ? new Uint8Array(airResidualQ) : null,
+    airLdeZeta: hasAirBind ? airLdeZeta : null,
     airLdeOpening: airLdeOpening instanceof Uint8Array ? new Uint8Array(airLdeOpening) : null,
+    airLdeOpeningNext: airLdeOpeningNext instanceof Uint8Array ? new Uint8Array(airLdeOpeningNext) : null,
+    airLdeOpeningPrev: airLdeOpeningPrev instanceof Uint8Array ? new Uint8Array(airLdeOpeningPrev) : null,
+    airResidualPublic: airResidualPublic instanceof Uint8Array ? new Uint8Array(airResidualPublic) : null,
     airLdeRoot: airLdeRoot instanceof Uint8Array ? new Uint8Array(airLdeRoot) : null,
     airNoteFelts: airNoteFelts instanceof Uint8Array ? new Uint8Array(airNoteFelts) : null,
   });
@@ -1118,7 +1274,7 @@ const extractPackedBetasFromInput = (inputIndex, queryCount, parameters) => {
 };
 
 const encodePackedBetas = (fixture) => {
-  const { parameters, protocolContext, witness } = fixture;
+  const { parameters, protocolContext, witness, airResidualQ, airLdeRoot } = fixture;
   const cm31 = circleFriUsesCm31Fold(parameters);
   let state = initializeCircleFriTranscriptState(protocolContext);
   state = absorbCircleFriTranscriptState(state, 'fri-parameters', encodeCircleFriParameters(parameters));
@@ -1127,6 +1283,19 @@ const encodePackedBetas = (fixture) => {
     CIRCLE_FRI_DIMENSION_GAP_LAMBDA_LABEL,
     encodeCircleFriDimensionGapLambda(),
   );
+  if (airResidualQ instanceof Uint8Array && airResidualQ.length === 4) {
+    require(
+      airLdeRoot instanceof Uint8Array && airLdeRoot.length === 32,
+      'air LDE root is required when residual Q is bound',
+    );
+    state = absorbCircleFriTranscriptState(state, CIRCLE_FRI_AIR_LDE_ROOT_LABEL, airLdeRoot);
+    state = sampleCircleFriTranscriptState({
+      state,
+      label: CIRCLE_FRI_AIR_LDE_ZETA_LABEL,
+      upperBound: AIR_LDE_DOMAIN_LENGTH,
+    }).state;
+    state = absorbCircleFriTranscriptState(state, CIRCLE_FRI_AIR_RESIDUAL_Q_LABEL, airResidualQ);
+  }
   const parts = [];
   for (let round = 0; round < parameters.logDegreeBound; round += 1) {
     state = absorbCircleFriTranscriptState(state, `fri-layer-root-${round}`, witness.roots[round]);
@@ -2109,15 +2278,53 @@ const buildLoopedTranscriptLayers = (parameters, { cm31 = false } = {}) => [
   OP.OP_UNTIL,
 ];
 
-const buildTranscriptReplay = (fixture, offsets, { deferQuerySelection = false } = {}) => {
+/** After init: absorb AIR LDE root, sample zeta, EQUALVERIFY the fixture zeta, absorb C/Z.
+ * extraAlt: items parked on alt by digest-binding that must not sit above SAMPLE's digest. */
+const buildAirZetaQBind = (fixture, { extraAlt = 0 } = {}) => [
+  ...Array.from({ length: extraAlt }, () => [OP.OP_FROMALTSTACK, OP.OP_SWAP]).flat(),
+  ...encodeMinimalDataPush(fixture.airLdeRoot),
+  ...encodeMinimalDataPush(framePrefix(CIRCLE_FRI_AIR_LDE_ROOT_LABEL, 32)),
+  OP.OP_SWAP,
+  OP.OP_CAT,
+  OP.OP_CAT,
+  OP.OP_SHA256,
+  ...buildTranscriptChallenge({
+    label: CIRCLE_FRI_AIR_LDE_ZETA_LABEL,
+    upperBound: AIR_LDE_DOMAIN_LENGTH,
+  }),
+  ...pushNumber(fixture.airLdeZeta),
+  OP.OP_NUMEQUALVERIFY,
+  ...encodeMinimalDataPush(fixture.airResidualQ),
+  ...encodeMinimalDataPush(framePrefix(CIRCLE_FRI_AIR_RESIDUAL_Q_LABEL, 4)),
+  OP.OP_SWAP,
+  OP.OP_CAT,
+  OP.OP_CAT,
+  OP.OP_SHA256,
+  ...Array.from({ length: extraAlt }, () => [
+    ...pushNumber(1),
+    OP.OP_ROLL,
+    OP.OP_TOALTSTACK,
+  ]).flat(),
+];
+
+const buildTranscriptReplay = (fixture, offsets, {
+  deferQuerySelection = false,
+  extraAlt = 0,
+} = {}) => {
   const cm31 = circleFriUsesCm31Fold(fixture.parameters);
   const feltBytes = cm31 ? 8 : 4;
   const script = [
-    OP.OP_0,
     ...buildTranscriptInitialization({
       protocolContext: fixture.protocolContext,
       parameters: fixture.parameters,
     }),
+    ...(fixture.airResidualQ instanceof Uint8Array && Number.isInteger(fixture.airLdeZeta)
+      && fixture.airLdeRoot instanceof Uint8Array
+      ? buildAirZetaQBind(fixture, { extraAlt })
+      : []),
+    OP.OP_TOALTSTACK,
+    OP.OP_0,
+    OP.OP_FROMALTSTACK,
   ];
   if (fixture.parameters.logDegreeBound >= 8) {
     script.push(...buildLoopedTranscriptLayers(fixture.parameters, { cm31 }));
@@ -3640,21 +3847,41 @@ const compileQ2RedeemScript = (fixture, digestBinding, { clustersPerInput = 1 } 
         defineFunction(FUNCTION.PACK_LATER_PLAN, PACK_LATER_PLAN_FUNCTION),
       )
       : []),
-    ...(fixture.airLdeOpening instanceof Uint8Array
-      ? defineFunction(
-        FUNCTION.VERIFY_AIR_LDE,
-        buildVerifyAirLdeFunction(fixture.airLdeRoot),
+    ...(fixture.airLdeRoot instanceof Uint8Array
+      ? concat(
+        Uint8Array.from(residualInputPredicate()),
+        Uint8Array.of(OP.OP_IF),
+        defineFunction(
+          FUNCTION.VERIFY_AIR_LDE,
+          buildVerifyAirLdeFunction(fixture.airLdeRoot),
+        ),
+        defineFunction(FUNCTION_AIR_COPY16, buildCopy16Function()),
+        defineFunction(FUNCTION_AIR_EXT, buildApplyExternalFunction()),
+        defineFunction(FUNCTION_AIR_LOADSEL, buildLoadSelectorFunction()),
+        defineFunction(FUNCTION_AIR_RESTORE, buildRestoreRcAccFunction()),
+        defineFunction(FUNCTION_AIR_ACCUM_NEXT, buildAccum16VsNextFunction()),
+        defineFunction(FUNCTION_AIR_FULL, buildFullRoundFunction()),
+        defineFunction(FUNCTION_AIR_PART, buildPartialRoundFunction()),
+        defineFunction(FUNCTION_AIR_BINDCOL, buildBindColFunction()),
+        defineFunction(FUNCTION_AIR_RESIDUAL, buildLoopResidualFromLeaf({
+          airResidualQ: fixture.airResidualQ,
+          zetaX: Number.isInteger(fixture.airLdeZeta)
+            ? airLdeZetaX(fixture.airLdeZeta)
+            : undefined,
+        })),
+        Uint8Array.of(OP.OP_ENDIF),
       )
       : new Uint8Array()),
     ...(dual
       ? concat(
         defineFunction(FUNCTION.VERIFY_CLUSTER, compileScript(clusterBody, 'q2 cluster body')),
         defineFunction(FUNCTION.TRANSCRIPT_UNIQUE, compileScript([
-          OP.OP_INPUTINDEX,
-          OP.OP_0,
-          OP.OP_NUMEQUAL,
+          ...uniquenessPredicate(),
           OP.OP_IF,
-          ...buildTranscriptReplay(fixture, offsets, { deferQuerySelection: true }),
+          ...buildTranscriptReplay(fixture, offsets, {
+            deferQuerySelection: true,
+            extraAlt: 0,
+          }),
           OP.OP_TOALTSTACK,
           OP.OP_SIZE,
           OP.OP_NOT,
@@ -3672,11 +3899,11 @@ const compileQ2RedeemScript = (fixture, digestBinding, { clustersPerInput = 1 } 
           OP.OP_ELSE,
           OP.OP_FROMALTSTACK,
           OP.OP_DUP,
-          ...extractPackedQueryIndicesFromInput(0, parameters.queryCount),
+          ...extractPackedQueryIndicesFromInput(1, parameters.queryCount),
           OP.OP_EQUALVERIFY,
           OP.OP_FROMALTSTACK,
           OP.OP_DUP,
-          ...extractPackedBetasFromInput(0, parameters.queryCount, parameters),
+          ...extractPackedBetasFromInput(1, parameters.queryCount, parameters),
           OP.OP_EQUALVERIFY,
           OP.OP_SWAP,
           OP.OP_0,
@@ -3692,7 +3919,10 @@ const compileQ2RedeemScript = (fixture, digestBinding, { clustersPerInput = 1 } 
     // Roots live in redeem. Park the blob under the witness (no full-witness CAT).
     ...encodeMinimalDataPush(concat(...fixture.witness.roots)),
     OP.OP_SWAP,
-    ...(dual ? [] : buildTranscriptReplay(fixture, offsets, { deferQuerySelection: false })),
+    ...(dual ? [] : buildTranscriptReplay(fixture, offsets, {
+      deferQuerySelection: false,
+      extraAlt: 0,
+    })),
   ];
   if (!dual) {
     script.push(
@@ -3738,6 +3968,16 @@ const compileQ2RedeemScript = (fixture, digestBinding, { clustersPerInput = 1 } 
       OP.OP_2DROP,
       OP.OP_2DROP,
       OP.OP_2DROP,
+      ...(fixture.airLdeRoot instanceof Uint8Array
+        ? [
+          ...residualInputPredicate(),
+          OP.OP_IF,
+          OP.OP_FROMALTSTACK,
+          ...invokeFunction(FUNCTION_AIR_RESIDUAL),
+          OP.OP_DROP,
+          OP.OP_ENDIF,
+        ]
+        : []),
       OP.OP_1,
     );
   }
@@ -3755,7 +3995,18 @@ export const buildBchCircleFriQ2BatchRedeemBytecode = (fixture) => compileQ2Rede
   buildCrossInputProofDigestBinding(publicBatchCount(fixture.parameters)),
 );
 
-const buildInput0OnlyDigestBinding = (batchCount, { clustersPerInput = 1, verifyAirLde = false } = {}) => [
+const buildInput0OnlyDigestBinding = (batchCount, {
+  clustersPerInput = 1,
+  verifyAirLde = false,
+  airLdeZeta = 0,
+} = {}) => {
+  if (verifyAirLde) {
+    require(
+      Number.isInteger(airLdeZeta) && airLdeZeta >= 0 && airLdeZeta < AIR_LDE_DOMAIN_LENGTH,
+      'AIR LDE zeta is required to bind VERIFY_AIR_LDE openings',
+    );
+  }
+  return [
   OP.OP_TXINPUTCOUNT,
   ...pushNumber(batchCount),
   OP.OP_NUMEQUALVERIFY,
@@ -3765,8 +4016,39 @@ const buildInput0OnlyDigestBinding = (batchCount, { clustersPerInput = 1, verify
   OP.OP_WITHIN,
   OP.OP_VERIFY,
   OP.OP_DROP,
-  // Density pad was TOS. Optional AIR note-squeeze LDE opening is next.
-  ...(verifyAirLde ? invokeFunction(FUNCTION.VERIFY_AIR_LDE) : []),
+  // Density pad was TOS. Residual+merkle on input 0; uniqueness on input 1
+  // when dual so both fit 8.03M.
+  ...(verifyAirLde
+    ? [
+      ...residualInputPredicate(),
+      OP.OP_IF,
+      OP.OP_TOALTSTACK,
+      ...pushNumber(2),
+      OP.OP_ROLL,
+      ...pushNumber(airLdeZeta),
+      OP.OP_SWAP,
+      ...invokeFunction(FUNCTION.VERIFY_AIR_LDE),
+      OP.OP_TOALTSTACK,
+      OP.OP_SWAP,
+      ...pushNumber((airLdeZeta + AIR_LDE_ROW_STRIDE) % AIR_LDE_DOMAIN_LENGTH),
+      OP.OP_SWAP,
+      ...invokeFunction(FUNCTION.VERIFY_AIR_LDE),
+      OP.OP_TOALTSTACK,
+      ...pushNumber((airLdeZeta - AIR_LDE_ROW_STRIDE + AIR_LDE_DOMAIN_LENGTH) % AIR_LDE_DOMAIN_LENGTH),
+      OP.OP_SWAP,
+      ...invokeFunction(FUNCTION.VERIFY_AIR_LDE),
+      OP.OP_FROMALTSTACK,
+      OP.OP_FROMALTSTACK,
+      OP.OP_SWAP,
+      OP.OP_CAT,
+      OP.OP_SWAP,
+      OP.OP_CAT,
+      OP.OP_FROMALTSTACK,
+      OP.OP_CAT,
+      OP.OP_TOALTSTACK,
+      OP.OP_ENDIF,
+    ]
+    : []),
   // Operand is digest, packed, witness, extras.
   // Park extras then packed so OVER copies digest. Input 0 derives packed
   // and EQUALVERIFYes this copy; later inputs FROMALTSTACK it.
@@ -3778,14 +4060,13 @@ const buildInput0OnlyDigestBinding = (batchCount, { clustersPerInput = 1, verify
   ...extractInputProofDigestPrefix(0),
   OP.OP_EQUALVERIFY,
 ];
+};
 
 export const PARTITION_UNLOCKING_FLOOR = 10_000;
 export const OP_INPUTBYTECODE = 0xca;
 
-/** Count OP_INPUTBYTECODE opcodes, skipping push-data payloads. */
-export const countOpInputBytecode = (bytecode) => {
+const walkUnlockingPushes = (bytecode, onOpcode) => {
   require(bytecode instanceof Uint8Array, 'bytecode must be a Uint8Array');
-  let count = 0;
   let offset = 0;
   while (offset < bytecode.length) {
     const opcode = bytecode[offset];
@@ -3816,9 +4097,30 @@ export const countOpInputBytecode = (bytecode) => {
       offset += 5 + length;
       continue;
     }
-    if (opcode === OP.OP_INPUTBYTECODE) count += 1;
+    if (opcode === 0x4f || (opcode >= 0x51 && opcode <= 0x60)) {
+      offset += 1;
+      continue;
+    }
+    onOpcode(opcode);
     offset += 1;
   }
+};
+
+/** Count OP_INPUTBYTECODE opcodes, skipping push-data payloads. */
+export const countOpInputBytecode = (bytecode) => {
+  let count = 0;
+  walkUnlockingPushes(bytecode, (opcode) => {
+    if (opcode === OP.OP_INPUTBYTECODE) count += 1;
+  });
+  return count;
+};
+
+/** Non-push opcodes in unlocking (DEFINE/INVOKE/etc). Push-only unlocking is 0. */
+export const countUnlockingNonPushOpcodes = (bytecode) => {
+  let count = 0;
+  walkUnlockingPushes(bytecode, () => {
+    count += 1;
+  });
   return count;
 };
 
@@ -3837,7 +4139,8 @@ export const buildBchCircleFriQ2PartitionRedeemBytecode = (
     fixture,
     buildInput0OnlyDigestBinding(batchCount / clustersPerInput, {
       clustersPerInput,
-      verifyAirLde: fixture.airLdeOpening instanceof Uint8Array,
+      verifyAirLde: fixture.airLdeRoot instanceof Uint8Array,
+      airLdeZeta: fixture.airLdeZeta,
     }),
     { clustersPerInput },
   );
@@ -3947,9 +4250,13 @@ export const encodeBchCircleFriQ2PartitionP2sTransactionFixture = (
     if (typeof unlockingFloor === 'number') return unlockingFloor;
     if (unlockingFloor !== null && typeof unlockingFloor === 'object') {
       if (Array.isArray(unlockingFloor)) return unlockingFloor[inputIndex] ?? unlockingFloor.at(-1);
-      return inputIndex === 0
-        ? (unlockingFloor.input0 ?? unlockingFloor.other ?? PARTITION_UNLOCKING_FLOOR)
-        : (unlockingFloor.other ?? unlockingFloor.input0 ?? PARTITION_UNLOCKING_FLOOR);
+      if (inputIndex === 0) {
+        return unlockingFloor.input0 ?? unlockingFloor.other ?? PARTITION_UNLOCKING_FLOOR;
+      }
+      if (inputIndex === 1) {
+        return unlockingFloor.input1 ?? unlockingFloor.other ?? PARTITION_UNLOCKING_FLOOR;
+      }
+      return unlockingFloor.other ?? unlockingFloor.input0 ?? PARTITION_UNLOCKING_FLOOR;
     }
     return PARTITION_UNLOCKING_FLOOR;
   };
@@ -4058,6 +4365,15 @@ export const buildBchCircleFriQ2BatchOperandUnlockingBytecode = (fixture) => {
     ...(fixture.airLdeOpening instanceof Uint8Array
       ? [encodeMinimalDataPush(fixture.airLdeOpening)]
       : []),
+    ...(fixture.airLdeOpeningNext instanceof Uint8Array
+      ? [encodeMinimalDataPush(fixture.airLdeOpeningNext)]
+      : []),
+    ...(fixture.airLdeOpeningPrev instanceof Uint8Array
+      ? [encodeMinimalDataPush(fixture.airLdeOpeningPrev)]
+      : []),
+    ...(fixture.airResidualPublic instanceof Uint8Array
+      ? [encodeMinimalDataPush(fixture.airResidualPublic)]
+      : []),
   );
 };
 
@@ -4139,7 +4455,7 @@ const isStrictSuccess = (state) => state.error === undefined
   && state.stack[0].length === 1
   && state.stack[0][0] === 1
   && state.alternateStack.length === 0
-  && state.controlStack.length === 0;
+  && (state.controlStack?.length ?? 0) === 0;
 
 /** Evaluate both active inputs using the standard BCH-2026 Libauth VM. */
 export const evaluateBchCircleFriQ2BatchTransactionFixture = ({
@@ -4152,9 +4468,8 @@ export const evaluateBchCircleFriQ2BatchTransactionFixture = ({
   require(Array.isArray(sourceOutputs), 'q2 source outputs are required');
   const vm = createVirtualMachineBch2026(true);
   return Object.freeze(materialized.map(({ lockingBytecode, unlockingBytecode }, inputIndex) => {
-    const trace = vm.debug({ inputIndex, sourceOutputs, transaction }, { maskProgramState: true });
-    const state = trace.at(-1);
-    require(state !== undefined, 'Libauth BCH-2026 q2 debug trace is empty');
+    const state = vm.evaluate({ inputIndex, sourceOutputs, transaction });
+    require(state !== undefined, 'Libauth BCH-2026 q2 evaluation is empty');
     return Object.freeze({
       inputIndex,
       accepted: isStrictSuccess(state),

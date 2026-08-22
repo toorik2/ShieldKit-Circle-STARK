@@ -2,14 +2,16 @@ import { createHash } from 'node:crypto';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { M31_MODULUS } from '../../research-lanes/bch-shielded-pool-design/p2/reference/m31.mjs';
+import { encodeM31, M31_MODULUS } from '../../research-lanes/bch-shielded-pool-design/p2/reference/m31.mjs';
 
 import { utf8 } from '../../src/circle-fri/bytes.mjs';
 
 import {
+  applyAirResidualTranscript,
   decodeCircleFriQueryProof,
   encodeCircleFriQueryProof,
   estimateCircleFriQueryProofBytes,
+  prepareCircleFriTranscript,
   proveCircleFriQueries,
   verifyCircleFriQueries,
 } from '../../src/circle-fri/query-proof.mjs';
@@ -137,4 +139,41 @@ test('proof decoder rejects truncation, trailing bytes, bad magic, and noncanoni
     queryCount: 3,
     protocolContext: CONTEXT,
   }), /domainLength \/ 2/);
+});
+
+test('AIR residual transcript absorbs LDE root before sampling zeta', () => {
+  const q = encodeM31(1n);
+  const rootA = new Uint8Array(32).fill(0x11);
+  const rootB = new Uint8Array(32).fill(0x22);
+  const transcriptA = prepareCircleFriTranscript(CONTEXT, PARAMETERS);
+  const transcriptB = prepareCircleFriTranscript(CONTEXT, PARAMETERS);
+  const zetaA = applyAirResidualTranscript(transcriptA, q, rootA).airLdeZeta;
+  const zetaB = applyAirResidualTranscript(transcriptB, q, rootB).airLdeZeta;
+  assert.notEqual(zetaA, zetaB);
+  const missing = prepareCircleFriTranscript(CONTEXT, PARAMETERS);
+  assert.throws(() => applyAirResidualTranscript(missing, q), /airLdeRoot/);
+  const proof = proveCircleFriQueries({
+    coefficients: deterministicCoefficients(1 << PARAMETERS.logDegreeBound),
+    logBlowup: PARAMETERS.logBlowup,
+    queryCount: PARAMETERS.queryCount,
+    protocolContext: CONTEXT,
+    airResidualQ: q,
+    airLdeRoot: rootA,
+  });
+  const ok = verifyCircleFriQueries({
+    proof,
+    expected: PARAMETERS,
+    protocolContext: CONTEXT,
+    airResidualQ: q,
+    airLdeRoot: rootA,
+  });
+  assert.equal(ok.ok, true, ok.reason);
+  const wrongRoot = verifyCircleFriQueries({
+    proof,
+    expected: PARAMETERS,
+    protocolContext: CONTEXT,
+    airResidualQ: q,
+    airLdeRoot: rootB,
+  });
+  assert.equal(wrongRoot.ok, false);
 });

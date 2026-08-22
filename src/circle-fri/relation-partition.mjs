@@ -23,7 +23,7 @@ import {
 } from './pool-action-relation.mjs';
 
 import {
-  encodeAirZetaLdeOpening,
+  encodeAirResidualUnlocking,
   provePoseidon2Air,
 } from './poseidon2-air.mjs';
 
@@ -31,21 +31,30 @@ import {
   hexToBytes,
 } from '../../research-lanes/bch-shielded-pool-design/p1/codec/common.mjs';
 
-const buildAirFixtures = (deep, airProof) => {
-  const airLdeOpening = encodeAirZetaLdeOpening(airProof);
+const buildAirFixtures = (deep, airProof, { clustersPerInput = 3 } = {}) => {
+  const residual = encodeAirResidualUnlocking(airProof);
   const airLdeRoot = new Uint8Array(airProof.ldeMerkleRoot);
+  const batchCount = deep.parameters.queryCount / 2;
   const fixtures = [];
-  for (let batch = 0; batch < deep.parameters.queryCount / 2; batch += 1) {
+  for (let batch = 0; batch < batchCount; batch += 1) {
+    const residualHere = batch === 0;
     fixtures.push(createBchCircleFriQ2BatchFixture({
       witness: createCircleFriQ2BatchWitness({
         proof: deep.friProof,
         expected: deep.parameters,
         protocolContext: deep.protocolContext,
         queryOrdinals: [batch * 2, batch * 2 + 1],
+        airResidualQ: airProof.airResidualQ,
+        airLdeRoot,
       }),
       expected: deep.parameters,
       protocolContext: deep.protocolContext,
-      airLdeOpening,
+      airResidualQ: airProof.airResidualQ,
+      airLdeZeta: airProof.ldeOpenings.index,
+      airLdeOpening: residualHere ? residual.stateOpening : null,
+      airLdeOpeningNext: residualHere ? residual.nextOpening : null,
+      airLdeOpeningPrev: residualHere ? residual.prevOpening : null,
+      airResidualPublic: residualHere ? residual.publicBlob : null,
       airLdeRoot,
     }));
   }
@@ -84,7 +93,7 @@ export const evaluateRelationBoundPartition = ({
         lastError = new TypeError('AIR composition FRI is degenerate (zero codeword)');
         continue;
       }
-      fixtures = buildAirFixtures(deep, poseidon2Air);
+      fixtures = buildAirFixtures(deep, poseidon2Air, { clustersPerInput });
       lastError = null;
       break;
     } catch (error) {
@@ -161,10 +170,16 @@ export const evaluateRelationBoundPartition = ({
     const txFits = (floor) => {
       if (typeof floor === 'number') return floor <= maxFit;
       const input0 = floor.input0 ?? unpaddedMax;
+      const input1 = floor.input1 ?? floor.other ?? unpaddedMax;
       const other = floor.other ?? unpaddedMax;
+      const later = Math.max(0, inputs - 2);
+      const unlocking = inputs === 1
+        ? input0
+        : input0 + input1 + later * other;
       return input0 <= PARTITION_UNLOCKING_FLOOR
+        && input1 <= PARTITION_UNLOCKING_FLOOR
         && other <= PARTITION_UNLOCKING_FLOOR
-        && input0 + Math.max(0, inputs - 1) * other + extra <= 100_000;
+        && unlocking + extra <= 100_000;
     };
     // 800 ops per unlocking byte. Prefer 8600 when it still fits 10k/100k so
     // two honest sizes share a density floor. Skip-layer q=44 (22 inputs)
@@ -188,14 +203,46 @@ export const evaluateRelationBoundPartition = ({
       return null;
     };
     if (clustersPerInput > 1 && inputs > 1) {
-      for (const input0 of [9_000, 8_600, 8_000, 9_200, 10_000]) {
-        for (const other of [6_400, 6_300, 6_200, 6_500, 6_900, 7_600]) {
+      let paddedMiss = null;
+      const dualFloors = [
+        { input0: 9_300, input1: 8_511, other: 6_271 },
+        { input0: 9_410, input1: 8_506, other: 6_263 },
+        { input0: 9_408, input1: 8_508, other: 6_263 },
+        { input0: 9_408, input1: 8_507, other: 6_263 },
+        { input0: 9_405, input1: 8_511, other: 6_263 },
+        { input0: 9_404, input1: 8_511, other: 6_263 },
+        { input0: 8_520, input1: 9_420, other: 6_260 },
+        { input0: 8_520, input1: 9_420, other: 6_258 },
+        { input0: 8_520, input1: 9_403, other: 6_260 },
+        { input0: 8_512, input1: 9_403, other: 6_262 },
+        { input0: 8_520, input1: 9_300, other: 6_267 },
+        { input0: 8_520, input1: 8_750, other: 6_310 },
+        { input0: 8_500, input1: 8_750, other: 6_310 },
+        { input0: 8_550, input1: 8_780, other: 6_308 },
+        { input0: 8_600, input1: 8_800, other: 6_320 },
+        { input0: 8_700, input1: 8_850, other: 6_350 },
+        { input0: 8_800, input1: 8_900, other: 6_380 },
+        { input0: 9_000, input1: 9_000, other: 6_380 },
+        { input0: 10_000, input1: 10_000, other: 6_200 },
+      ];
+      for (const floor of dualFloors) {
+        if (!txFits(floor)) continue;
+        const hit = tryFloor(floor);
+        if (!hit) continue;
+        if (accepts(hit)) return hit;
+        paddedMiss ??= hit;
+      }
+      for (const input0 of [10_000, 9_000, 8_600, 8_000, 9_200]) {
+        for (const other of [6_380, 6_400, 6_300, 6_200, 6_500, 6_900, 7_600]) {
           const floor = { input0, other };
           if (!txFits(floor)) continue;
           const hit = tryFloor(floor);
-          if (hit && accepts(hit)) return hit;
+          if (!hit) continue;
+          if (accepts(hit)) return hit;
+          paddedMiss ??= hit;
         }
       }
+      if (paddedMiss) return paddedMiss;
     }
     for (const guess of [5_400, 6_900, 7_600, maxFit]) {
       const hit = hittable(guess);
@@ -235,7 +282,7 @@ export const evaluateRelationBoundPartition = ({
     commitmentScheme: poseidon2Air.commitmentScheme,
     compositionNonzero: poseidon2Air.compositionNonzero,
     envelope: Object.freeze({
-      target: Object.freeze({ redeem: 5200, unlocking: 10_000, tx: 100_000 }),
+      target: Object.freeze({ redeem: 10_000, unlocking: 10_000, tx: 100_000 }),
       miss: Object.freeze({
         schedule: '36-query / N=1024 / blowup 16',
         txBytes: 174794,
@@ -248,10 +295,10 @@ export const evaluateRelationBoundPartition = ({
         carrier: wires.carrier ?? 'p2sh32',
         transactionBytes: wires.transactionBytes,
         bindingConstraint: airOnChainWall
-          ?? (redeemBytes > 5200
+          ?? (redeemBytes > 10_000
             || unlockingBytes.some((bytes) => bytes > 10_000)
             || wires.transactionBytes > 100_000
-            ? 'AIR envelope over 5200/10k/100k; queries were not dropped'
+            ? 'AIR envelope over 10k/10k/100k; queries were not dropped'
             : null),
       }),
     }),

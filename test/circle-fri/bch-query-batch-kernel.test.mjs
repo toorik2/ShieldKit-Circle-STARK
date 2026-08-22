@@ -134,7 +134,7 @@ test('one fixed P2SH32 redeem accepts both canonical q2 witnesses in one standar
   assert.deepEqual(results.map(({ metrics }) => metrics.signatureCheckCount), [0, 0]);
   assert.ok(wires.transactionBytes <= 100_000);
   assert.ok(wires.materialized.every(({ redeemBytecode, unlockingBytecode }) => (
-    redeemBytecode.length <= 5_200 && unlockingBytecode.length <= 10_000
+    redeemBytecode.length <= 10_000 && unlockingBytecode.length <= 10_000
   )));
 });
 
@@ -306,12 +306,12 @@ test('4-to-1 clustered q2: round 0 is 4-leaf, later rounds 2-leaf, Libauth accep
   const results = evaluateBchCircleFriQ2BatchTransactionFixture(wires);
   assert.equal(results[0].accepted, true, results[0].error);
   assert.equal(results[1].accepted, true, results[1].error);
-  assert.ok(wires.materialized[0].redeemBytecode.length <= 5_200);
+  assert.ok(wires.materialized[0].redeemBytecode.length <= 10_000);
   assert.ok(wires.materialized.every(({ unlockingBytecode }) => unlockingBytecode.length <= 10_000));
   assert.ok(wires.transactionBytes <= 100_000);
 });
 
-test('dual-cluster q=4 blowup-8: one input, two q2, Libauth accepts, redeem ≤5200', () => {
+test('dual-cluster q=4 blowup-8: one input, two q2, Libauth accepts, redeem ≤10000', () => {
   const parameters = Object.freeze({ logDegreeBound: 14, logBlowup: 3, queryCount: 4 });
   const context = utf8('ShieldKit Circle-FRI dual-cluster q4 v1');
   let seed = 0x465249n;
@@ -343,7 +343,7 @@ test('dual-cluster q=4 blowup-8: one input, two q2, Libauth accepts, redeem ≤5
   assert.equal(wires.materialized.length, 1);
   assert.equal(results.length, 1);
   assert.equal(results[0].accepted, true, results[0].error);
-  assert.ok(wires.materialized[0].redeemBytecode.length <= 5_200);
+  assert.ok(wires.materialized[0].redeemBytecode.length <= 10_000);
   assert.ok(wires.materialized[0].unlockingBytecode.length <= 10_000);
   assert.ok(wires.transactionBytes <= 100_000);
 });
