@@ -1,0 +1,26 @@
+{
+  "name": "bch-circle-stark-qm31-fri10",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Circle FRI occupancy family: B=M31, F_fri=QM31, H=SHA-256. One standard BCH tx.",
+  "scripts": {
+    "cli": "tsx src/cli.ts",
+    "test": "tsx --test test/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "vk": "tsx src/cli.ts vk",
+    "measure": "tsx src/cli.ts measure",
+    "inspect": "tsx src/cli.ts inspect"
+  },
+  "engines": {
+    "node": ">=20.10"
+  },
+  "dependencies": {
+    "@bitauth/libauth": "3.1.0-next.8"
+  },
+  "devDependencies": {
+    "@types/node": "22.16.5",
+    "tsx": "4.20.3",
+    "typescript": "5.8.3"
+  }
+}

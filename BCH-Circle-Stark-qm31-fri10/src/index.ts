@@ -1,0 +1,11 @@
+export { circleFriPlugin } from "./backends/circle/plugin.ts";
+export { proveFri, verifyFri, encodeFriProof, decodeFriProof, wDeposit, wWithdraw } from "./backends/circle/fri.ts";
+export { foldPair, foldPairQm31, foldPairSecure } from "./backends/circle/fold.ts";
+export { soundnessWorksheet } from "./backends/circle/soundness.ts";
+export { VK_ID, RULES_SHA256, FRI_VERSION, FRI_QUERIES, TRACE_LEN, BLOWUP } from "./backends/circle/params.ts";
+export { compileCovenantSuccessor, compileCovenantSpend } from "./chain/covenant-spend.ts";
+export { evaluatePoolSuccessorVm } from "./chain/vm-verifier.ts";
+export { landQm31Successor } from "./chain/land.ts";
+export { inspectHex } from "./inspect.ts";
+export { runMixSuccessor } from "./pool/mix-successor.ts";
+export { applyDeposit, applyWithdraw } from "./pool/transition.ts";

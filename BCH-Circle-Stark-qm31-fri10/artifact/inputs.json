@@ -1,0 +1,77 @@
+{
+  "txBytes": 99175,
+  "inputs": [
+    {
+      "i": 0,
+      "unlocking": 9941
+    },
+    {
+      "i": 1,
+      "unlocking": 7616
+    },
+    {
+      "i": 2,
+      "unlocking": 7103
+    },
+    {
+      "i": 3,
+      "unlocking": 5741
+    },
+    {
+      "i": 4,
+      "unlocking": 4874
+    },
+    {
+      "i": 5,
+      "unlocking": 3842
+    },
+    {
+      "i": 6,
+      "unlocking": 2909
+    },
+    {
+      "i": 7,
+      "unlocking": 2304
+    },
+    {
+      "i": 8,
+      "unlocking": 5926
+    },
+    {
+      "i": 9,
+      "unlocking": 156
+    },
+    {
+      "i": 10,
+      "unlocking": 180
+    },
+    {
+      "i": 11,
+      "unlocking": 1681
+    },
+    {
+      "i": 12,
+      "unlocking": 7623
+    },
+    {
+      "i": 13,
+      "unlocking": 7651
+    },
+    {
+      "i": 14,
+      "unlocking": 7651
+    },
+    {
+      "i": 15,
+      "unlocking": 7652
+    },
+    {
+      "i": 16,
+      "unlocking": 7652
+    },
+    {
+      "i": 17,
+      "unlocking": 7652
+    }
+  ]
+}
