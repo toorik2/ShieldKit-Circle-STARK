@@ -1,4 +1,4 @@
-# Circle FRI on Bitcoin Cash
+# Circle FRI on Bitcoin Cash — Made by ABL (@ABLalgorithm) and toorik.
 
 A Circle-domain FRI verifier in May-2026 CashVM. One family, one standard transaction: ≤ 100 000 B, unlocking and redeem ≤ 10 000 B, `createVirtualMachineBch2026(true)`, Electrum. The miner runs the numbered checks; `verifyFri` is a lab oracle.
 
@@ -17,5 +17,3 @@ Chipnet Electrum [`60d186de…`](https://chipnet.imaginary.cash/tx/60d186ded1889
 Field floor is QM31 (~124). Query worksheet \(36\times 3 + 20 = 128\) at rate \(2/B\) is ethSTARK-style speculative, not Stwo-128. Shielded unlocking and walk-in batch are not this object. Chipnet only.
 
 Tree: [`BCH-Circle-Stark-qm31-fri10/`](BCH-Circle-Stark-qm31-fri10/).
-
-Made by [ABL](https://github.com/CyberAshven) ([`@ABLalgorithm`](https://github.com/toorik2/ShieldKit-Circle-STARK/tree/@ABLalgorithm)) and [toorik](https://github.com/toorik2).
