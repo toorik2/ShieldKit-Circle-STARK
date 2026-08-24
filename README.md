@@ -1,4 +1,4 @@
-# Circle FRI on Bitcoin Cash — Made by ABL (@ABLalgorithm) and toorik.
+# Circle FRI on Bitcoin Cash — Made by ABLalgorithm and toorik.
 
 A Circle-domain FRI verifier in May-2026 CashVM. One family, one standard transaction: ≤ 100 000 B, unlocking and redeem ≤ 10 000 B, `createVirtualMachineBch2026(true)`, Electrum. The miner runs the numbered checks; `verifyFri` is a lab oracle.
 
