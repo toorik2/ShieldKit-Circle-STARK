@@ -1,4 +1,0 @@
-# Raw execution transcripts are immutable evidence. Preserve their exact bytes,
-# including terminal-produced trailing spaces.
-atlas/artifacts/**/*.log whitespace=-blank-at-eol,-blank-at-eof
-research-lanes/bch-shielded-pool-design/p2/gate-b/cohort-node-runtime-materialized-v1/image/root/bin/node filter=lfs diff=lfs merge=lfs -text

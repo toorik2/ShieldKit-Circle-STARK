@@ -1,8 +1,0 @@
-# Pinned isolated replay from repository root:
-
-CAS_CACHE_DIR="$(mktemp -d /tmp/shieldkit-field-construction-v2.XXXXXX)"
-PYTHONDONTWRITEBYTECODE=1 UV_CACHE_DIR="$CAS_CACHE_DIR" uvx --python 3.13.12 --from 'sympy==1.14.0' python research-lanes/bch-shielded-pool-design/p2/field-cert/external-construction-v2/replay_construction_v2.py --neutral-transcript-out research-lanes/bch-shielded-pool-design/p2/field-cert/external-construction-v2/neutral-transcript.json --checker-transcript-out research-lanes/bch-shielded-pool-design/p2/field-cert/external-construction-v2/checker-transcript.json > research-lanes/bch-shielded-pool-design/p2/field-cert/external-construction-v2/raw-output.json
-PYTHONDONTWRITEBYTECODE=1 UV_CACHE_DIR="$CAS_CACHE_DIR" uvx --python 3.13.12 --from 'sympy==1.14.0' python -m unittest discover -s research-lanes/bch-shielded-pool-design/p2/field-cert/external-construction-v2 -p 'test_replay_construction_v2.py'
-
-The task-specific cache is outside the repository. The scorer is implemented
-in this external script and does not call the repository Node checker.

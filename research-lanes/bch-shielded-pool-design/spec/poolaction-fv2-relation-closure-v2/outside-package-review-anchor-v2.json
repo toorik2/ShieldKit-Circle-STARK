@@ -1,8 +1,0 @@
-{
-  "schema": "shieldkit-labs/poolaction-fv2/outside-package-review-anchor/v2",
-  "authority": "outside-package-only",
-  "reviewTarget": "../poolaction-fv2-relation-closure-charter-v2.md",
-  "sha256": "aa1a63b17c74bc5f4f09c4c5009914a42c0942cd320cbf82fce6bad19d45191e",
-  "requiredReview": "independent adversarial review before refreeze or later gate authorization",
-  "packageVerdictCeiling": "internally-consistent-normative-v2-only"
-}

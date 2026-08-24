@@ -1,3 +1,0 @@
-node research-lanes/bch-shielded-pool-design/p2/gate-b/cohort-live-accounting-v2/generate.mjs --check
-node --test research-lanes/bch-shielded-pool-design/p2/gate-b/cohort-live-accounting-v2/validator.test.mjs
-sha256sum -c research-lanes/bch-shielded-pool-design/p2/gate-b/cohort-live-accounting-v2/SHA256SUMS

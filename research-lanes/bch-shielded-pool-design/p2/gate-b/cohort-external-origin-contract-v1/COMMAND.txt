@@ -1,8 +1,0 @@
-Static-only checks for the unsealed authored package:
-
-node validate-static.mjs --unsealed
-node test/static.test.mjs
-node test/mutation.test.mjs
-node test/package-boundary.test.mjs
-
-The final envelope is intentionally absent until an independently authorized seal.

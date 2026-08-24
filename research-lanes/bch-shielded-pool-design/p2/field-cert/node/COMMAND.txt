@@ -1,7 +1,0 @@
-From the lane directory (`research-lanes/bch-shielded-pool-design`):
-
-node p2/field-cert/node/check-fixture.mjs p2/field-cert/fixtures/m89-x2-plus-1-rabin.v1.json
-node --test p2/field-cert/node/field-cert.test.mjs
-
-The first command's exact stdout is pinned in `m89-output.txt`. `SHA256SUMS`
-pins the complete repository checker source and schema surface.

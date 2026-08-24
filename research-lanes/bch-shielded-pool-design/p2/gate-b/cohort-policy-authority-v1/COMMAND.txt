@@ -1,7 +1,0 @@
-node generate.mjs --check
-node validate.mjs
-node tests/static-kat.test.mjs
-node tests/mutation.test.mjs
-node generate.mjs --seal
-# From repository root only:
-sha256sum -c research-lanes/bch-shielded-pool-design/p2/gate-b/cohort-policy-authority-v1/SHA256SUMS

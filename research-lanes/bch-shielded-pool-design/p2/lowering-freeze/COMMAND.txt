@@ -1,6 +1,0 @@
-node generate.mjs --write
-node generate.mjs
-node validate.mjs
-node --test lowering-freeze.test.mjs
-sha256sum -c SHA256SUMS
-git diff --check -- research-lanes/bch-shielded-pool-design/p2/lowering-freeze

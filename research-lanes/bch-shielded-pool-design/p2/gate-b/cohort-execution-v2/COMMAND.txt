@@ -1,7 +1,0 @@
-cwd=/home/toorik/Projects/ShieldKit-LABS
-
-node research-lanes/bch-shielded-pool-design/p2/gate-b/cohort-execution-v2/contract/execution-contract.mjs --write
-node research-lanes/bch-shielded-pool-design/p2/gate-b/cohort-execution-v2/contract/execution-contract.mjs --check
-node --test research-lanes/bch-shielded-pool-design/p2/gate-b/cohort-execution-v2/execution-contract.test.mjs
-
-The commands are deterministic local materialization and validation only. They do not execute BCH VMs or engine runners and do not create result evidence.

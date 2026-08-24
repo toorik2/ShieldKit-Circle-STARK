@@ -1,9 +1,0 @@
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "shieldkit://live-executor-static/attempt-join.v1",
-  "type": "object", "additionalProperties": false,
-  "required": ["schemaVersion", "a0Digest", "a1Digest", "bDigest", "cDigest", "joinSeedDigest", "packageManifestDigest", "packageSha256SumsDigest", "launchProjectionDigest", "descriptorInventoryDigest", "stdinBindingRootDigest", "endpointScheduleDigest", "evidenceOnly", "grantsAuthority"],
-  "properties": {
-    "schemaVersion": {"const": "live-executor-static-v1"}, "a0Digest": {"$ref": "#/$defs/digest"}, "a1Digest": {"$ref": "#/$defs/digest"}, "bDigest": {"$ref": "#/$defs/digest"}, "cDigest": {"$ref": "#/$defs/digest"}, "joinSeedDigest": {"$ref": "#/$defs/digest"}, "packageManifestDigest": {"$ref": "#/$defs/digest"}, "packageSha256SumsDigest": {"$ref": "#/$defs/digest"}, "launchProjectionDigest": {"$ref": "#/$defs/digest"}, "descriptorInventoryDigest": {"$ref": "#/$defs/digest"}, "stdinBindingRootDigest": {"$ref": "#/$defs/digest"}, "endpointScheduleDigest": {"$ref": "#/$defs/digest"}, "evidenceOnly": {"const": true}, "grantsAuthority": {"const": false}
-  }, "$defs": {"digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"}}
-}

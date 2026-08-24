@@ -1,8 +1,0 @@
-Direct package-local Node invocations are nonauthorizing diagnostic self-checks only; they cannot authenticate any authored bytes they import or execute.
-Before any source-mode validator or test import, a caller-controlled outside-package pin-first launcher must independently verify an externally held exact ordered table of locator, byte count, and raw SHA-256 for all 21 authored files, including validate-static.mjs and every test; neither the table nor its pins may be read from or derived by this package.
-Before any sealed-mode validator or test import, that launcher must independently raw-pin and parse the outside review anchor without importing package code, verify its exact 19-key identity and orderedClosure against all 21 authored files, verify its root, validator, schema, MANIFEST.json, and SHA256SUMS bindings, and only then invoke the raw-pinned validator with the same four literal anchor-pin fields.
-COMMAND.txt, validate-static.mjs, MANIFEST.json, SHA256SUMS, a package-derived hash, and a locally generated review anchor are not independent bootstrap trust roots and grant no authority.
-After those outside checks only, the following diagnostic forms may be invoked:
-node validate-static.mjs --mode unsealed
-node validate-static.mjs --mode sealed --review-anchor-root "$EAPP_REVIEW_ANCHOR_ROOT" --review-anchor-locator "$EAPP_REVIEW_ANCHOR_LOCATOR" --review-anchor-bytes "$EAPP_REVIEW_ANCHOR_BYTES" --review-anchor-raw-sha256 "$EAPP_REVIEW_ANCHOR_RAW_SHA256"
-These diagnostic forms create no governance authorization, authority contract, provider binding, instance, Attempt-001, admission, execution, evidence, qualification, ranking, or selection authority.

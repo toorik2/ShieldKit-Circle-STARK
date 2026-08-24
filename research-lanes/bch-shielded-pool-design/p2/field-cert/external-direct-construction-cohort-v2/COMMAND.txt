@@ -1,4 +1,0 @@
-# Pinned independent review from repository root:
-CAS_CACHE_DIR="$(mktemp -d /tmp/shieldkit-direct-construction-v2.XXXXXX)"
-PYTHONDONTWRITEBYTECODE=1 UV_CACHE_DIR="$CAS_CACHE_DIR" uvx --python 3.13.12 --from 'sympy==1.14.0' python research-lanes/bch-shielded-pool-design/p2/field-cert/external-direct-construction-cohort-v2/review_direct_construction_v2.py --output research-lanes/bch-shielded-pool-design/p2/field-cert/external-direct-construction-cohort-v2/external-review.v2.json --raw-output research-lanes/bch-shielded-pool-design/p2/field-cert/external-direct-construction-cohort-v2/raw-output.json
-PYTHONDONTWRITEBYTECODE=1 UV_CACHE_DIR="$CAS_CACHE_DIR" uvx --python 3.13.12 --from 'sympy==1.14.0' python -m unittest discover -s research-lanes/bch-shielded-pool-design/p2/field-cert/external-direct-construction-cohort-v2 -p 'test_review_direct_construction_v2.py'

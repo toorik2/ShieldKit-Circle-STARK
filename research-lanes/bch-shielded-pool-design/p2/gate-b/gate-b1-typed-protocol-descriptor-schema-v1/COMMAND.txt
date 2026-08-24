@@ -1,1 +1,0 @@
-node validate-static.mjs && node test/static.test.mjs && node test/mutation.test.mjs && node test/package-boundary.test.mjs

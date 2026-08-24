@@ -1,4 +1,0 @@
-# Read-only checks; no engine, VM, build, process, or evidence execution.
-node research-lanes/bch-shielded-pool-design/p2/gate-b/cohort-attempt-accounting-v1/validator.mjs --check
-sha256sum -c research-lanes/bch-shielded-pool-design/p2/gate-b/cohort-attempt-accounting-v1/SHA256SUMS
-node --test research-lanes/bch-shielded-pool-design/p2/gate-b/cohort-attempt-accounting-v1/validator.test.mjs

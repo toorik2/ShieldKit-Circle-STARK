@@ -1,6 +1,0 @@
-Static catalog package checks:
-
-node validate-static.mjs
-node --test test/digest.test.mjs test/model.test.mjs test/mutation.test.mjs test/package-boundary.test.mjs
-
-These checks read only static package and upstream bytes. This package has no live binder, state reducer, constructor, writer, endpoint, worker, or runtime entrypoint.

@@ -1,4 +1,0 @@
-node validate.mjs
-node tests/static-kat.test.mjs
-node tests/mutation.test.mjs
-node generate.mjs --seal

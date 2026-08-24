@@ -1,8 +1,0 @@
-Pinned isolated replay from repository root:
-
-CAS_CACHE_DIR="$(mktemp -d /tmp/shieldkit-field-cohort-sympy.XXXXXX)"
-PYTHONDONTWRITEBYTECODE=1 UV_CACHE_DIR="$CAS_CACHE_DIR" uvx --python 3.13.12 --from 'sympy==1.14.0' python research-lanes/bch-shielded-pool-design/p2/field-cert/external-cohort/replay_sympy_cohort_v1.py > research-lanes/bch-shielded-pool-design/p2/field-cert/external-cohort/raw-output.json
-PYTHONDONTWRITEBYTECODE=1 UV_CACHE_DIR="$CAS_CACHE_DIR" uvx --python 3.13.12 --from 'sympy==1.14.0' python -m unittest discover -s research-lanes/bch-shielded-pool-design/p2/field-cert/external-cohort -p 'test_replay_cohort.py'
-
-The cache is task-specific and outside the repository. The search is deterministic
-and stops at the first directly irreducible polynomial in the frozen total order.

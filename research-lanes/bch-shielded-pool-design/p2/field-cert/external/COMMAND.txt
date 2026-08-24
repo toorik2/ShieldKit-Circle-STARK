@@ -1,9 +1,0 @@
-Pinned isolated replay (from repository root):
-
-CAS_CACHE_DIR="$(mktemp -d /tmp/shieldkit-m89-sympy.XXXXXX)"
-PYTHONDONTWRITEBYTECODE=1 UV_CACHE_DIR="$CAS_CACHE_DIR" uvx --python 3.13.12 --from 'sympy==1.14.0' python research-lanes/bch-shielded-pool-design/p2/field-cert/external/replay_sympy.py research-lanes/bch-shielded-pool-design/p2/field-cert/fixtures/m89-x2-plus-1-rabin.v1.json > research-lanes/bch-shielded-pool-design/p2/field-cert/external/raw-output.json
-PYTHONDONTWRITEBYTECODE=1 UV_CACHE_DIR="$CAS_CACHE_DIR" uvx --python 3.13.12 --from 'sympy==1.14.0' python -m unittest discover -s research-lanes/bch-shielded-pool-design/p2/field-cert/external -p 'test_replay.py'
-
-The cache directory is task-specific and must not be treated as a repository
-artifact. The pinned requirements.lock records the full SymPy 1.14.0 runtime
-closure and accepted distribution hashes.

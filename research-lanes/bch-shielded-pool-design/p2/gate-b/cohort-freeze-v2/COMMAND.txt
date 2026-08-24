@@ -1,4 +1,0 @@
-node research-lanes/bch-shielded-pool-design/p2/gate-b/cohort-freeze-v2/generate.mjs --check
-node research-lanes/bch-shielded-pool-design/p2/gate-b/cohort-freeze-v2/validate.mjs --strict
-node --test --test-concurrency=1 research-lanes/bch-shielded-pool-design/p2/gate-b/cohort-freeze-v2/*.test.mjs
-(cd research-lanes/bch-shielded-pool-design/p2/gate-b/cohort-freeze-v2 && sha256sum -c SHA256SUMS)

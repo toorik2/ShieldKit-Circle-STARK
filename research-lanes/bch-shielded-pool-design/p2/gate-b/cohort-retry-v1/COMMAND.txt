@@ -1,5 +1,0 @@
-Host-only validation; this package has no generation or execution command.
-
-node research-lanes/bch-shielded-pool-design/p2/gate-b/cohort-retry-v1/validator.mjs --check
-node --test research-lanes/bch-shielded-pool-design/p2/gate-b/cohort-retry-v1/validator.test.mjs
-sha256sum -c research-lanes/bch-shielded-pool-design/p2/gate-b/cohort-retry-v1/SHA256SUMS

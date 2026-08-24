@@ -1,1 +1,0 @@
-node validate-static.mjs

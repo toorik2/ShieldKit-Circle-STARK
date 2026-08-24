@@ -1,2 +1,0 @@
-node generate.mjs --check
-node --test snapshot-pure.test.mjs

@@ -1,6 +1,0 @@
-{
-  "name": "poolaction-fv2-recomputer-v3-node",
-  "private": true,
-  "type": "module",
-  "scripts": { "test": "node --test test/*.test.mjs", "recompute": "node recompute.mjs" }
-}

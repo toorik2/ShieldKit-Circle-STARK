@@ -1,9 +1,0 @@
-# Cohort execution v2 contract
-
-This package freezes the additive, contract-only execution boundary for the gate-B cohort. It binds the existing campaign, canonical corpus, fixture roster, work-item roster, source-set, execution epoch, and four engine descriptors by exact path, raw SHA-256, schema SHA-256, and content digest. The seven-schema pin set includes distinct `evidence-root.v2.schema.json` and `evidence-manifest.v2.schema.json`; neither is overloaded into the frozen contract.
-
-The contract is frozen-unexecuted. It contains no transaction results, VM observations, normalized metrics, cross-engine findings, ranking, or selection. Engine-major serial execution is specified as four complete 4,732-item batches, one shard per engine, `attemptIndex: 0`, and `retries: 0`. The 18,928 obligations consist of 496 frozen preflight-limit unsupported obligations and 18,432 executable obligations.
-
-Future raw rows must carry either a structured observation payload or a manifest-covered file/byte/line span. Lean raw evidence has separate primary vmbconf and secondary costprobe stdin/stdout/stderr streams; SKIP is explicit unsupported/incomplete and never agreement-eligible. Future normalized rows carry all 15 metrics in frozen order, exact failure stages, and explicit process/timeout/parser terminal states. Cross-engine evidence carries all 4,732 fixture rows and 70,980 metric-agreement rows with exact work-item/terminal-cell identities and normalized cell digests. Its separate attempt manifest covers exactly 25 payloads (4 raw artifacts, 15 role-specific streams, 4 normalized artifacts, summary, authorization), excluding itself and the evidence root.
-
-`contract/execution-contract.mjs --write` materializes the deterministic contract and package manifest. `--check` validates the closed schemas, authority pins, batch order digests, counts, root digest, strict manifest coverage, and no-symlink rule. These commands do not invoke an engine runner.

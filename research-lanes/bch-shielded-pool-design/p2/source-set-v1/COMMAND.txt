@@ -1,5 +1,0 @@
-node generate.mjs --write
-node generate.mjs --check
-node validate.mjs --strict
-node --test --test-concurrency=1 source-set.test.mjs
-sha256sum -c SHA256SUMS

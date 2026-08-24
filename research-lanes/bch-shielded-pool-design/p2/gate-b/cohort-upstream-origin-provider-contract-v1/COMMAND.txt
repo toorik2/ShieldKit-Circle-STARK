@@ -1,1 +1,0 @@
-Static requirements catalog only. Validate by importing validate-static.mjs in a read-only test context; no provider, owner, root, origin, fact, projection, private byte, endpoint, runtime, execution, writer, or construction surface is supplied.

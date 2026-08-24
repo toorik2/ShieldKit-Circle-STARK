@@ -1,7 +1,0 @@
-node generate.mjs --check
-node validate.mjs
-node --test test/*.test.mjs
-
-# Build-time-only envelope refresh; it is not a K runtime command.
-# It only refreshes this package's MANIFEST.json and SHA256SUMS.
-node generate.mjs --seal

@@ -1,8 +1,0 @@
-DIRECT-CONSTRUCTION-COHORT-V2 REPOSITORY RAW REPLAY REPORT
-artifactId=direct-construction-cohort-v2
-certificateCount=4
-PASS index=0 constructionId=algebra-construction:m89-d2-x2-plus-1-v1 certificateId=certificate:mersenne-q89-d2-rabin certificateDigest=10969251c66cbabff787da8045bf0efa4a78673f21f117f3b075e02d763d72d1
-PASS index=1 constructionId=algebra-construction:m61-d3-x3-minus-5-v1 certificateId=certificate:mersenne-q61-d3-rabin certificateDigest=a8b34cef2828c3de1a88e7a3b0f59c38e993a36b38bbc628d33a621331e5e62b
-PASS index=2 constructionId=algebra-construction:m31-d5-x5-plus-2x-minus-1-v1 certificateId=certificate:mersenne-q31-d5-rabin certificateDigest=464ed194826e19d4bd3691935d096745decb7e1d9795d8f981915dd6f42e6e54
-PASS index=3 constructionId=algebra-construction:m31-d6-x6-minus-5-v1 certificateId=certificate:mersenne-q31-d6-rabin certificateDigest=6ffdde71174f443005dbbc99693182dc13ffbdfc62da674dd5deb2a95accbb25
-status=all-repository-replays-passed

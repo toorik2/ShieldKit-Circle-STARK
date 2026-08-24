@@ -1,5 +1,0 @@
-{
-  "$schema":"https://json-schema.org/draft/2020-12/schema",
-  "$id":"https://shieldkit-labs.local/p2/gate-b/cohort-attempt-accounting-v1/endpoint-stream-binding.v1.schema.json",
-  "$ref":"https://shieldkit-labs.local/p2/gate-b/cohort-attempt-accounting-v1/future-endpoint.v1.schema.json#/$defs/endpoint"
-}

@@ -1,4 +1,0 @@
-node generate.mjs
-node --test direct-construction-cohort-v2.test.mjs
-node repository-replay.mjs direct-construction-cohort-v2.v2.json
-sha256sum -c SHA256SUMS

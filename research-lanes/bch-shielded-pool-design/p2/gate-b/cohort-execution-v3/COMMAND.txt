@@ -1,5 +1,0 @@
-Read-only static verification:
-node research-lanes/bch-shielded-pool-design/p2/gate-b/cohort-execution-v3/generate.mjs --check
-
-Deterministic contract/package regeneration (static artifacts only; does not authorize or execute):
-node research-lanes/bch-shielded-pool-design/p2/gate-b/cohort-execution-v3/generate.mjs --write-static

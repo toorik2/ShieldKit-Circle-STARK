@@ -1,9 +1,0 @@
-== secp256k1 shim build ==
-   archive : /home/toorik/Projects/BCH/bchn-src/build/src/secp256k1/libsecp256k1.a
-   headers : /home/toorik/Projects/BCH/bchn-src/src/secp256k1/include
-   sha256  : 10b924cacd33111f260d62fee7d30cf7e2f360201207d05f1727080c22b13ed6 ✓ pinned
-   cc      : cc
-✓ staged /home/toorik/Projects/ZK-Proofs/LeanBCH/.lake/ffi/secp256k1_shim.o and /home/toorik/Projects/ZK-Proofs/LeanBCH/.lake/ffi/libsecp256k1.a
-
-Next: lake build vmbconf   (or xcheck / xcheck_arg / xcheck_idx1 / xcheck_idxN)
-Then: LEANBCH_SECP=native <runner>   — default stays 'reject', see LeanBCH/Crypto/Native.lean

@@ -1,7 +1,0 @@
-Static validator/runner-opening verification (no authorization or execution):
-node research-lanes/bch-shielded-pool-design/p2/gate-b/cohort-executor-v3/cli.mjs --check
-
-The explicit --execute branch first requires the exact absent external authorization; it is not an execution authorization and remains fail-closed pending a retained authority snapshot, live endpoint orchestration, and sealed failure publication.
-
-Static envelope regeneration only (does not create authorization, run output, or evidence):
-node research-lanes/bch-shielded-pool-design/p2/gate-b/cohort-executor-v3/generate.mjs --write-static

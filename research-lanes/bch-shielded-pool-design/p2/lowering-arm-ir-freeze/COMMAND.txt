@@ -1,6 +1,0 @@
-node research-lanes/bch-shielded-pool-design/p2/lowering-arm-ir-freeze/generate.mjs --write
-node research-lanes/bch-shielded-pool-design/p2/lowering-arm-ir-freeze/generate.mjs --check
-node research-lanes/bch-shielded-pool-design/p2/lowering-arm-ir-freeze/validate.mjs --strict --regenerate
-node --test --test-concurrency=1 research-lanes/bch-shielded-pool-design/p2/lowering-arm-ir-freeze/arm-ssa.test.mjs research-lanes/bch-shielded-pool-design/p2/lowering-arm-ir-freeze/physical-plan.test.mjs research-lanes/bch-shielded-pool-design/p2/lowering-arm-ir-freeze/lowering-arm-ir-freeze.test.mjs
-cd research-lanes/bch-shielded-pool-design/p2/lowering-arm-ir-freeze
-sha256sum -c SHA256SUMS
