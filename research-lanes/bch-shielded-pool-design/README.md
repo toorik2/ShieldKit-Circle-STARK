@@ -93,7 +93,6 @@ spec/poolactionfv1-refreeze-falsifier-contract-v2-review-anchor.v1.json
                                                outside v2 review-anchor raw pin
 research/source-pin-review-2026-08-08.md        exact paper pins and blockers
 research/phase-plan.md                          phased model routing and stop gates
-research/orchestration-prompt.md                reusable root/worker gate contract
 bench/primitive-microbench-plan.md              measured BCH experiment order
 vectors/pool-action-fv1/index.json              planned valid/adversarial corpus
 profiles/*.json                                 current BCH and desktop pins

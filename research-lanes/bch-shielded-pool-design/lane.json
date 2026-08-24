@@ -104,7 +104,6 @@
     "m89RepositoryCheckerManifest": "p2/field-cert/node/SHA256SUMS",
     "sourcePinReview": "research/source-pin-review-2026-08-08.md",
     "phasePlan": "research/phase-plan.md",
-    "orchestrationPrompt": "research/orchestration-prompt.md",
     "primitiveMicrobenchPlan": "bench/primitive-microbench-plan.md",
     "primitiveMicrobenchSchema": "bench/primitive-microbench.schema.json",
     "measurementSchema": "evidence/measurement.schema.json",
