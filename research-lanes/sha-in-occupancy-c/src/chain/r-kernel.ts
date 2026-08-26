@@ -1,7 +1,7 @@
 /**
- * On-chain R_on(i) + Z(i)·R_off(i). Slot kernels check (qTable−R)·Z against
- * leftover SHA-in-C vanish (N = 0). Leftover FRI is occupancy+SHA interpolant
- * at the same 36 queries (DEEP / column-batching). Not shaPubsAcc of packed cells.
+ * On-chain R_on(i) + Z(i)·R_off(i). Fused slots check (qTable−R)·Z against
+ * leftover L0 C(z): N = (opened − R) · Z. Honest occupancy+SHA ⇒ Q=0 ⇒ N=0.
+ * Packed interpolant/openings are cargo. Not parked `<0>`.
  */
 import { cashAssemblyToBin } from "@bitauth/libauth";
 import {
@@ -11,6 +11,7 @@ import {
   VIEWING_TAG,
 } from "../backends/circle/witness-mask.ts";
 import { M31_ADD, M31_MUL, M31_SUB } from "./m31-asm.ts";
+import { FRI_N } from "../backends/circle/params.ts";
 import {
   AIR_OFF_CELLS,
   AIR_OFF_IDX,
@@ -453,9 +454,9 @@ OP_ROT
 }
 
 /**
- * Stack: i → i N Z. N is leftover SHA-in-C vanish (0) parked on alt.
+ * Stack: i → i Z. Vanishing at [i]G. Leftover L0 opened stays on the main stack.
  */
-function nAndZFromIAsm(smulDef = 2, vanishDef = 3): string {
+function zFromIAsm(smulDef = 2, vanishDef = 3): string {
   return `
 OP_DUP
 ${pushFelt(G1024.x)}
@@ -466,23 +467,44 @@ OP_OVER
 OP_TOALTSTACK
 OP_2DROP
 OP_FROMALTSTACK
-OP_FROMALTSTACK
-OP_DUP
-OP_TOALTSTACK
-OP_SWAP
 `;
 }
 
 /**
- * Fused R: blob q24 idx12 slot → blob q24 idx12. Alt holds N = leftover SHA-in-C vanish.
- * Checks (qTable − R) · Z == N (Z = 0 requires q = R and N = 0).
+ * Fused R: pairs idx q24 blob sha24 slot → pairs idx q24 blob sha24.
+ * leftover C = (opened − R) · Z. Independent C_SHA = sha24[slot].
+ * N = leftover C + C_SHA. Honest both 0. Not parked `<0>`.
  */
 export function slotRCqzBodyBlobAsm(smulDef = 2, vanishDef = 3): string {
   return `
 OP_DUP
-<2>
+<4>
 OP_MUL
 OP_2 OP_PICK
+OP_SWAP
+OP_SPLIT
+OP_NIP
+<4>
+OP_SPLIT
+OP_DROP
+<0x00>
+OP_CAT
+OP_BIN2NUM
+OP_SWAP
+OP_DUP
+<8>
+OP_MUL
+OP_7 OP_PICK
+OP_SWAP
+OP_SPLIT
+OP_NIP
+<8>
+OP_SPLIT
+OP_DROP
+OP_OVER
+<2>
+OP_MUL
+OP_7 OP_PICK
 OP_SWAP
 OP_SPLIT
 OP_NIP
@@ -490,10 +512,24 @@ OP_NIP
 OP_SPLIT
 OP_DROP
 ${BE16_UNSIGNED}
-OP_SWAP
+OP_DUP
+<${FRI_N >> 1}>
+OP_GREATERTHANOREQUAL
+OP_IF
+  OP_SWAP
+  <4> OP_SPLIT OP_NIP
+  <4> OP_SPLIT OP_DROP
+OP_ELSE
+  OP_SWAP
+  <4> OP_SPLIT OP_DROP
+OP_ENDIF
+<0x00>
+OP_CAT
+OP_BIN2NUM
+OP_2 OP_PICK
 <4>
 OP_MUL
-OP_3 OP_PICK
+OP_7 OP_PICK
 OP_SWAP
 OP_SPLIT
 OP_NIP
@@ -501,35 +537,36 @@ OP_NIP
 OP_SPLIT
 OP_DROP
 OP_BIN2NUM
+OP_3 OP_ROLL
+OP_DROP
+OP_2 OP_ROLL
+${zFromIAsm(smulDef, vanishDef)}
+OP_2DUP
+OP_8 OP_PICK
 OP_SWAP
-${nAndZFromIAsm(smulDef, vanishDef)}
-OP_6 OP_PICK
-OP_3 OP_PICK
-OP_2 OP_PICK
+OP_ROT
+OP_SWAP
 ${openingMaskAtBlobAsm()}
-OP_TOALTSTACK
-OP_3 OP_PICK
-OP_FROMALTSTACK
+OP_DUP
+OP_4 OP_PICK
+OP_SWAP
 ${M31_SUB}
-OP_1 OP_PICK
-OP_0
-OP_NUMEQUAL
-OP_IF
-  OP_0
-  OP_NUMEQUALVERIFY
-  OP_1 OP_PICK
-  OP_0
-  OP_NUMEQUALVERIFY
-  OP_2DROP
-  OP_2DROP
-OP_ELSE
-  OP_1 OP_PICK
-  ${M31_MUL}
-  OP_2 OP_PICK
-  OP_NUMEQUALVERIFY
-  OP_2DROP
-  OP_2DROP
-OP_ENDIF
+OP_2 OP_PICK
+${M31_MUL}
+OP_6 OP_PICK
+${M31_ADD}
+OP_TOALTSTACK
+OP_4 OP_PICK
+OP_OVER
+${M31_SUB}
+OP_2 OP_PICK
+${M31_MUL}
+OP_FROMALTSTACK
+OP_NUMEQUALVERIFY
+OP_2DROP
+OP_DROP
+OP_NUMEQUALVERIFY
+OP_DROP
 `;
 }
 
@@ -660,4 +697,32 @@ OP_NUMEQUAL
 
 export function compileSlotRCqzLock(slot = 0): Uint8Array {
   return compileOrThrow(`${slotRCqzAsm(slot)}\nOP_1`, `slot-${slot}-r-cqz`);
+}
+
+/**
+ * Isolated fused leftover-L0 C + independent SHA_OPEN. Unlocking:
+ * commit q24 idx pairs sha24 (sha24 on top).
+ */
+export function compileFusedLeftoverCLock(nSlots = 6): Uint8Array {
+  const slots = Array.from({ length: nSlots }, (_, i) => `<${i}>\n<8> OP_INVOKE`).join("\n");
+  return compileOrThrow(
+    `
+${slotDefines()}
+${defineFn(slotRCqzBodyBlobAsm(2, 3), 8, "rslot")}
+OP_TOALTSTACK
+OP_TOALTSTACK
+${fusedRPrepAsm()}
+OP_FROMALTSTACK
+OP_SWAP
+OP_2SWAP
+OP_SWAP
+OP_FROMALTSTACK
+${slots}
+OP_DROP
+OP_2DROP
+OP_2DROP
+OP_1
+`,
+    "fused-leftover-c",
+  );
 }

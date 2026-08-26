@@ -10,7 +10,7 @@ import { MerkleTree } from "../backends/circle/merkle.ts";
 import { add, encodeLe, mul, type M31El } from "../backends/circle/m31.ts";
 import { FRI_LOG_N, FRI_N, FRI_QUERIES, TRACE_LEN } from "../backends/circle/params.ts";
 import { evalMaskPoly, openingMaskCoeffs } from "../backends/circle/witness-mask.ts";
-import type { InternalHash } from "../backends/circle/internal-hash.ts";
+import { defaultInternalHash, type InternalHash } from "../backends/circle/internal-hash.ts";
 import { concatBytes, eq32 } from "../pool/bytes.ts";
 const COMPACT_PATH_STRIDE = 3;
 
@@ -113,6 +113,21 @@ export function shaWMixColumn(w: NoteAuthWitness): M31El[] {
   return col;
 }
 
+/** 32 C_SHA LDE bundles (zero prefix — not A/L/N sticker). Leaf = field-AIR residual at 32 consecutive LDE points. */
+export function leavesFromLdeColumn(mixes: M31El[]): Uint8Array[] {
+  if (mixes.length !== FRI_N) throw new Error("sha-c lde width");
+  const prefix = new Uint8Array(SHA_LDE_PREFIX);
+  return Array.from({ length: SHA_LDE_N_LEAVES }, (_, k) =>
+    encodeShaLdeLeaf(prefix, mixes.slice(k * SHA_LDE_BUNDLE, (k + 1) * SHA_LDE_BUNDLE)),
+  );
+}
+
+/** Merkle root of the all-zero C_SHA LDE column. Honest openings are zeros. */
+export function zerosCShaMerkleRoot(hash: InternalHash = defaultInternalHash()): Uint8Array {
+  const zeros = Array.from({ length: FRI_N }, () => 0n);
+  return new MerkleTree(leavesFromLdeColumn(zeros), hash).root;
+}
+
 export function encodeShaLdeLeaf(prefix: Uint8Array, mixes: M31El[]): Uint8Array {
   if (prefix.length !== SHA_LDE_PREFIX) throw new Error("sha prefix");
   if (mixes.length !== SHA_LDE_BUNDLE) throw new Error("sha bundle");
@@ -181,6 +196,59 @@ export function shaLdeCargoBytes(proof: ShaLdeProof): number {
   const values = FRI_QUERIES * SHA_LDE_VALUE_BYTES;
   const compact = FRI_QUERIES * SHA_LDE_COMPACT;
   return 2 + values + compact + nTable * 32;
+}
+
+/**
+ * Compact C_SHA LDE cargo with unique 140-byte leaves.
+ * Layout: nValues u8 ‖ nTable u8 ‖ values ‖ idx[36] ‖ compact ‖ sibTable.
+ * Honest TRACE+pubs: one zero leaf (~880 B). Mixed: ≤32 unique leaves.
+ */
+export function encodeShaCLdeCargo(proof: ShaLdeProof): Uint8Array {
+  const nTable = proof.table.length / 32;
+  const compact = concatBytes(...proof.openings.map((o) => o.compact));
+  if (compact.length !== FRI_QUERIES * SHA_LDE_COMPACT) throw new Error("sha-c compact");
+  const indexOf = new Map<string, number>();
+  const parts: Uint8Array[] = [];
+  const ids = new Uint8Array(FRI_QUERIES);
+  for (let q = 0; q < FRI_QUERIES; q += 1) {
+    const v = proof.openings[q]!.value;
+    if (v.length !== SHA_LDE_VALUE_BYTES) throw new Error("sha-c value");
+    const k = Buffer.from(v).toString("hex");
+    let i = indexOf.get(k);
+    if (i === undefined) {
+      i = parts.length;
+      indexOf.set(k, i);
+      parts.push(v);
+    }
+    ids[q] = i;
+  }
+  const nValues = parts.length;
+  if (nValues > 255) throw new Error("sha-c unique leaves");
+  return concatBytes(Uint8Array.of(nValues, nTable), ...parts, ids, compact, proof.table);
+}
+
+export function decodeShaCLdeCargo(blob: Uint8Array): ShaLdeProof | undefined {
+  if (blob.length < 2 + FRI_QUERIES + FRI_QUERIES * SHA_LDE_COMPACT) return undefined;
+  const nValues = blob[0]!;
+  const nTable = blob[1]!;
+  let o = 2;
+  const values = blob.subarray(o, o + nValues * SHA_LDE_VALUE_BYTES);
+  o += nValues * SHA_LDE_VALUE_BYTES;
+  const ids = blob.subarray(o, o + FRI_QUERIES);
+  o += FRI_QUERIES;
+  const compact = blob.subarray(o, o + FRI_QUERIES * SHA_LDE_COMPACT);
+  o += FRI_QUERIES * SHA_LDE_COMPACT;
+  const table = blob.subarray(o, o + nTable * 32);
+  if (table.length !== nTable * 32) return undefined;
+  const openings = Array.from({ length: FRI_QUERIES }, (_, q) => {
+    const vi = ids[q]!;
+    return {
+      index: q,
+      value: values.subarray(vi * SHA_LDE_VALUE_BYTES, (vi + 1) * SHA_LDE_VALUE_BYTES),
+      compact: compact.subarray(q * SHA_LDE_COMPACT, (q + 1) * SHA_LDE_COMPACT),
+    };
+  });
+  return { root: new Uint8Array(32), table, openings, leaves: [] };
 }
 
 export function encodeShaLdeShards(proof: ShaLdeProof): Uint8Array[] {

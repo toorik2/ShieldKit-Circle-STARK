@@ -24,7 +24,14 @@ import {
   AIR_OFF_NTABLE,
   AIR_OFF_OPEN_MASK,
   AIR_OFF_QTABLE,
+  AIR_OFF_CELLS,
+  AIR_OFF_SHA_ACC,
   AIR_OFF_SHA_C,
+  AIR_OFF_SHA_OPEN,
+  AIR_SHA_C_BYTES,
+  AIR_SHA_OPEN_BYTES,
+  AIR_SHA_OUT_BYTES,
+  HASH_CELL_COMMIT,
   encodeAirPacked,
   SLOT_KERNEL_COUNT_CONSENSUS,
 } from "../src/chain/air-cqz.ts";
@@ -706,20 +713,18 @@ describe("shielded unlocking envelope-B successor", () => {
       const shaR = shaMixForOccupancyC(statement2, hash, auth2, undefined, undefined, undefined, false);
       const shaQ = quotientAtDomain(shaR, small, big).qLde;
       const cancelled = occQ.qLde.map((q, i) => sub(q, shaQ[i]!));
-      const occLeftover = proveFromTLde(statement2, cancelled, auth2, {
+      const occLeftover = proveFromTLde(statement2, occQ.qLde, auth2, {
         hashRoot: pin,
         hashLeaves: mixedLeaves,
-        hashBitRoot: fakeRoot,
+        occupancyOnly: true,
       });
       const callerOcc = proveFromTLde(statement2, occQ.qLde, auth2, {
         hashRoot: pin,
         hashLeaves: mixedLeaves,
-        hashBitRoot: fakeRoot,
+        occupancyOnly: true,
         useCallerTLde: true,
       });
       const callerPacked = recookOccupancyPacked(statement2, encodeAirPacked(statement2, callerOcc));
-      callerPacked.set(openBlob, AIR_OFF_SHA_C);
-      callerPacked.set(fakeRoot, AIR_OFF_HASHBIT);
       const callerJs = verifyFri(statement2, callerOcc);
       assert.equal(callerJs.ok, false, callerJs.ok ? "js caller occupancy leftover mixed must fail" : callerJs.reason);
       const callerVm = evaluatePoolSuccessorVm({
@@ -730,7 +735,7 @@ describe("shielded unlocking envelope-B successor", () => {
         airPacked: callerPacked,
         statement: statement2,
         slotKernels: SLOT_KERNEL_COUNT_CONSENSUS,
-        standard: true,
+        standard: false,
         note,
         change: w.created?.note,
         noteAuthUnlocking: mixedUnlock,
@@ -738,16 +743,25 @@ describe("shielded unlocking envelope-B successor", () => {
       assert.equal(
         callerVm.accepted,
         false,
-        `useCallerTLde occupancy leftover + occupancy qTable + N=0 must VM-reject on SHA leftover-C: ${callerVm.error}`,
+        `useCallerTLde occupancy leftover + occupancy packed must VM-reject on miner C_SHA: ${callerVm.error}`,
       );
       assert.equal(
         /input index 11\b/.test(String(callerVm.error)),
         false,
         `useCallerTLde occupancy leftover reject must not be note-auth: ${callerVm.error}`,
       );
+      assert.equal(
+        /input index 1\b/.test(String(callerVm.error)),
+        false,
+        `occupancy leftover merkle must pass; reject is miner N not leftover-bind: ${callerVm.error}`,
+      );
+      assert.equal(
+        /input index 12\b/.test(String(callerVm.error)),
+        true,
+        `occupancy leftover reject is fused SHA-in-C input 12: ${callerVm.error}`,
+      );
+      assert.equal(/input index 10\b/.test(String(callerVm.error)), false, `not algebraicC 10: ${callerVm.error}`);
       const occPackedQ = recookOccupancyPacked(statement2, encodeAirPacked(statement2, occLeftover));
-      occPackedQ.set(openBlob, AIR_OFF_SHA_C);
-      occPackedQ.set(fakeRoot, AIR_OFF_HASHBIT);
       const occN0Js = verifyFri(statement2, occLeftover);
       assert.equal(occN0Js.ok, false, occN0Js.ok ? "js occupancy leftover mixed must fail" : occN0Js.reason);
       const occN0Vm = evaluatePoolSuccessorVm({
@@ -758,7 +772,7 @@ describe("shielded unlocking envelope-B successor", () => {
         airPacked: occPackedQ,
         statement: statement2,
         slotKernels: SLOT_KERNEL_COUNT_CONSENSUS,
-        standard: true,
+        standard: false,
         note,
         change: w.created?.note,
         noteAuthUnlocking: mixedUnlock,
@@ -766,13 +780,124 @@ describe("shielded unlocking envelope-B successor", () => {
       assert.equal(
         occN0Vm.accepted,
         false,
-        `occupancy leftover + occupancy qTable + N=0 must VM-reject on SHA/C: ${occN0Vm.error}`,
+        `occupancy leftover + occupancy packed must VM-reject on miner C_SHA: ${occN0Vm.error}`,
       );
       assert.equal(
         /input index 11\b/.test(String(occN0Vm.error)),
         false,
-        `occupancy leftover N=0 reject must not be note-auth: ${occN0Vm.error}`,
+        `occupancy leftover N reject must not be note-auth: ${occN0Vm.error}`,
       );
+      assert.equal(
+        /input index 1\b/.test(String(occN0Vm.error)),
+        false,
+        `occupancy leftover merkle must pass; reject is miner N: ${occN0Vm.error}`,
+      );
+      assert.equal(
+        /input index 12\b/.test(String(occN0Vm.error)),
+        true,
+        `occupancy leftover reject is fused SHA-in-C input 12: ${occN0Vm.error}`,
+      );
+      assert.match(String(occN0Vm.error), /OP_VERIFY/, `occupancy leftover must NUMEQUALVERIFY, not density: ${occN0Vm.error}`);
+      assert.equal(/input index 10\b/.test(String(occN0Vm.error)), false, `not algebraicC 10: ${occN0Vm.error}`);
+      assert.equal(/density|operation cost/i.test(String(occN0Vm.error)), false, `not density: ${occN0Vm.error}`);
+
+      const zeroInterp = new Uint8Array(occPackedQ);
+      zeroInterp.fill(0, AIR_OFF_SHA_C, AIR_OFF_SHA_C + AIR_SHA_C_BYTES);
+      const zeroVm = evaluatePoolSuccessorVm({
+        oldState: statement2.oldState,
+        newState: statement2.newState,
+        outputCommitment: encodePublicPaa1(statement2.newState),
+        proof: encodeFriProof(occLeftover),
+        airPacked: zeroInterp,
+        statement: statement2,
+        slotKernels: SLOT_KERNEL_COUNT_CONSENSUS,
+        standard: false,
+        note,
+        change: w.created?.note,
+        noteAuthUnlocking: mixedUnlock,
+      });
+      assert.equal(zeroVm.accepted, false, `zeros interpolant must VM-reject: ${zeroVm.error}`);
+      assert.equal(/input index 11\b/.test(String(zeroVm.error)), false, `zeros interpolant not note-auth: ${zeroVm.error}`);
+      assert.equal(
+        /input index 12\b/.test(String(zeroVm.error)),
+        true,
+        `zeros interpolant reject is fused SHA-in-C input 12: ${zeroVm.error}`,
+      );
+      assert.equal(/input index 10\b/.test(String(zeroVm.error)), false, `not algebraicC 10: ${zeroVm.error}`);
+
+      const recookOpen = new Uint8Array(occPackedQ);
+      recookOpen.fill(0, AIR_OFF_SHA_OPEN, AIR_OFF_SHA_OPEN + AIR_SHA_OPEN_BYTES);
+      const recookOpenVm = evaluatePoolSuccessorVm({
+        oldState: statement2.oldState,
+        newState: statement2.newState,
+        outputCommitment: encodePublicPaa1(statement2.newState),
+        proof: encodeFriProof(occLeftover),
+        airPacked: recookOpen,
+        statement: statement2,
+        slotKernels: SLOT_KERNEL_COUNT_CONSENSUS,
+        standard: false,
+        note,
+        change: w.created?.note,
+        noteAuthUnlocking: mixedUnlock,
+      });
+      assert.equal(recookOpenVm.accepted, false, `openings recook to 0 must VM-reject: ${recookOpenVm.error}`);
+      assert.equal(/input index 11\b/.test(String(recookOpenVm.error)), false, `openings recook not note-auth: ${recookOpenVm.error}`);
+      assert.equal(
+        /input index 10\b/.test(String(recookOpenVm.error)),
+        true,
+        `zeros 144 B without zeros-column hashBitRoot is algebraicC grind-bind: ${recookOpenVm.error}`,
+      );
+
+      const jointRecook = new Uint8Array(occPackedQ);
+      jointRecook.fill(0, AIR_OFF_SHA_C, AIR_OFF_SHA_C + AIR_SHA_C_BYTES);
+      jointRecook.fill(0, AIR_OFF_SHA_OPEN, AIR_OFF_SHA_OPEN + AIR_SHA_OPEN_BYTES);
+      const jointVm = evaluatePoolSuccessorVm({
+        oldState: statement2.oldState,
+        newState: statement2.newState,
+        outputCommitment: encodePublicPaa1(statement2.newState),
+        proof: encodeFriProof(occLeftover),
+        airPacked: jointRecook,
+        statement: statement2,
+        slotKernels: SLOT_KERNEL_COUNT_CONSENSUS,
+        standard: false,
+        note,
+        change: w.created?.note,
+        noteAuthUnlocking: mixedUnlock,
+      });
+      assert.equal(jointVm.accepted, false, `joint interpolant+openings recook must VM-reject: ${jointVm.error}`);
+      assert.equal(/input index 11\b/.test(String(jointVm.error)), false, `joint recook not note-auth: ${jointVm.error}`);
+      assert.equal(
+        /input index 10\b/.test(String(jointVm.error)),
+        true,
+        `joint zeros openings without zeros-column hashBitRoot is algebraicC grind-bind: ${jointVm.error}`,
+      );
+
+      const recookOut = new Uint8Array(zeroInterp);
+      recookOut.set(
+        recookOut.subarray(AIR_OFF_CELLS + HASH_CELL_COMMIT * 4, AIR_OFF_CELLS + HASH_CELL_COMMIT * 4 + AIR_SHA_OUT_BYTES),
+        AIR_OFF_SHA_ACC,
+      );
+      const recookOutVm = evaluatePoolSuccessorVm({
+        oldState: statement2.oldState,
+        newState: statement2.newState,
+        outputCommitment: encodePublicPaa1(statement2.newState),
+        proof: encodeFriProof(occLeftover),
+        airPacked: recookOut,
+        statement: statement2,
+        slotKernels: SLOT_KERNEL_COUNT_CONSENSUS,
+        standard: false,
+        note,
+        change: w.created?.note,
+        noteAuthUnlocking: mixedUnlock,
+      });
+      assert.equal(recookOutVm.accepted, false, `zeros interpolant + TRACE_OUT=pubs must VM-reject: ${recookOutVm.error}`);
+      assert.equal(/input index 11\b/.test(String(recookOutVm.error)), false, `TRACE_OUT recook not note-auth: ${recookOutVm.error}`);
+      assert.equal(
+        /input index 12\b/.test(String(recookOutVm.error)),
+        true,
+        `TRACE_OUT recook reject is fused SHA-in-C input 12: ${recookOutVm.error}`,
+      );
+      assert.equal(/input index 10\b/.test(String(recookOutVm.error)), false, `not algebraicC 10: ${recookOutVm.error}`);
 
       const copiedBits = proveFromTLde(statement2, qOccOnly, auth2, {
         hashRoot: pin,

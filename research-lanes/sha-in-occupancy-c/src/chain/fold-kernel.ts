@@ -1,14 +1,14 @@
 /**
- * Dedicated Circle-FRI fold kernel. First push of each grouped FRI unlocking
- * is (left||right)×7×queriesInShard. Kernel q reads shard (q % 10) and slices
- * pair group floor(q/10). One query per redeem (density).
+ * Dedicated Circle-FRI fold kernel. Leftover on input 0 is the only pair source
+ * (layer-major L0–L6). Unlocking first push is inv witnesses plus nFold||queryIndex
+ * — not a leftover-pair copy.
  * Packed idx is bound to recomputed FS; an even layer-0 pair cannot hide a cooked index.
  */
 import { cashAssemblyToBin, encodeLockingBytecodeP2sh32, hash256 } from "@bitauth/libauth";
 import { addPoints, scalarMul } from "../backends/circle/group.ts";
 import { encodeLe, inv, neg } from "../backends/circle/m31.ts";
-import { COMMITTED_LAYERS, FRI_N, FRI_QUERIES, FRI_VERSION, RULES_SHA256, SECURE_FIELD_BIT_LENGTH } from "../backends/circle/params.ts";
-import { AIR_OFF_IDX, AIR_PACKED_SIZE, G1024, LOAD_AIR_PACKED, SLOT_KERNEL_COUNT } from "./air-cqz.ts";
+import { BLOWUP, COMMITTED_LAYERS, FRI_N, FRI_QUERIES, FRI_VERSION, RULES_SHA256, SECURE_FIELD_BIT_LENGTH } from "../backends/circle/params.ts";
+import { AIR_OFF_IDX, AIR_OFF_SHA_OPEN, AIR_PACKED_SIZE, G1024, LOAD_AIR_PACKED, SLOT_KERNEL_COUNT } from "./air-cqz.ts";
 
 import {
   FRI_KERNEL_INPUTS,
@@ -16,6 +16,8 @@ import {
   FRI_PAIR_BYTES,
   FRI_PAIR_BYTES_L0,
   FRI_PAIR_BYTES_QM,
+  FRI_LEFTOVER_BYTES,
+  FRI_LEFTOVER_L0_BYTES,
   FRI_LEFTOVER_LATER_BYTES,
 } from "./fri-kernel.ts";
 import { foldDefinesAsm, foldQueriesAsm } from "./fold-asm.ts";
@@ -112,16 +114,30 @@ ${queryPairsAsm(pairIndex)}
 }
 
 /**
- * Stack: leftover pairs → pairs.
- * Rebuilds query-major (L0||L1||…||L6)×nFold from layer-major leftover.
- * Fold math uses that leftover. SHA-in-C is occupancy C, not a 1200 B fold shard.
+ * Stack: leftover → query-major (L0||L1||…||L6)×nFold.
+ * Window each layer once, then zip. Fold math uses leftover on input 0;
+ * SHA-in-C is occupancy C, not a 1200 B fold shard.
  */
 export function bindFoldPairsLeftoverAsm(nFold: number, queryIndex: number): string {
   const later = FRI_LEFTOVER_LATER_BYTES;
   const splitLater = Array.from({ length: COMMITTED_LAYERS - 1 }, () => `<${later}>\nOP_SPLIT`).join("\n");
-  const sliceOntoAcc = (layer: number): string => {
+  const compactToAlt = (layer: number): string => {
     const stride = layer === 0 ? FRI_PAIR_BYTES_L0 : FRI_PAIR_BYTES_QM;
     const base = queryIndex * stride;
+    const window = nFold * stride;
+    const skip = base === 0 ? "" : `<${base}>\nOP_SPLIT\nOP_NIP\n`;
+    return `
+${skip}
+<${window}>
+OP_SPLIT
+OP_DROP
+OP_TOALTSTACK
+`;
+  };
+  const compactAll = Array.from({ length: COMMITTED_LAYERS }, (_, r) => compactToAlt(r)).join("\n");
+  const fromAltLayers = Array.from({ length: COMMITTED_LAYERS }, () => "OP_FROMALTSTACK").join("\n");
+  const sliceOntoAcc = (layer: number): string => {
+    const stride = layer === 0 ? FRI_PAIR_BYTES_L0 : FRI_PAIR_BYTES_QM;
     const park =
       layer === 0
         ? `
@@ -143,11 +159,20 @@ OP_SWAP
 OP_CAT
 OP_TOALTSTACK
 `;
+    if (layer === 0) {
+      return `
+OP_SWAP
+<${stride}>
+OP_SPLIT
+OP_ROT
+OP_ROT
+${park}
+`;
+    }
     return `
 OP_DUP
 <${stride}>
 OP_MUL
-${base === 0 ? "" : `<${base}>\nOP_ADD\n`}
 <${layer + 2}>
 OP_PICK
 OP_SWAP
@@ -163,6 +188,9 @@ ${park}
   return `
 OP_DUP
 ${splitLater}
+${compactAll}
+OP_DROP
+${fromAltLayers}
 <0>
 OP_BEGIN
   OP_DUP
@@ -177,9 +205,6 @@ OP_BEGIN
     OP_1
   OP_ENDIF
 OP_UNTIL
-OP_FROMALTSTACK
-OP_TOALTSTACK
-OP_2DROP
 OP_2DROP
 OP_2DROP
 OP_2DROP
@@ -191,29 +216,63 @@ OP_FROMALTSTACK
 function fusedRAsm(nFold: number, queryIndex: number): string {
   if (nFold !== FOLD_QUERIES_PER_KERNEL) return "OP_DROP\nOP_DROP\nOP_DROP\n";
   const one = (local: number): string => `<${local}>\n<8> OP_INVOKE\n`;
-  void queryIndex;
+  const l0Off = FRI_LEFTOVER_BYTES - FRI_LEFTOVER_L0_BYTES;
+  const skip = queryIndex * FRI_PAIR_BYTES_L0;
   return `
-${fusedRPrepAsm()}
-<0>
+<0> OP_INPUTBYTECODE
+${FIRST_PUSH_BODY}
+OP_SIZE
+<${FRI_LEFTOVER_BYTES}>
+OP_NUMEQUALVERIFY
+<${l0Off}>
+OP_SPLIT
+OP_NIP
+${skip === 0 ? "" : `<${skip}>\nOP_SPLIT\nOP_NIP\n`}
+<${nFold * FRI_PAIR_BYTES_L0}>
+OP_SPLIT
+OP_DROP
 OP_TOALTSTACK
-${Array.from({ length: nFold }, (_, i) => one(i)).join("\n")}
+${fusedRPrepAsm()}
 OP_FROMALTSTACK
+OP_SWAP
+OP_2SWAP
+OP_SWAP
+${LOAD_AIR_PACKED}
+<${AIR_OFF_SHA_OPEN + queryIndex * 4}>
+OP_SPLIT
+OP_NIP
+<${nFold * 4}>
+OP_SPLIT
+OP_DROP
+${Array.from({ length: nFold }, (_, i) => one(i)).join("\n")}
 OP_DROP
 OP_2DROP
-OP_DROP
+OP_2DROP
 `;
 }
 
 export function foldKernelAsm(nFold = 1, queryIndex = 0): string {
+  const invBytes = nFold * INV_GROUP_BYTES;
+  const nFoldHex = nFold.toString(16).padStart(2, "0");
+  const queryHex = queryIndex.toString(16).padStart(2, "0");
+  const verHex = FRI_VERSION.toString(16).padStart(2, "0");
+  const layersHex = COMMITTED_LAYERS.toString(16).padStart(2, "0");
+  const blowupHex = BLOWUP.toString(16).padStart(2, "0");
   return `
 ${foldDefinesAsm()}
-<${nFold * PAIR_BYTES}>
+OP_SIZE
+<${invBytes + 5}>
+OP_NUMEQUALVERIFY
+<${invBytes}>
 OP_SPLIT
-OP_SWAP
+<0x${nFoldHex}${queryHex}${verHex}${layersHex}${blowupHex}>
+OP_EQUALVERIFY
 ${LOAD_AIR_PACKED}
-OP_SWAP
 <0> OP_INPUTBYTECODE
 ${FIRST_PUSH_BODY}
+OP_SIZE
+<${FRI_LEFTOVER_BYTES}>
+OP_NUMEQUALVERIFY
 ${bindFoldPairsLeftoverAsm(nFold, queryIndex)}
 OP_SWAP
 ${foldQueriesAsm(nFold, queryIndex)}
@@ -284,15 +343,12 @@ export function foldKernelUnlocking(
   nFold = 1,
   queryIndex = 0,
   packed?: Uint8Array,
-  pairShard?: Uint8Array,
+  _pairShard?: Uint8Array,
 ): Uint8Array {
   const redeem = pushRedeem(compileFoldKernel(nFold, queryIndex));
   if (!packed || packed.length < AIR_PACKED_SIZE) return redeem;
   const invs = foldInvsBlob(packed, queryIndex, nFold);
-  const pairs = pairShard ?? new Uint8Array(nFold * PAIR_BYTES);
-  const body = new Uint8Array(pairs.length + invs.length);
-  body.set(pairs, 0);
-  body.set(invs, pairs.length);
+  const body = Uint8Array.of(...invs, nFold, queryIndex, FRI_VERSION, COMMITTED_LAYERS, BLOWUP);
   const push = body.length <= 75
     ? Uint8Array.of(body.length, ...body)
     : body.length <= 255

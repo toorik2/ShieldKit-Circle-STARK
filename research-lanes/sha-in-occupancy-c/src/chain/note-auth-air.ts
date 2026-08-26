@@ -643,7 +643,45 @@ export function shaStatementResiduals(
     }
   }
   r[62] = boolAcc;
+  const commit = sha256Blocks(msgs.amountCommitMsg);
+  const leaf = sha256Blocks(msgs.leafMsg);
+  const nf =
+    statement.action === "DEPOSIT"
+      ? { rounds: [emptyRounds(), emptyRounds()] }
+      : sha256Blocks(msgs.nfMsg);
+  const groups = [
+    commit.rounds[0] ?? emptyRounds(),
+    commit.rounds[1] ?? emptyRounds(),
+    leaf.rounds[0] ?? emptyRounds(),
+    leaf.rounds[1] ?? emptyRounds(),
+    nf.rounds[0] ?? emptyRounds(),
+    nf.rounds[1] ?? emptyRounds(),
+  ];
+  let roundAcc = 0n;
+  for (let g = 0; g < HASH_COMPRESSIONS; g += 1) {
+    const base = g * BITS_PER_GROUP;
+    const rounds = groups[g]!;
+    for (let t = 0; t < TRACE_LEN; t += 1) {
+      const row = rounds[t]!;
+      const a = bitsToU32(shaTrace.columns, base, t);
+      const e = bitsToU32(shaTrace.columns, base + 32, t);
+      const ww = bitsToU32(shaTrace.columns, base + 64, t);
+      const da = (BigInt(a ^ row.a) + 2147483647n) % 2147483647n;
+      const de = (BigInt(e ^ row.e) + 2147483647n) % 2147483647n;
+      const dw = (BigInt(ww ^ row.w) + 2147483647n) % 2147483647n;
+      roundAcc = (roundAcc + da + de + dw) % 2147483647n;
+    }
+  }
+  r[63] = roundAcc;
   return r;
+}
+
+/** TRACE SHA-256 outputs as 96 bytes. Missing TRACE is empty rows (fail-closed). */
+export function traceOut96(statement: ShaStatementPubs, shaTrace?: HashBitTrace): Uint8Array {
+  const trace = shaTrace ?? emptyShaTrace();
+  const msgs = messagesFromHashBitRows(hashBitRows(trace));
+  const nf = statement.action === "DEPOSIT" ? new Uint8Array(32) : sha256(msgs.nfMsg);
+  return concatBytes(sha256(msgs.amountCommitMsg), sha256(msgs.leafMsg), nf);
 }
 
 /** Six 1200-byte fold shards. Concat 64×72 rows, then hashBitRoot copies. */

@@ -447,7 +447,7 @@ export function buildPoolSuccessorTx(args: {
         outpointTransactionHash: new Uint8Array(32).fill(0xa2),
         outpointIndex: 0,
         sequenceNumber: 0xffffffff,
-        unlockingBytecode: algebraicCKernelUnlocking(),
+        unlockingBytecode: algebraicCKernelUnlocking(airOnly),
       },
       ...(includeNoteAuth(slotKernels)
         ? [

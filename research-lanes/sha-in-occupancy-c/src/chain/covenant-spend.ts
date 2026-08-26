@@ -558,7 +558,7 @@ export function compileCovenantSuccessor(args: {
               outpointIndex: extras[2]!.tx_pos,
               outpointTransactionHash: hexToBin(extras[2]!.tx_hash),
               sequenceNumber: 0xffffffff,
-              unlockingBytecode: algebraicCKernelUnlocking(),
+              unlockingBytecode: algebraicCKernelUnlocking(airPacked),
             },
           ]
         : []),

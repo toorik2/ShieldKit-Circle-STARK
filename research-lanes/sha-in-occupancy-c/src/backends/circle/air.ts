@@ -359,6 +359,19 @@ export function algebraicCQuotientLde(
   return { qLde, nLde: cLde, zLde };
 }
 
+/** C_SHA LDE column: field-AIR residual interpolant (booleanity/round/limbs vs pubs) on the FRI domain. */
+export function shaCLdeColumn(
+  statement: PoolStatement,
+  smallDomain: CirclePoint[],
+  bigDomain: CirclePoint[],
+  auth?: FriAuth,
+  shaTrace?: HashBitTrace,
+): M31El[] {
+  const r = shaMixForOccupancyC(statement, defaultInternalHash(), auth, undefined, undefined, shaTrace, false);
+  const interp = interpolateCircle(smallDomain, r);
+  return bigDomain.map((p) => evalCirclePoly(interp, p));
+}
+
 /** C = interpolant(residuals); Q = C/Z on the LDE. Honest residuals vanish ⇒ Q = 0. */
 export function quotientAtDomain(
   residuals: M31El[],

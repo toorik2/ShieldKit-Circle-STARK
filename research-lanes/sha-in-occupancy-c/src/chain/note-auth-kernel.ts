@@ -103,7 +103,7 @@ function foldChunkAsm(inputIndex: number): string {
  * DEFINE 3: nTable-bounded explode (BEGIN/UNTIL exactly n 32-byte SPLITs, drop pad).
  * Stack in: tablePad nTable. Stack out: table of nTable×32. Control stack 1.
  */
-function explodeTableFnAsm(): string {
+export function explodeTableFnAsm(): string {
   const body = cashAssemblyToBin(`
 OP_SWAP
 OP_DUP
@@ -138,7 +138,7 @@ OP_UNTIL
 }
 
 /** Compact merkle walk. Stack in: table compact value root. DEFINE 2; blob lookup MUL 32. */
-function shaWalkFnAsm(): string {
+export function shaWalkFnAsm(): string {
   const step = `
 <${COMPACT_PATH_STRIDE}> OP_SPLIT
 OP_TOALTSTACK
@@ -154,7 +154,7 @@ OP_SPLIT OP_NIP
 <32> OP_SPLIT OP_DROP
 OP_SWAP
 OP_FROMALTSTACK
-OP_NOTIF
+OP_IF
   OP_SWAP
 OP_ENDIF
 OP_CAT

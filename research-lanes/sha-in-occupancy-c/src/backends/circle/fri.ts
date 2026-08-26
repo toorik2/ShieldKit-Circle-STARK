@@ -37,7 +37,6 @@ import {
   hashBitRows,
   hashBitTraceFromRows,
   shaStatementResiduals,
-  shaTraceAcc,
   HASH_BIT_ROW_BYTES,
   HASH_BIT_ROWS_BYTES,
   SHA_RESIDUAL_BYTES,
@@ -47,6 +46,9 @@ import {
   buildShaLdeLeaves,
   decodeShaLdeShards,
   encodeShaLdeShards,
+  decodeShaCLdeCargo,
+  encodeShaCLdeCargo,
+  leavesFromLdeColumn,
   openShaLde,
   shaLdeVectorRoot,
   walkShaOpening,
@@ -83,6 +85,7 @@ import { uniqueQueryIndices } from "./query-sample.ts";
 import {
   algebraicCQuotientLde,
   algebraicC,
+  shaCLdeColumn,
   assertSatisfied,
   buildTrace,
   checkAuthRelation,
@@ -129,9 +132,9 @@ export type FriProof = {
   hashRoot?: Uint8Array;
   /** amountCommit ‖ leaf ‖ nf (96 B). Packed into cells 32–55. */
   hashLeaves?: Uint8Array;
-  /** Merkle root of 1024 SHA-LDE leaves (prefix‖masked w-mix). */
+  /** Merkle root of 32 C_SHA LDE leaves (field-AIR residual at leftover z). Grind-bound. */
   hashBitRoot?: Uint8Array;
-  /** 36 occupancy-query SHA-LDE openings + compact merkle table. Spent; SHA-in-C uses shaResiduals. */
+  /** 36 leftover-z C_SHA LDE openings + compact merkle. Miner N peels these; packed interpolant is cargo. */
   hashBitLde?: ShaLdeProof;
   /** TRACE_LEN occupancy-C mix of SHA AIR residuals. Honest is the zero vector. Not the relation. */
   shaResiduals?: M31El[];
@@ -434,13 +437,11 @@ export function proveFri(statement: PoolStatement, witness: FriWitness = {}, opt
   const opens = noteAuthOpensFromStatement(statement, trace.auth);
   const hashLeaves = concatBytes(opens.amountCommit, opens.leaf, opens.nf);
   const shaResiduals = shaStatementResiduals(statement, shaTrace, hashLeaves, trace.auth.leaf);
-  const shaOpen = shaTraceAcc(shaTrace, statement.action);
-  const openBlob = new Uint8Array(FRI_QUERIES * 4);
-  for (let s = 0; s < FRI_QUERIES; s += 1) openBlob.set(encodeLe(shaOpen), s * 4);
-  const bitRoot = hash.digest(openBlob);
   const digest = hash.digest(encodeStatement(statement, hash));
   const small = circleDomain(TRACE_LEN);
   const big = circleDomain(FRI_N);
+  const shaCLeaves = leavesFromLdeColumn(shaCLdeColumn(statement, small, big, trace.auth, shaTrace));
+  const bitRoot = new MerkleTree(shaCLeaves, hash).root;
   const viewingKey = freshViewingKey();
   const vCommit = viewingCommit(viewingKey, hash);
   const { qLde, zLde } = algebraicCQuotientLde(
@@ -495,6 +496,7 @@ export function proveFri(statement: PoolStatement, witness: FriWitness = {}, opt
     hashRoot,
     hashLeaves,
     hashBitRoot: bitRoot,
+    hashBitLde: openShaLde(shaCLeaves, qIdx, hash),
     shaResiduals,
     shaTrace,
     viewingKey,
@@ -525,9 +527,9 @@ export function proveFromTLde(
     opts.hashLeaves,
     opts.shaResiduals,
     opts.shaTrace,
-    false,
+    opts.occupancyOnly === true,
   );
-  const qFri = shaInC;
+  const qFri = opts.useCallerTLde ? tLde : shaInC;
   const onC = openingMaskCoeffs(vCommit, hash, "on");
   const offC = openingMaskCoeffs(vCommit, hash, "off");
   const masked = qFri.map((q, i) => add(q, add(evalMaskPoly(onC, i), mul(zLde[i]!, evalMaskPoly(offC, i)))));
@@ -541,11 +543,10 @@ export function proveFromTLde(
   const hashLeaves =
     opts.hashLeaves && opts.hashLeaves.length >= 96 ? opts.hashLeaves.subarray(0, 96) : undefined;
   const shaResiduals = opts.shaResiduals;
-  const shaOpen = opts.shaTrace ? shaTraceAcc(opts.shaTrace, statement.action) : 0n;
-  const openBlob = new Uint8Array(FRI_QUERIES * 4);
-  for (let s = 0; s < FRI_QUERIES; s += 1) openBlob.set(encodeLe(shaOpen), s * 4);
+  const shaCLeaves = leavesFromLdeColumn(shaCLdeColumn(statement, small, big, auth, opts.shaTrace));
+  const shaCRoot = new MerkleTree(shaCLeaves, hash).root;
   const hashBitRoot =
-    opts.hashBitRoot && opts.hashBitRoot.length === 32 ? opts.hashBitRoot : hash.digest(openBlob);
+    opts.hashBitRoot && opts.hashBitRoot.length === 32 ? opts.hashBitRoot : shaCRoot;
   const grindSeed = queryGrindSeed(
     hash,
     digest,
@@ -577,7 +578,7 @@ export function proveFromTLde(
     hashRoot: hashRoot.some((b) => b !== 0) ? hashRoot : undefined,
     hashLeaves,
     hashBitRoot: hashBitRoot.some((b) => b !== 0) ? hashBitRoot : undefined,
-    hashBitLde: opts.hashBitLde,
+    hashBitLde: opts.hashBitLde ?? openShaLde(shaCLeaves, qIdx, hash),
     shaResiduals,
     shaTrace: opts.shaTrace,
     occupancyOnly: opts.occupancyOnly,
@@ -872,6 +873,7 @@ export function encodeFriProof(p: FriProof): Uint8Array {
     ? hashBitRows(p.shaTrace)
     : Array.from({ length: TRACE_LEN }, () => new Uint8Array(HASH_BIT_ROW_BYTES));
   parts.push(concatBytes(...rows));
+  if (p.hashBitLde) parts.push(encodeShaCLdeCargo(p.hashBitLde));
   return concatBytes(...parts);
 }
 
@@ -958,6 +960,10 @@ export function decodeFriProof(bytes: Uint8Array): FriProof {
         ),
       )
     : undefined;
+  o += rowBlob ? HASH_BIT_ROWS_BYTES : 0;
+  const shaCBlob = o < bytes.length ? bytes.slice(o) : undefined;
+  const hashBitLde = shaCBlob && shaCBlob.length > 2 ? decodeShaCLdeCargo(shaCBlob) : undefined;
+  if (hashBitLde && hashBitRoot && hashBitRoot.length === 32) hashBitLde.root = hashBitRoot;
   return {
     version,
     grindNonce,
@@ -969,6 +975,7 @@ export function decodeFriProof(bytes: Uint8Array): FriProof {
     hashRoot: hashRoot && hashRoot.some((b) => b !== 0) ? hashRoot : undefined,
     hashLeaves: hashLeaves && hashLeaves.some((b) => b !== 0) ? hashLeaves : undefined,
     hashBitRoot: hashBitRoot && hashBitRoot.some((b) => b !== 0) ? hashBitRoot : undefined,
+    hashBitLde,
     shaResiduals,
     shaTrace,
     viewingCommit: commit,

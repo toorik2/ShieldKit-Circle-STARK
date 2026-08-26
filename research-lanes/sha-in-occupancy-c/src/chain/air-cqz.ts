@@ -16,6 +16,8 @@
  *   1173  on-chain cells
  *   1429  N table
  *   1576  FRI final (8 × QM31 = 128 B)
+ *   1704  SHA AIR Newton even‖odd (32+32 felts): interpolant of
+ *         booleanity / round / output-limb residuals. Miner evals at leftover z.
  */
 import { cashAssemblyToBin, encodeLockingBytecodeP2sh32, hash256 } from "@bitauth/libauth";
 import { encodeStatement, type PoolStatement } from "../pool/statement.ts";
@@ -23,9 +25,9 @@ import { encodePublicPaa1 } from "../pool/state.ts";
 import { concatBytes, writeU32BE } from "../pool/bytes.ts";
 
 import { algebraicCQuotientLde, onChainCells } from "../backends/circle/air.ts";
-import { shaTraceAcc, statementShaOpens } from "./note-auth-air.ts";
+import { shaStatementResiduals, statementShaOpens, traceOut96 } from "./note-auth-air.ts";
 import { decodeFriProof, type FriProof } from "../backends/circle/fri.ts";
-import { interpolateCircle } from "../backends/circle/interpolate.ts";
+import { evalCirclePoly, interpolateCircle } from "../backends/circle/interpolate.ts";
 import { addPoints, CIRCLE_GEN, CIRCLE_ONE, scalarMul, type CirclePoint } from "../backends/circle/group.ts";
 import { add, encodeLe, M31, mul, sub, type M31El } from "../backends/circle/m31.ts";
 import { encodeQm31 } from "../backends/circle/qm31.ts";
@@ -43,12 +45,25 @@ import { uniqueQueryIndices } from "../backends/circle/query-sample.ts";
 import { decodeFeltBlob, encodeFeltBlob, M31_ADD, M31_MUL, M31_SUB } from "./m31-asm.ts";
 import { slotRCqzAsm, slotRCqzBodyAsm } from "./r-kernel.ts";
 
-export const AIR_PACKED_SIZE = 1848;
-/** 36 batched SHA TRACE openings (one felt per occupancy query). */
+/** SHA field-AIR interpolant: Newton even‖odd of TRACE-domain residuals (TRACE_XS felts each). */
 export const AIR_OFF_SHA_C = 1704;
-export const AIR_SHA_C_BYTES = FRI_QUERIES * 4;
+export const AIR_SHA_EVEN_BYTES = 132;
+export const AIR_SHA_ODD_BYTES = 132;
+export const AIR_SHA_C_BYTES = AIR_SHA_EVEN_BYTES + AIR_SHA_ODD_BYTES;
+/** Shared TRACE_XS blob for fold Newton (one copy, not 6× DEFINE). */
+export const AIR_OFF_XS = AIR_OFF_SHA_C + AIR_SHA_C_BYTES;
+export const AIR_XS_BYTES = 132;
+export const AIR_OFF_SHA_ACC = AIR_OFF_XS + AIR_XS_BYTES;
+/** TRACE SHA-256 outputs (amountCommit‖leaf‖nf). */
+export const AIR_SHA_OUT_BYTES = 96;
+/** 36 leftover-z C_SHA field-AIR evals (booleanity/round/limbs vs pubs). Miner N = opening[s]. */
+export const AIR_OFF_SHA_OPEN = AIR_OFF_SHA_ACC + AIR_SHA_OUT_BYTES;
+export const AIR_SHA_OPEN_BYTES = FRI_QUERIES * 4;
+export const AIR_PACKED_SIZE = AIR_OFF_SHA_OPEN + AIR_SHA_OPEN_BYTES;
 /** Packed AIR lives on CQZ (pool + 7 FRI kernels). Input 0 unlocking is leftover-only. */
 export const PACKED_CARRIER_INPUT = 8;
+/** Consensus 18-input: pool + 7 FRI + cqz + grind + algebraicC. */
+export const ALGEBRAIC_C_INPUT = PACKED_CARRIER_INPUT + 2;
 /** First unlocking push of CQZ is packed||tail (PUSHDATA2). */
 export const LOAD_AIR_PACKED = `
 <${PACKED_CARRIER_INPUT}> OP_INPUTBYTECODE
@@ -142,6 +157,90 @@ export function newtonFromBlobAsm(xs: M31El[] = TRACE_XS): string {
   }
   lines.push(`OP_DROP`, `OP_NIP`, `OP_FROMALTSTACK`, `OP_DROP`);
   return lines.join("\n");
+}
+
+/**
+ * Loop Newton. Stack: coeffsBlob at_x → result (xs from packed when fromPacked).
+ * Loop stack: coeffs xs acc w i. Alt: x.
+ */
+export function newtonFromBlobLoopAsm(xs: M31El[] = TRACE_XS, fromPacked = false): string {
+  const n = xs.length;
+  const xsSrc = fromPacked
+    ? `${LOAD_AIR_PACKED}\n<${AIR_OFF_XS}> OP_SPLIT OP_NIP\n<${AIR_XS_BYTES}> OP_SPLIT OP_DROP`
+    : "";
+  return `
+OP_TOALTSTACK
+${xsSrc}
+<0>
+<1>
+<0>
+OP_BEGIN
+  OP_DUP
+  <${n}>
+  OP_LESSTHAN
+  OP_IF
+    OP_DUP
+    <4>
+    OP_MUL
+    OP_5 OP_PICK
+    OP_SWAP
+    OP_SPLIT
+    OP_NIP
+    <4>
+    OP_SPLIT
+    OP_DROP
+    <0x00>
+    OP_CAT
+    OP_BIN2NUM
+    OP_2 OP_PICK
+    ${M31_MUL}
+    OP_3 OP_PICK
+    ${M31_ADD}
+    OP_3 OP_ROLL
+    OP_DROP
+    OP_SWAP
+    OP_ROT
+    OP_SWAP
+    OP_DUP
+    <${n - 1}>
+    OP_LESSTHAN
+    OP_IF
+      OP_FROMALTSTACK
+      OP_DUP
+      OP_TOALTSTACK
+      OP_1 OP_PICK
+      <4>
+      OP_MUL
+      OP_5 OP_PICK
+      OP_SWAP
+      OP_SPLIT
+      OP_NIP
+      <4>
+      OP_SPLIT
+      OP_DROP
+      <0x00>
+      OP_CAT
+      OP_BIN2NUM
+      ${M31_SUB}
+      OP_2 OP_PICK
+      ${M31_MUL}
+      OP_SWAP
+      OP_ROT
+      OP_DROP
+    OP_ENDIF
+    OP_1ADD
+    OP_0
+  OP_ELSE
+    OP_DROP
+    OP_1
+  OP_ENDIF
+OP_UNTIL
+OP_DROP
+OP_NIP
+OP_NIP
+OP_FROMALTSTACK
+OP_DROP
+`;
 }
 
 export function newtonEvalUnrolledAsm(coeffs: M31El[], xs: M31El[] = TRACE_XS): string {
@@ -278,6 +377,59 @@ export function vanishingUnrolledAsm(xs: M31El[] = TRACE_XS): string {
   return lines.join("\n");
 }
 
+/**
+ * Loop vanish. Stack: at_x → Z = Π (at_x − xs[i]). Same value as vanishingUnrolledAsm.
+ * xs live as one blob (shared TRACE_XS packing) instead of 32 unrolled pushes.
+ */
+export function vanishingFromBlobAsm(xs: M31El[] = VANISH_XS): string {
+  const n = xs.length;
+  const xsHex = Buffer.from(encodeFeltBlob(xs)).toString("hex");
+  return `
+<0x${xsHex}>
+OP_SWAP
+<1>
+OP_SWAP
+<0>
+OP_BEGIN
+  OP_DUP
+  <${n}>
+  OP_LESSTHAN
+  OP_IF
+    OP_DUP
+    <4>
+    OP_MUL
+    OP_4 OP_PICK
+    OP_SWAP
+    OP_SPLIT
+    OP_NIP
+    <4>
+    OP_SPLIT
+    OP_DROP
+    <0x00>
+    OP_CAT
+    OP_BIN2NUM
+    OP_2 OP_PICK
+    OP_SWAP
+    ${M31_SUB}
+    OP_3 OP_PICK
+    ${M31_MUL}
+    OP_3 OP_ROLL
+    OP_DROP
+    OP_SWAP
+    OP_ROT
+    OP_SWAP
+    OP_1ADD
+    OP_0
+  OP_ELSE
+    OP_DROP
+    OP_1
+  OP_ENDIF
+OP_UNTIL
+OP_DROP
+OP_NIP
+`;
+}
+
 export function statementNewton(
   statement: PoolStatement,
   mask: M31El = 0n,
@@ -383,8 +535,28 @@ export function encodeAirPacked(
   packed.set(encodeFeltBlob(cells), AIR_OFF_CELLS);
   const pubs = statementShaOpens(statement, p.auth && p.auth.leaf.length === 32 ? p.auth.leaf : undefined);
   packed.set(concatBytes(pubs.amountCommit, pubs.leaf, pubs.nf), AIR_OFF_CELLS + HASH_CELL_COMMIT * 4);
-  const open = p.shaTrace ? shaTraceAcc(p.shaTrace, statement.action) : 0n;
-  for (let s = 0; s < FRI_QUERIES; s += 1) packed.set(encodeLe(open), AIR_OFF_SHA_C + s * 4);
+  const shaR = shaStatementResiduals(
+    statement,
+    p.shaTrace,
+    undefined,
+    p.auth && p.auth.leaf.length === 32 ? p.auth.leaf : undefined,
+    false,
+  );
+  const shaInterp = interpolateCircle(smallDomain, shaR);
+  const nSha = AIR_NEWTON_FELTS;
+  const padShaNewton = (vals: M31El[]): M31El[] => {
+    const out = vals.slice(0, nSha);
+    while (out.length < nSha) out.push(0n);
+    return out;
+  };
+  packed.set(encodeFeltBlob(padShaNewton(shaInterp.even)), AIR_OFF_SHA_C);
+  packed.set(encodeFeltBlob(padShaNewton(shaInterp.odd)), AIR_OFF_SHA_C + AIR_SHA_EVEN_BYTES);
+  packed.set(encodeFeltBlob(TRACE_XS.length === nSha ? TRACE_XS : padShaNewton(TRACE_XS)), AIR_OFF_XS);
+  packed.set(traceOut96(statement, p.shaTrace), AIR_OFF_SHA_ACC);
+  for (let s = 0; s < FRI_QUERIES; s += 1) {
+    const i = qIdx[s]!;
+    packed.set(encodeLe(evalCirclePoly(shaInterp, bigDomain[i]!)), AIR_OFF_SHA_OPEN + s * 4);
+  }
   for (let i = 0; i < FRI_FINAL; i += 1) {
     packed.set(encodeQm31(p.final[i] ?? [0n, 0n, 0n, 0n]), AIR_OFF_FINAL + i * 16);
   }
@@ -724,7 +896,7 @@ OP_EQUALVERIFY
 `;
 }
 
-/** Stack: packed → packed, grindSeed. SHA256(digest || trace || layerRoots || even || odd). */
+/** Stack: packed → packed, grindSeed. SHA256(digest || trace || layerRoots || even || odd || net || hashBit). */
 export function grindSeedFromPackedAsm(): string {
   return `
 OP_DUP
@@ -1490,7 +1662,7 @@ function pushRedeem(data: Uint8Array): Uint8Array {
 /** Q table + FS indices + on-chain cells + N table (bind-T witness; density for unique-orbit verify). */
 export const BIND_T_QIDX_BYTES = AIR_OFF_NTABLE + FRI_QUERIES * 4 - AIR_OFF_QTABLE;
 /** Same-tx bind tail: CQZ packed||leftover[:CQZ_BIND_TAIL] vs leftover-only input 0. */
-export const CQZ_BIND_TAIL = 288;
+export const CQZ_BIND_TAIL = 60;
 
 export const BIND_T_KERNEL = `
 ${defineNewtonFn()}
@@ -1676,6 +1848,18 @@ export function compileCqzRelationLock(statement: PoolStatement, index: number):
   const { q, z: zVal } = nqzAt(statement, index);
   if (mul(q, zVal) !== n) throw new Error("JS C=QZ mismatch");
   return compileQzEqualsNLock();
+}
+
+/** C_SHA(z) at leftover FS index: circle eval of SHA field-AIR residual interpolant. */
+export function shaAirAtFsIndex(
+  statement: PoolStatement,
+  shaTrace: FriProof["shaTrace"],
+  fsIndex: number,
+  spentLeaf?: Uint8Array,
+): M31El {
+  const r = shaStatementResiduals(statement, shaTrace, undefined, spentLeaf, false);
+  const interp = interpolateCircle(smallDomain, r);
+  return evalCirclePoly(interp, bigDomain[fsIndex]!);
 }
 
 function oneHotEval(k: number, p: CirclePoint): M31El {

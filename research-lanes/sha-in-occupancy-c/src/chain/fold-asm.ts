@@ -467,7 +467,7 @@ OP_VERIFY
 `;
 }
 
-function finalCheckAsm(): string {
+function finalCheckAsm(extraBelow = 0): string {
   return `
 ${QM31_TO_BLOB_ASM}
 OP_2 OP_PICK
@@ -478,7 +478,7 @@ OP_SPLIT OP_NIP
 ${BE16_UNSIGNED}
 <${FRI_FINAL}> OP_MOD
 OP_TOALTSTACK
-<17>
+<${17 + extraBelow}>
 OP_PICK
 OP_FROMALTSTACK
 <16> OP_MUL
@@ -488,19 +488,19 @@ OP_EQUALVERIFY
 `;
 }
 
-function layerFoldAsm(r: number): string {
+function layerFoldAsm(r: number, extraBelow = 0): string {
   const restore = r === 0 ? "" : "OP_FROMALTSTACK\nOP_FROMALTSTACK";
   const point = r === 0 ? layer0PointAsm() : advancePointAsm(r);
   const save =
     r + 1 < COMMITTED_LAYERS ? "OP_2DUP\nOP_TOALTSTACK\nOP_TOALTSTACK" : "";
-  const check = r + 1 < COMMITTED_LAYERS ? nextPairCheckAsm(r) : finalCheckAsm();
+  const check = r + 1 < COMMITTED_LAYERS ? nextPairCheckAsm(r) : finalCheckAsm(extraBelow);
   if (r === 0) {
     return `
 ${point}
 ${save}
 ${extractPairAsm(0, 2)}
 ${extractInvAsm(0, 4)}
-<${5 + 23 - r}>
+<${5 + 23 - r + extraBelow}>
 OP_PICK
 <9> OP_INVOKE
 <2> OP_INVOKE
@@ -517,7 +517,7 @@ ${BLOB_TO_QM31_ASM}
 OP_FROMALTSTACK
 ${BLOB_TO_QM31_ASM}
 ${extractInvAsm(r, 10)}
-<${11 + 23 - r}>
+<${11 + 23 - r + extraBelow}>
 OP_PICK
 <9> OP_INVOKE
 <4> OP_INVOKE
@@ -534,7 +534,58 @@ ${check}
 export function foldQueriesAsm(nFold: number, queryIndex = 0): string {
   const pairBytes = PAIR_GROUP_BYTES;
   const invBytes = INV_GROUP_BYTES;
-  const layers = Array.from({ length: COMMITTED_LAYERS }, (_, r) => layerFoldAsm(r)).join("\n");
+  // nFold>1: TOALT the 9 small λ/idx/final items (cost 0), split the 1200 B
+  // pairs in place. OP_ROLL of that blob would cost length+depth (1209).
+  // FROM restores λs in original order (256) so PICKs stay at nFold=1 depths.
+  const extraBelow = nFold > 1 ? nFold - 1 : 0;
+  const layers = Array.from({ length: COMMITTED_LAYERS }, (_, r) => layerFoldAsm(r, 0)).join("\n");
+  const preSplit =
+    nFold <= 1
+      ? ""
+      : `
+${Array.from({ length: 9 }, () => "OP_TOALTSTACK").join("\n")}
+${Array.from({ length: nFold - 1 }, () => `<${pairBytes}>\nOP_SPLIT\nOP_SWAP\nOP_TOALTSTACK`).join("\n")}
+${Array.from({ length: nFold - 1 }, () => "OP_FROMALTSTACK").join("\n")}
+${Array.from({ length: 9 }, () => "OP_FROMALTSTACK").join("\n")}
+`;
+  const pairPeel =
+    nFold <= 1
+      ? `
+OP_10 OP_PICK
+OP_OVER
+<${pairBytes}>
+OP_MUL
+OP_SPLIT
+OP_NIP
+<${pairBytes}>
+OP_SPLIT
+OP_DROP
+`
+      : `
+OP_DUP
+<10>
+OP_ADD
+OP_PICK
+`;
+  const invPeel = `
+<${12 + extraBelow}>
+OP_PICK
+OP_2 OP_PICK
+<${invBytes}>
+OP_MUL
+OP_SPLIT
+OP_NIP
+<${invBytes}>
+OP_SPLIT
+OP_DROP
+`;
+  const extraEndDrops =
+    extraBelow === 0
+      ? ""
+      : extraBelow % 2 === 0
+        ? Array.from({ length: extraBelow / 2 }, () => "OP_2DROP").join("\n")
+        : `${Array.from({ length: Math.floor(extraBelow / 2) }, () => "OP_2DROP").join("\n")}\nOP_DROP`;
+  const postDrops = `${Array.from({ length: 5 }, () => "OP_2DROP").join("\n")}${extraEndDrops ? `\n${extraEndDrops}` : ""}`;
   return `
 ${lambdaBlobFromPackedAsm(nFold, queryIndex)}
 OP_SWAP
@@ -561,31 +612,15 @@ OP_SPLIT
 OP_SPLIT
 OP_8 OP_ROLL
 OP_8 OP_ROLL
+${preSplit}
 <0>
 OP_BEGIN
   OP_DUP
   <${nFold}>
   OP_LESSTHAN
   OP_IF
-    OP_10 OP_PICK
-    OP_OVER
-    <${pairBytes}>
-    OP_MUL
-    OP_SPLIT
-    OP_NIP
-    <${pairBytes}>
-    OP_SPLIT
-    OP_DROP
-    <12>
-    OP_PICK
-    OP_2 OP_PICK
-    <${invBytes}>
-    OP_MUL
-    OP_SPLIT
-    OP_NIP
-    <${invBytes}>
-    OP_SPLIT
-    OP_DROP
+    ${pairPeel}
+    ${invPeel}
     OP_SWAP
     <8>
     OP_SPLIT
@@ -634,11 +669,7 @@ OP_BEGIN
   OP_ENDIF
 OP_UNTIL
 OP_TOALTSTACK
-OP_2DROP
-OP_2DROP
-OP_2DROP
-OP_2DROP
-OP_2DROP
+${postDrops}
 OP_FROMALTSTACK
 OP_SIZE
 <${nFold * 2}>

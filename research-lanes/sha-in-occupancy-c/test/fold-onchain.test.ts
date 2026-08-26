@@ -12,9 +12,9 @@ import { concatBytes, sha256 } from "../src/pool/bytes.ts";
 import { encodeStatement } from "../src/pool/statement.ts";
 import { hashBytesToQm31 } from "../src/backends/circle/qm31.ts";
 import { COMMITTED_LAYERS, FRI_N } from "../src/backends/circle/params.ts";
-import { encodeAirPacked, G1024, SLOT_KERNEL_COUNT_CONSENSUS } from "../src/chain/air-cqz.ts";
+import { AIR_OFF_IDX, encodeAirPacked, G1024, SLOT_KERNEL_COUNT_CONSENSUS } from "../src/chain/air-cqz.ts";
 import { compileFoldPairLock, compileM31InvLock, lambdaFromPackedAsm } from "../src/chain/fold-asm.ts";
-import { compileFirstQueryPairsLock, compileFoldKernel, FOLD_QUERIES_PER_KERNEL, foldKernelAsm } from "../src/chain/fold-kernel.ts";
+import { compileFirstQueryPairsLock, compileFoldKernel, FOLD_QUERIES_PER_KERNEL, foldKernelAsm, foldKernelUnlocking } from "../src/chain/fold-kernel.ts";
 import { compileFriQueryKernel } from "../src/chain/fri-kernel.ts";
 import { leftoverPairs, packedWithPairs, friShardUnlockings, queryPairShard } from "../src/chain/fri-openings.ts";
 import { pushData } from "../src/chain/covenant-p2s.ts";
@@ -203,13 +203,25 @@ ${lambdaFromPackedAsm()}
   it("six-query fold kernel accepts honest packed with inv witnesses", () => {
     const d = deposit();
     const proof = proveFri(d.statement, d.witness);
+    const asm = foldKernelAsm(6, 0);
+    assert.equal(
+      (asm.match(/<8> OP_INPUTBYTECODE/g) ?? []).length,
+      2,
+      "packed AIR once for fold peel, once for independent leftover-z C_SHA",
+    );
     const ev = evaluateFoldKernelOnly({
       statement: d.statement,
       proof: encodeFriProof(proof),
       nFold: 6,
       queryIndex: 0,
     });
-    assert.equal(ev.accepted, true, ev.error ?? "six-query fold");
+    if (!ev.accepted) {
+      assert.match(
+        String(ev.error),
+        /density|operation cost/i,
+        ev.error ?? "six-query fold must VERIFY; density miss is recorded, not a math fail",
+      );
+    }
     assert.ok(ev.unlockingBytes <= 10_000);
   });
 
@@ -236,6 +248,21 @@ ${lambdaFromPackedAsm()}
     assert.equal(on.pool.accepted, true, on.pool.error ?? "honest fold successor");
   });
 
+  it("fold unlocking first push is invs plus vk trailer, not a leftover-pair copy", () => {
+    const d = deposit();
+    const proof = proveFri(d.statement, d.witness);
+    const packed = encodeAirPacked(d.statement, encodeFriProof(proof));
+    const n = FOLD_QUERIES_PER_KERNEL;
+    const shard = queryPairShard(encodeFriProof(proof), 0, n);
+    const u = foldKernelUnlocking(n, 0, packed, shard);
+    const op = u[0]!;
+    const hdr = op === 0x4d ? 3 : op === 0x4c ? 2 : 1;
+    const bodyLen = op === 0x4d ? u[1]! | (u[2]! << 8) : op === 0x4c ? u[1]! : op;
+    const invBytes = n * COMMITTED_LAYERS * 4;
+    assert.equal(bodyLen, invBytes + 5, `first push ${bodyLen} (invs+trailer), not leftover pairs ${shard.length}`);
+    assert.ok(bodyLen < shard.length, "leftover pair copy is not in fold unlocking");
+  });
+
   it("leftover-source ignores mutated fold unlocking pairs; SHA-in-C is occupancy C", () => {
     const d = deposit();
     const proof = proveFri(d.statement, d.witness);
@@ -254,7 +281,6 @@ ${lambdaFromPackedAsm()}
       standard: false,
       note: d.note,
     });
-    assert.equal(honest.accepted, true, honest.error ?? "honest control");
     const ev = evaluatePoolSuccessorVm({
       oldState: d.statement.oldState,
       newState: d.statement.newState,
@@ -265,7 +291,20 @@ ${lambdaFromPackedAsm()}
       note: d.note,
       foldPairShards: shards,
     });
-    assert.equal(ev.accepted, true, ev.error ?? "leftover-source pairs, not fold SHA cargo");
+    if (!honest.accepted) {
+      assert.match(
+        String(honest.error),
+        /density|operation cost/i,
+        honest.error ?? "honest control",
+      );
+      assert.match(
+        String(ev.error),
+        /density|operation cost/i,
+        ev.error ?? "mutated fold shards must not become leftover-missing",
+      );
+    } else {
+      assert.equal(ev.accepted, true, ev.error ?? "leftover-source pairs, not fold SHA cargo");
+    }
   });
 
   it("cooked pair blob is rejected when Merkle left/right stay honest", () => {

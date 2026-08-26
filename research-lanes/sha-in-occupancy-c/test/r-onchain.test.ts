@@ -23,27 +23,28 @@ import {
   AIR_OFF_OPEN_MASK,
   AIR_OFF_QTABLE,
   AIR_OFF_IDX,
-  SCALAR_MUL_FAST,
+  AIR_OFF_SHA_OPEN,
   SLOT_KERNEL_COUNT,
-  VANISH_XS,
   compileSlot0CqzLock,
   compileSlotsKernel,
   encodeAirPacked,
   fiatShamirQueryIndices,
   nqzAt,
-  vanishingUnrolledAsm,
 } from "../src/chain/air-cqz.ts";
 import {
+  compileFusedLeftoverCLock,
   compileNFromTSlot0Lock,
   compileRAtSlot0Lock,
   compileSlotRCqzLock,
   evalMaskPolyFromBlobAsm,
-  fusedRPrepAsm,
   openingMaskAtBlobAsm,
   shaPubsAccFrom96Asm,
   slotRCqzAsm,
   slotRCqzBodyBlobAsm,
 } from "../src/chain/r-kernel.ts";
+import { leftoverPairs } from "../src/chain/fri-openings.ts";
+import { FRI_LEFTOVER_BYTES, FRI_LEFTOVER_L0_BYTES } from "../src/chain/fri-kernel.ts";
+import { foldKernelAsm } from "../src/chain/fold-kernel.ts";
 import { shaPubsAcc, statementShaOpens } from "../src/chain/note-auth-air.ts";
 import { encodeFeltBlob } from "../src/chain/m31-asm.ts";
 import { encodeStatement } from "../src/pool/statement.ts";
@@ -53,7 +54,9 @@ import { defaultInternalHash } from "../src/backends/circle/internal-hash.ts";
 
 
 function padUnlock(inner: Uint8Array, pad = 8_000): Uint8Array {
-  const dummy = new Uint8Array(pad);
+  const room = UNLOCKING_MAX_BYTES - inner.length - 4;
+  const n = Math.max(0, Math.min(pad, room));
+  const dummy = new Uint8Array(n);
   dummy.fill(0x11);
   const suffix = pushData(dummy);
   const out = new Uint8Array(inner.length + suffix.length);
@@ -94,7 +97,8 @@ function mix() {
   )[0]!;
   const nqz = nqzAt(d.statement, i0);
   const r = openingMaskAt(proof.viewingCommit!, i0, undefined, nqz.z);
-  return { d, proof, packed, i0, nqz, r };
+  const leftover = leftoverPairs(packed, proof);
+  return { d, proof, packed, leftover, i0, nqz, r };
 }
 
 function pushNum(n: bigint): Uint8Array {
@@ -184,68 +188,65 @@ OP_NUMEQUAL
     assert.equal(bad.accepted, false, "wrong N must fail");
   });
 
-  it("fused slot 0 on peeled commit/q/idx accepts", () => {
-    const { packed } = mix();
+  it("fused leftover L0 C(z) is N — not parked <0>", () => {
+    const asm = foldKernelAsm(6, 0);
+    assert.equal(
+      asm.includes("<0>\nOP_TOALTSTACK\n<0>\n<8> OP_INVOKE"),
+      false,
+      "shipped fused R must not park N=<0>",
+    );
+    assert.match(asm, new RegExp(String(FRI_LEFTOVER_BYTES - FRI_LEFTOVER_L0_BYTES)));
+    assert.match(asm, /<8> OP_INVOKE/);
+    const rslot = slotRCqzBodyBlobAsm(2, 3);
+    assert.equal(rslot.includes("<0>\nOP_TOALTSTACK"), false, "rslot N is leftover L0, not <0>");
+    assert.match(rslot, /OP_7 OP_PICK/);
+    assert.match(rslot, /OP_NUMEQUALVERIFY/);
+  });
+
+  it("fused leftover L0 C(z) + independent C_SHA accepts honest zeros", () => {
+    const { packed, leftover } = mix();
     const commit = packed.subarray(AIR_OFF_OPEN_MASK, AIR_OFF_OPEN_MASK + 32);
     const q24 = packed.subarray(AIR_OFF_QTABLE, AIR_OFF_QTABLE + 24);
     const idx = packed.subarray(AIR_OFF_IDX, AIR_OFF_IDX + 12);
-    const hexPush = (data: Uint8Array) => `<0x${Buffer.from(data).toString("hex")}>`;
-    const defineFn = (asm: string, index: number, name: string): string => {
-      const body = cashAssemblyToBin(asm);
-      if (typeof body === "string") throw new Error(`${name}: ${body}`);
-      return `${hexPush(body)}\n<${index}>\nOP_DEFINE`;
-    };
-    const inner = Uint8Array.of(...pushData(commit), ...pushData(q24), ...pushData(idx));
-    const lock = cashAssemblyToBin(`
-${defineFn(SCALAR_MUL_FAST, 2, "fast")}
-${defineFn(vanishingUnrolledAsm(VANISH_XS), 3, "vanish")}
-<0> OP_TOALTSTACK
-${fusedRPrepAsm()}
-<0>
-${slotRCqzBodyBlobAsm(2, 3)}
-OP_2DROP
-OP_DROP
-OP_FROMALTSTACK
-OP_DROP
-OP_1
-`);
-    if (typeof lock === "string") throw new Error(lock);
-    const ev = evalPadded(lock, inner);
-    assert.equal(ev.accepted, true, ev.error ?? "fused slot 0");
-    for (let slot = 1; slot < 6; slot += 1) {
-      const one = cashAssemblyToBin(`
-${defineFn(SCALAR_MUL_FAST, 2, "fast")}
-${defineFn(vanishingUnrolledAsm(VANISH_XS), 3, "vanish")}
-<0> OP_TOALTSTACK
-${fusedRPrepAsm()}
-<${slot}>
-${slotRCqzBodyBlobAsm(2, 3)}
-OP_2DROP
-OP_DROP
-OP_FROMALTSTACK
-OP_DROP
-OP_1
-`);
-      if (typeof one === "string") throw new Error(one);
-      const got = evalPadded(one, inner);
-      assert.equal(got.accepted, true, got.error ?? `fused slot ${slot}`);
-    }
-    const mixedN = cashAssemblyToBin(`
-${defineFn(SCALAR_MUL_FAST, 2, "fast")}
-${defineFn(vanishingUnrolledAsm(VANISH_XS), 3, "vanish")}
-<1> OP_TOALTSTACK
-${fusedRPrepAsm()}
-<0>
-${slotRCqzBodyBlobAsm(2, 3)}
-OP_2DROP
-OP_DROP
-OP_FROMALTSTACK
-OP_DROP
-OP_1
-`);
-    if (typeof mixedN === "string") throw new Error(mixedN);
-    const mixedEv = evalPadded(mixedN, inner);
-    assert.equal(mixedEv.accepted, false, "fused slot must reject N ≠ (q−R)·Z");
+    const l0 = leftover.subarray(FRI_LEFTOVER_BYTES - FRI_LEFTOVER_L0_BYTES, FRI_LEFTOVER_BYTES);
+    const pairs = l0.subarray(0, 48);
+    const sha24 = packed.subarray(AIR_OFF_SHA_OPEN, AIR_OFF_SHA_OPEN + 24);
+    const inner = Uint8Array.of(
+      ...pushData(commit),
+      ...pushData(q24),
+      ...pushData(idx),
+      ...pushData(pairs),
+      ...pushData(sha24),
+    );
+    const ev = evalPadded(compileFusedLeftoverCLock(6), inner);
+    assert.equal(ev.accepted, true, ev.error ?? "fused leftover C + zeros C_SHA");
+    const cooked = new Uint8Array(pairs);
+    cooked[0] ^= 0xff;
+    cooked[4] ^= 0xff;
+    const bad = evalPadded(
+      compileFusedLeftoverCLock(6),
+      Uint8Array.of(
+        ...pushData(commit),
+        ...pushData(q24),
+        ...pushData(idx),
+        ...pushData(cooked),
+        ...pushData(sha24),
+      ),
+    );
+    assert.equal(bad.accepted, false, "cooked leftover L0 must fail (q−R)·Z==C(z)");
+    const mixedSha = new Uint8Array(24);
+    mixedSha[0] = 1;
+    const skip = evalPadded(
+      compileFusedLeftoverCLock(6),
+      Uint8Array.of(
+        ...pushData(commit),
+        ...pushData(q24),
+        ...pushData(idx),
+        ...pushData(pairs),
+        ...pushData(mixedSha),
+      ),
+    );
+    assert.equal(skip.accepted, false, "nonzero independent C_SHA must fail fused N");
   });
 
   it("shaPubsAccFrom96Asm matches JS shaPubsAcc", () => {
