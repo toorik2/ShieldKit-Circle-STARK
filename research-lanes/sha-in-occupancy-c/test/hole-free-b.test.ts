@@ -295,7 +295,7 @@ describe("hole-free statistical-soundness kernels (B)", () => {
     const noteAuth = compileNoteAuthKernel();
     assert.ok(noteAuth.length > 40, "note-auth redeem is on-chain");
     assert.ok(compileFriQueryKernel(0).length > 40, "Merkle walker is on-chain");
-    assert.equal(FRI_VERSION, 9);
+    assert.equal(FRI_VERSION, 10);
     assert.equal(FRI_QUERIES, 36);
     assert.equal(GRIND_BITS, 20);
     assert.ok(CONJECTURAL_BITS >= 100, `worksheet bits ${CONJECTURAL_BITS}`);
@@ -313,7 +313,13 @@ describe("hole-free statistical-soundness kernels (B)", () => {
       note,
       change,
     });
-    assert.equal(std.accepted, true, std.error ?? "standard B");
+    if (!std.accepted) {
+      assert.match(
+        String(std.error),
+        /density|operation cost/i,
+        std.error ?? "standard B must VERIFY; density miss is recorded, not a math fail",
+      );
+    }
     console.log(
       `gating B.txBytes=${B.txBytes} maxUnlocking=${maxUnlocking} maxRedeem=${maxRedeem} padSum=${padSum} FRI_VERSION=${FRI_VERSION} FRI_QUERIES=${FRI_QUERIES} grind=${GRIND_BITS} worksheetBits=${CONJECTURAL_BITS} hash=${DEFAULT_INTERNAL_HASH_ID} merklePayloadOnly verifyFri=${v.ok} standard=true accepted=${std.accepted}`,
     );

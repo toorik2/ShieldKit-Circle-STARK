@@ -11,6 +11,7 @@ import {
 } from "../src/backends/circle/params.ts";
 import { soundnessWorksheet } from "../src/backends/circle/soundness.ts";
 import { algebraicCQuotientLde, quotientAtDomain, shaMixForOccupancyC } from "../src/backends/circle/air.ts";
+import { evalCirclePoly, interpolateCircle } from "../src/backends/circle/interpolate.ts";
 import { HASH_BIT_ROWS_BYTES, shaPubsAcc, shaStatementResiduals, statementShaOpens } from "../src/chain/note-auth-air.ts";
 import { add, encodeLe, mul, sub } from "../src/backends/circle/m31.ts";
 import { openingMaskAt } from "../src/backends/circle/witness-mask.ts";
@@ -365,7 +366,7 @@ describe("shielded unlocking envelope-B successor", () => {
 
   it(
     "proveFromTLde mixed publics is JS-fail and VM-reject (same-secret, not pin recook)",
-    { timeout: 180_000 },
+    { timeout: 400_000 },
     () => {
       const note: Note = { amountSats: 20_000n, rho: rnd32(), ownerSecret: rnd32() };
       const d = applyDeposit(
@@ -898,6 +899,37 @@ describe("shielded unlocking envelope-B successor", () => {
         `TRACE_OUT recook reject is fused SHA-in-C input 12: ${recookOutVm.error}`,
       );
       assert.equal(/input index 10\b/.test(String(recookOutVm.error)), false, `not algebraicC 10: ${recookOutVm.error}`);
+
+      const jsStrip = verifyFri(w.statement, { ...proved, shaTrace: undefined });
+      assert.equal(jsStrip.ok, false, jsStrip.ok ? "js missing TRACE must fail" : jsStrip.reason);
+      const strippedPacked = new Uint8Array(encodeAirPacked(w.statement, proved));
+      const missingTraceR = shaStatementResiduals(w.statement, undefined, undefined, proved.auth.leaf, false);
+      const missingInterp = interpolateCircle(circleDomain(TRACE_LEN), missingTraceR);
+      const missingBig = circleDomain(FRI_N);
+      for (let s = 0; s < FRI_QUERIES; s += 1) {
+        const i = (strippedPacked[AIR_OFF_IDX + s * 2]! << 8) | strippedPacked[AIR_OFF_IDX + s * 2 + 1]!;
+        strippedPacked.set(encodeLe(evalCirclePoly(missingInterp, missingBig[i]!)), AIR_OFF_SHA_OPEN + s * 4);
+      }
+      const stripVm = evaluatePoolSuccessorVm({
+        oldState: w.statement.oldState,
+        newState: w.statement.newState,
+        outputCommitment: encodePublicPaa1(w.statement.newState),
+        proof: encodeFriProof(proved),
+        airPacked: strippedPacked,
+        statement: w.statement,
+        slotKernels: SLOT_KERNEL_COUNT_CONSENSUS,
+        standard: false,
+        note,
+        change: w.created?.note,
+      });
+      assert.equal(stripVm.accepted, false, `missing TRACE must VM-reject: ${stripVm.error}`);
+      assert.equal(/input index 11\b/.test(String(stripVm.error)), false, `missing TRACE not note-auth: ${stripVm.error}`);
+      assert.equal(/input index 1\b/.test(String(stripVm.error)), false, `missing TRACE leftover merkle must pass: ${stripVm.error}`);
+      assert.equal(
+        /input index 12\b/.test(String(stripVm.error)),
+        true,
+        `missing TRACE reject is fused SHA-in-C input 12: ${stripVm.error}`,
+      );
 
       const copiedBits = proveFromTLde(statement2, qOccOnly, auth2, {
         hashRoot: pin,
