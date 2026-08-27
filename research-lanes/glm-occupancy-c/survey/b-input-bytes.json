@@ -1,0 +1,870 @@
+{
+  "at": "2026-08-22T17:57:04.448Z",
+  "friVersion": 9,
+  "queries": 36,
+  "conjecturalBits": 128,
+  "proveMs": 3167.9,
+  "compileMs": 79246.74,
+  "txBytes": 498398,
+  "txid": "0a0a96fcf3870ac2be20d0dd57ab8ed4c2e02700d22d058d901a0a1ed750fe93",
+  "inputCount": 87,
+  "outputCount": 2,
+  "poolUnlockingBytes": 5405,
+  "standardLimit": 100000,
+  "consensusLimit": 1000000,
+  "unlockingMax": 10000,
+  "padTargetHigh": 6000,
+  "headroomVs1MB": 501602,
+  "overStandard": 398398,
+  "families": [
+    {
+      "family": "pool",
+      "count": 1,
+      "unlocking": 5405,
+      "pad": 0,
+      "redeem": 3791,
+      "other": 1611
+    },
+    {
+      "family": "fri-merkle",
+      "count": 10,
+      "unlocking": 58455,
+      "pad": 0,
+      "redeem": 2740,
+      "other": 55685
+    },
+    {
+      "family": "bind-T",
+      "count": 1,
+      "unlocking": 2622,
+      "pad": 0,
+      "redeem": 2619,
+      "other": 0
+    },
+    {
+      "family": "grind",
+      "count": 1,
+      "unlocking": 301,
+      "pad": 195,
+      "redeem": 104,
+      "other": 0
+    },
+    {
+      "family": "algebraicC",
+      "count": 1,
+      "unlocking": 301,
+      "pad": 125,
+      "redeem": 174,
+      "other": 0
+    },
+    {
+      "family": "note-auth",
+      "count": 1,
+      "unlocking": 1684,
+      "pad": 0,
+      "redeem": 467,
+      "other": 1214
+    },
+    {
+      "family": "fold",
+      "count": 36,
+      "unlocking": 213154,
+      "pad": 98920,
+      "redeem": 114124,
+      "other": 2
+    },
+    {
+      "family": "r-slot",
+      "count": 36,
+      "unlocking": 212484,
+      "pad": 27985,
+      "redeem": 184328,
+      "other": 63
+    }
+  ],
+  "inputs": [
+    {
+      "i": 0,
+      "family": "pool",
+      "indexInFamily": 0,
+      "padBytes": 0,
+      "redeemBytes": 3791,
+      "otherBytes": 1611,
+      "unlockingBytes": 5405
+    },
+    {
+      "i": 1,
+      "family": "fri-merkle",
+      "indexInFamily": 0,
+      "padBytes": 0,
+      "redeemBytes": 274,
+      "otherBytes": 6186,
+      "unlockingBytes": 6463
+    },
+    {
+      "i": 2,
+      "family": "fri-merkle",
+      "indexInFamily": 1,
+      "padBytes": 0,
+      "redeemBytes": 274,
+      "otherBytes": 6186,
+      "unlockingBytes": 6463
+    },
+    {
+      "i": 3,
+      "family": "fri-merkle",
+      "indexInFamily": 2,
+      "padBytes": 0,
+      "redeemBytes": 274,
+      "otherBytes": 6186,
+      "unlockingBytes": 6463
+    },
+    {
+      "i": 4,
+      "family": "fri-merkle",
+      "indexInFamily": 3,
+      "padBytes": 0,
+      "redeemBytes": 274,
+      "otherBytes": 6186,
+      "unlockingBytes": 6463
+    },
+    {
+      "i": 5,
+      "family": "fri-merkle",
+      "indexInFamily": 4,
+      "padBytes": 0,
+      "redeemBytes": 274,
+      "otherBytes": 6186,
+      "unlockingBytes": 6463
+    },
+    {
+      "i": 6,
+      "family": "fri-merkle",
+      "indexInFamily": 5,
+      "padBytes": 0,
+      "redeemBytes": 274,
+      "otherBytes": 6186,
+      "unlockingBytes": 6463
+    },
+    {
+      "i": 7,
+      "family": "fri-merkle",
+      "indexInFamily": 6,
+      "padBytes": 0,
+      "redeemBytes": 274,
+      "otherBytes": 4637,
+      "unlockingBytes": 4914
+    },
+    {
+      "i": 8,
+      "family": "fri-merkle",
+      "indexInFamily": 7,
+      "padBytes": 0,
+      "redeemBytes": 274,
+      "otherBytes": 4644,
+      "unlockingBytes": 4921
+    },
+    {
+      "i": 9,
+      "family": "fri-merkle",
+      "indexInFamily": 8,
+      "padBytes": 0,
+      "redeemBytes": 274,
+      "otherBytes": 4644,
+      "unlockingBytes": 4921
+    },
+    {
+      "i": 10,
+      "family": "fri-merkle",
+      "indexInFamily": 9,
+      "padBytes": 0,
+      "redeemBytes": 274,
+      "otherBytes": 4644,
+      "unlockingBytes": 4921
+    },
+    {
+      "i": 11,
+      "family": "bind-T",
+      "indexInFamily": 0,
+      "padBytes": 0,
+      "redeemBytes": 2619,
+      "otherBytes": 0,
+      "unlockingBytes": 2622
+    },
+    {
+      "i": 12,
+      "family": "grind",
+      "indexInFamily": 0,
+      "padBytes": 195,
+      "redeemBytes": 104,
+      "otherBytes": 0,
+      "unlockingBytes": 301
+    },
+    {
+      "i": 13,
+      "family": "algebraicC",
+      "indexInFamily": 0,
+      "padBytes": 125,
+      "redeemBytes": 174,
+      "otherBytes": 0,
+      "unlockingBytes": 301
+    },
+    {
+      "i": 14,
+      "family": "note-auth",
+      "indexInFamily": 0,
+      "padBytes": 0,
+      "redeemBytes": 467,
+      "otherBytes": 1214,
+      "unlockingBytes": 1684
+    },
+    {
+      "i": 15,
+      "family": "fold",
+      "indexInFamily": 0,
+      "padBytes": 0,
+      "redeemBytes": 3079,
+      "otherBytes": 2,
+      "unlockingBytes": 3084
+    },
+    {
+      "i": 16,
+      "family": "fold",
+      "indexInFamily": 1,
+      "padBytes": 2828,
+      "redeemBytes": 3171,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 17,
+      "family": "fold",
+      "indexInFamily": 2,
+      "padBytes": 2828,
+      "redeemBytes": 3171,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 18,
+      "family": "fold",
+      "indexInFamily": 3,
+      "padBytes": 2828,
+      "redeemBytes": 3171,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 19,
+      "family": "fold",
+      "indexInFamily": 4,
+      "padBytes": 2828,
+      "redeemBytes": 3171,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 20,
+      "family": "fold",
+      "indexInFamily": 5,
+      "padBytes": 2828,
+      "redeemBytes": 3171,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 21,
+      "family": "fold",
+      "indexInFamily": 6,
+      "padBytes": 2828,
+      "redeemBytes": 3171,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 22,
+      "family": "fold",
+      "indexInFamily": 7,
+      "padBytes": 2828,
+      "redeemBytes": 3171,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 23,
+      "family": "fold",
+      "indexInFamily": 8,
+      "padBytes": 2827,
+      "redeemBytes": 3172,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 24,
+      "family": "fold",
+      "indexInFamily": 9,
+      "padBytes": 2827,
+      "redeemBytes": 3172,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 25,
+      "family": "fold",
+      "indexInFamily": 10,
+      "padBytes": 2826,
+      "redeemBytes": 3173,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 26,
+      "family": "fold",
+      "indexInFamily": 11,
+      "padBytes": 2826,
+      "redeemBytes": 3173,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 27,
+      "family": "fold",
+      "indexInFamily": 12,
+      "padBytes": 2826,
+      "redeemBytes": 3173,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 28,
+      "family": "fold",
+      "indexInFamily": 13,
+      "padBytes": 2826,
+      "redeemBytes": 3173,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 29,
+      "family": "fold",
+      "indexInFamily": 14,
+      "padBytes": 2826,
+      "redeemBytes": 3173,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 30,
+      "family": "fold",
+      "indexInFamily": 15,
+      "padBytes": 2826,
+      "redeemBytes": 3173,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 31,
+      "family": "fold",
+      "indexInFamily": 16,
+      "padBytes": 2826,
+      "redeemBytes": 3173,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 32,
+      "family": "fold",
+      "indexInFamily": 17,
+      "padBytes": 2826,
+      "redeemBytes": 3173,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 33,
+      "family": "fold",
+      "indexInFamily": 18,
+      "padBytes": 2826,
+      "redeemBytes": 3173,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 34,
+      "family": "fold",
+      "indexInFamily": 19,
+      "padBytes": 2826,
+      "redeemBytes": 3173,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 35,
+      "family": "fold",
+      "indexInFamily": 20,
+      "padBytes": 2826,
+      "redeemBytes": 3173,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 36,
+      "family": "fold",
+      "indexInFamily": 21,
+      "padBytes": 2826,
+      "redeemBytes": 3173,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 37,
+      "family": "fold",
+      "indexInFamily": 22,
+      "padBytes": 2826,
+      "redeemBytes": 3173,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 38,
+      "family": "fold",
+      "indexInFamily": 23,
+      "padBytes": 2826,
+      "redeemBytes": 3173,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 39,
+      "family": "fold",
+      "indexInFamily": 24,
+      "padBytes": 2826,
+      "redeemBytes": 3173,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 40,
+      "family": "fold",
+      "indexInFamily": 25,
+      "padBytes": 2826,
+      "redeemBytes": 3173,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 41,
+      "family": "fold",
+      "indexInFamily": 26,
+      "padBytes": 2826,
+      "redeemBytes": 3173,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 42,
+      "family": "fold",
+      "indexInFamily": 27,
+      "padBytes": 2826,
+      "redeemBytes": 3173,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 43,
+      "family": "fold",
+      "indexInFamily": 28,
+      "padBytes": 2826,
+      "redeemBytes": 3173,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 44,
+      "family": "fold",
+      "indexInFamily": 29,
+      "padBytes": 2826,
+      "redeemBytes": 3173,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 45,
+      "family": "fold",
+      "indexInFamily": 30,
+      "padBytes": 2825,
+      "redeemBytes": 3174,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 46,
+      "family": "fold",
+      "indexInFamily": 31,
+      "padBytes": 2825,
+      "redeemBytes": 3174,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 47,
+      "family": "fold",
+      "indexInFamily": 32,
+      "padBytes": 2825,
+      "redeemBytes": 3174,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 48,
+      "family": "fold",
+      "indexInFamily": 33,
+      "padBytes": 2825,
+      "redeemBytes": 3174,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 49,
+      "family": "fold",
+      "indexInFamily": 34,
+      "padBytes": 2825,
+      "redeemBytes": 3174,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 50,
+      "family": "fold",
+      "indexInFamily": 35,
+      "padBytes": 2825,
+      "redeemBytes": 3174,
+      "otherBytes": 0,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 51,
+      "family": "r-slot",
+      "indexInFamily": 0,
+      "padBytes": 0,
+      "redeemBytes": 5030,
+      "otherBytes": 3,
+      "unlockingBytes": 5036
+    },
+    {
+      "i": 52,
+      "family": "r-slot",
+      "indexInFamily": 1,
+      "padBytes": 0,
+      "redeemBytes": 5122,
+      "otherBytes": 3,
+      "unlockingBytes": 5128
+    },
+    {
+      "i": 53,
+      "family": "r-slot",
+      "indexInFamily": 2,
+      "padBytes": 0,
+      "redeemBytes": 5122,
+      "otherBytes": 3,
+      "unlockingBytes": 5128
+    },
+    {
+      "i": 54,
+      "family": "r-slot",
+      "indexInFamily": 3,
+      "padBytes": 0,
+      "redeemBytes": 5122,
+      "otherBytes": 3,
+      "unlockingBytes": 5128
+    },
+    {
+      "i": 55,
+      "family": "r-slot",
+      "indexInFamily": 4,
+      "padBytes": 876,
+      "redeemBytes": 5122,
+      "otherBytes": 1,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 56,
+      "family": "r-slot",
+      "indexInFamily": 5,
+      "padBytes": 876,
+      "redeemBytes": 5122,
+      "otherBytes": 1,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 57,
+      "family": "r-slot",
+      "indexInFamily": 6,
+      "padBytes": 876,
+      "redeemBytes": 5122,
+      "otherBytes": 1,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 58,
+      "family": "r-slot",
+      "indexInFamily": 7,
+      "padBytes": 876,
+      "redeemBytes": 5122,
+      "otherBytes": 1,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 59,
+      "family": "r-slot",
+      "indexInFamily": 8,
+      "padBytes": 875,
+      "redeemBytes": 5123,
+      "otherBytes": 1,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 60,
+      "family": "r-slot",
+      "indexInFamily": 9,
+      "padBytes": 875,
+      "redeemBytes": 5123,
+      "otherBytes": 1,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 61,
+      "family": "r-slot",
+      "indexInFamily": 10,
+      "padBytes": 875,
+      "redeemBytes": 5123,
+      "otherBytes": 1,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 62,
+      "family": "r-slot",
+      "indexInFamily": 11,
+      "padBytes": 875,
+      "redeemBytes": 5123,
+      "otherBytes": 1,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 63,
+      "family": "r-slot",
+      "indexInFamily": 12,
+      "padBytes": 875,
+      "redeemBytes": 5123,
+      "otherBytes": 1,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 64,
+      "family": "r-slot",
+      "indexInFamily": 13,
+      "padBytes": 875,
+      "redeemBytes": 5123,
+      "otherBytes": 1,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 65,
+      "family": "r-slot",
+      "indexInFamily": 14,
+      "padBytes": 875,
+      "redeemBytes": 5123,
+      "otherBytes": 1,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 66,
+      "family": "r-slot",
+      "indexInFamily": 15,
+      "padBytes": 875,
+      "redeemBytes": 5123,
+      "otherBytes": 1,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 67,
+      "family": "r-slot",
+      "indexInFamily": 16,
+      "padBytes": 875,
+      "redeemBytes": 5123,
+      "otherBytes": 1,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 68,
+      "family": "r-slot",
+      "indexInFamily": 17,
+      "padBytes": 874,
+      "redeemBytes": 5123,
+      "otherBytes": 2,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 69,
+      "family": "r-slot",
+      "indexInFamily": 18,
+      "padBytes": 874,
+      "redeemBytes": 5123,
+      "otherBytes": 2,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 70,
+      "family": "r-slot",
+      "indexInFamily": 19,
+      "padBytes": 874,
+      "redeemBytes": 5123,
+      "otherBytes": 2,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 71,
+      "family": "r-slot",
+      "indexInFamily": 20,
+      "padBytes": 874,
+      "redeemBytes": 5123,
+      "otherBytes": 2,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 72,
+      "family": "r-slot",
+      "indexInFamily": 21,
+      "padBytes": 874,
+      "redeemBytes": 5123,
+      "otherBytes": 2,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 73,
+      "family": "r-slot",
+      "indexInFamily": 22,
+      "padBytes": 874,
+      "redeemBytes": 5123,
+      "otherBytes": 2,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 74,
+      "family": "r-slot",
+      "indexInFamily": 23,
+      "padBytes": 874,
+      "redeemBytes": 5123,
+      "otherBytes": 2,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 75,
+      "family": "r-slot",
+      "indexInFamily": 24,
+      "padBytes": 874,
+      "redeemBytes": 5123,
+      "otherBytes": 2,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 76,
+      "family": "r-slot",
+      "indexInFamily": 25,
+      "padBytes": 874,
+      "redeemBytes": 5123,
+      "otherBytes": 2,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 77,
+      "family": "r-slot",
+      "indexInFamily": 26,
+      "padBytes": 874,
+      "redeemBytes": 5123,
+      "otherBytes": 2,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 78,
+      "family": "r-slot",
+      "indexInFamily": 27,
+      "padBytes": 874,
+      "redeemBytes": 5123,
+      "otherBytes": 2,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 79,
+      "family": "r-slot",
+      "indexInFamily": 28,
+      "padBytes": 874,
+      "redeemBytes": 5123,
+      "otherBytes": 2,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 80,
+      "family": "r-slot",
+      "indexInFamily": 29,
+      "padBytes": 874,
+      "redeemBytes": 5123,
+      "otherBytes": 2,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 81,
+      "family": "r-slot",
+      "indexInFamily": 30,
+      "padBytes": 874,
+      "redeemBytes": 5123,
+      "otherBytes": 2,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 82,
+      "family": "r-slot",
+      "indexInFamily": 31,
+      "padBytes": 874,
+      "redeemBytes": 5123,
+      "otherBytes": 2,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 83,
+      "family": "r-slot",
+      "indexInFamily": 32,
+      "padBytes": 874,
+      "redeemBytes": 5123,
+      "otherBytes": 2,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 84,
+      "family": "r-slot",
+      "indexInFamily": 33,
+      "padBytes": 874,
+      "redeemBytes": 5123,
+      "otherBytes": 2,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 85,
+      "family": "r-slot",
+      "indexInFamily": 34,
+      "padBytes": 874,
+      "redeemBytes": 5123,
+      "otherBytes": 2,
+      "unlockingBytes": 6002
+    },
+    {
+      "i": 86,
+      "family": "r-slot",
+      "indexInFamily": 35,
+      "padBytes": 874,
+      "redeemBytes": 5123,
+      "otherBytes": 2,
+      "unlockingBytes": 6002
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "mark": "qm31-fri10",
+  "vkId": "circle-fri-m31-qm31-t64-b16-q36-g20-fri10-de1f4dcf0b16d9f8cec265719673a108e2ac4703059fd9d1998d09fcd121de22",
+  "rulesSha256": "de1f4dcf0b16d9f8cec265719673a108e2ac4703059fd9d1998d09fcd121de22",
+  "rulesSha256OfPackedRules": "de1f4dcf0b16d9f8cec265719673a108e2ac4703059fd9d1998d09fcd121de22",
+  "occupancy": {
+    "baseField": "M31",
+    "secureField": "QM31",
+    "hash": "SHA-256",
+    "qTableLayer0Bytes": 4,
+    "laterPairBytes": 16,
+    "fieldBits": 124
+  },
+  "txBytes": 99175,
+  "txid": "2598af7cba4822ccad45d7f0442f06bf931555480ee35d947839aa5bf083894a",
+  "inputs": 18,
+  "outputs": 2,
+  "maxUnlocking": 9941,
+  "unlockingSum": 98154,
+  "padSum": 0,
+  "leftoverBytes": 7200,
+  "standardLimit": 100000,
+  "standardAccepted": true,
+  "standardError": null,
+  "verifyFri": {
+    "ok": true
+  },
+  "encoding": {
+    "leftoverBound": true,
+    "leftoverBytes": 7200,
+    "pickBounded": true,
+    "foldVkPinsRulesSha": true,
+    "dummyPad": false
+  },
+  "worksheet": {
+    "family": "circle-fri-m31-qm31",
+    "field": "QM31",
+    "baseField": "M31",
+    "domain": "circle x^2+y^2=1",
+    "traceLen": 64,
+    "blowup": 16,
+    "friN": 1024,
+    "queries": 36,
+    "grind": 20,
+    "finalLayer": 8,
+    "committedLayers": 7,
+    "rate": "2/B",
+    "conjecturalBits": 128,
+    "floor": 100,
+    "target": 128,
+    "sound": true,
+    "vkId": "circle-fri-m31-qm31-t64-b16-q36-g20-fri10-de1f4dcf0b16d9f8cec265719673a108e2ac4703059fd9d1998d09fcd121de22",
+    "rulesSha256": "de1f4dcf0b16d9f8cec265719673a108e2ac4703059fd9d1998d09fcd121de22",
+    "fieldBits": 124,
+    "queryConjectureBits": 128,
+    "minBits": 124,
+    "note": "Query worksheet 36×3+20=128 at rate 2/B is ethSTARK-style speculative (not Stwo-128). Field is QM31 (~124). SZ on TRACE 64 over QM31 is not tens of bits. min(query, field, SZ, hash-RO) ≥ 100. qTable/layer-0 stay M31."
+  },
+  "chipnet": {
+    "successor": "60d186ded18897a50d0a4205ed446ab02339a53eb6d8f4a7043b4e405796edc4",
+    "txBytes": 99043,
+    "inputs": 18,
+    "outputs": 2,
+    "broadcastPath": "electrum",
+    "explorer": "https://chipnet.imaginary.cash/tx/60d186ded18897a50d0a4205ed446ab02339a53eb6d8f4a7043b4e405796edc4",
+    "not": [
+      "58b7df7f… parent M31 freeze (FRI9, leftover-pairs empty)",
+      "62ba0d9a… pre-leftover-bind QM31 land",
+      "named end (RULES §6 / §7 still open)"
+    ],
+    "packedHex": true,
+    "packedTxid": "60d186ded18897a50d0a4205ed446ab02339a53eb6d8f4a7043b4e405796edc4"
+  },
+  "completeness": {
+    "friVersion": 10,
+    "uniqueOrbits": 36,
+    "grind": 20,
+    "trace": 64,
+    "blowup": 16,
+    "sha256": "sha256",
+    "worksheetBits": 128,
+    "fieldBits": 124,
+    "dummyPad": false,
+    "leftoverBound": true,
+    "pickBounded": true,
+    "argumentSha256Prefix": "# Argument = vk (QM31 SecureField family)\n\n```\nvk = circle-fri-m31-qm31-t64-b16-q36-g20-fri10-de1f4dcf0b16d9f8cec2657196"
+  },
+  "doesNotClaim": [
+    "named end",
+    "RULES §6 shielded unlocking",
+    "RULES §7 walk-in batch",
+    "parent freeze circle-fri-m31-t64-b16-q36-g20-fri9",
+    "Stwo-128 (query 128 is speculative)"
+  ]
+}

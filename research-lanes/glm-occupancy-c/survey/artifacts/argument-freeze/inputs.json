@@ -1,0 +1,101 @@
+{
+  "txBytes": 92357,
+  "inputs": [
+    {
+      "i": 0,
+      "unlocking": 4901
+    },
+    {
+      "i": 1,
+      "unlocking": 7905
+    },
+    {
+      "i": 2,
+      "unlocking": 6427
+    },
+    {
+      "i": 3,
+      "unlocking": 5197
+    },
+    {
+      "i": 4,
+      "unlocking": 3836
+    },
+    {
+      "i": 5,
+      "unlocking": 2804
+    },
+    {
+      "i": 6,
+      "unlocking": 2003
+    },
+    {
+      "i": 7,
+      "unlocking": 1433
+    },
+    {
+      "i": 8,
+      "unlocking": 5937
+    },
+    {
+      "i": 9,
+      "unlocking": 151
+    },
+    {
+      "i": 10,
+      "unlocking": 175
+    },
+    {
+      "i": 11,
+      "unlocking": 1681
+    },
+    {
+      "i": 12,
+      "unlocking": 3401
+    },
+    {
+      "i": 13,
+      "unlocking": 3403
+    },
+    {
+      "i": 14,
+      "unlocking": 3403
+    },
+    {
+      "i": 15,
+      "unlocking": 3403
+    },
+    {
+      "i": 16,
+      "unlocking": 3403
+    },
+    {
+      "i": 17,
+      "unlocking": 3403
+    },
+    {
+      "i": 18,
+      "unlocking": 4702
+    },
+    {
+      "i": 19,
+      "unlocking": 4702
+    },
+    {
+      "i": 20,
+      "unlocking": 4702
+    },
+    {
+      "i": 21,
+      "unlocking": 4702
+    },
+    {
+      "i": 22,
+      "unlocking": 4702
+    },
+    {
+      "i": 23,
+      "unlocking": 4702
+    }
+  ]
+}

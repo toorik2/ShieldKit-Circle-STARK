@@ -1,0 +1,455 @@
+{
+  "at": "2026-08-22T17:57:04.448Z",
+  "slotKernelCount": 4,
+  "consensusSlots": 36,
+  "includeNoteAuth": true,
+  "redeemSizes": {
+    "fold0": 3079,
+    "fold35": 3174,
+    "slot0": 5030,
+    "slot35": 5123
+  },
+  "isolated": [
+    {
+      "kind": "fold",
+      "index": 0,
+      "standard": {
+        "operationCost": 25564,
+        "maximumOperationCost": 2500000,
+        "hashDigestIterations": 50,
+        "maximumHashDigestIterations": 1562,
+        "densityControlLength": 3125,
+        "accepted": false,
+        "error": "Program attempted to read from an invalid transaction input index. Transaction input count: 1; requested index: 1.",
+        "unlocking": 3084,
+        "redeem": 3079
+      },
+      "consensus": {
+        "operationCost": 19164,
+        "maximumOperationCost": 2500000,
+        "hashDigestIterations": 50,
+        "maximumHashDigestIterations": 10937,
+        "densityControlLength": 3125,
+        "accepted": false,
+        "error": "Program attempted to read from an invalid transaction input index. Transaction input count: 1; requested index: 1.",
+        "unlocking": 3084,
+        "redeem": 3079
+      },
+      "isolatedAcceptedNote": "Isolated one-input program: kernel reads packed AIR / pair blobs from sibling inputs in the real successor, so accepted=false here is expected. Costs still count the ops that ran before the fail, and the **budgets** (max op-cost, max hash-iter, density length) are exact for this unlocking."
+    },
+    {
+      "kind": "fold",
+      "index": 4,
+      "standard": {
+        "operationCost": 37426,
+        "maximumOperationCost": 4834400,
+        "hashDigestIterations": 51,
+        "maximumHashDigestIterations": 3021,
+        "densityControlLength": 6043,
+        "accepted": false,
+        "error": "Program attempted to read from an invalid transaction input index. Transaction input count: 1; requested index: 5.",
+        "unlocking": 6002,
+        "redeem": 3171
+      },
+      "consensus": {
+        "operationCost": 30898,
+        "maximumOperationCost": 4834400,
+        "hashDigestIterations": 51,
+        "maximumHashDigestIterations": 21150,
+        "densityControlLength": 6043,
+        "accepted": false,
+        "error": "Program attempted to read from an invalid transaction input index. Transaction input count: 1; requested index: 5.",
+        "unlocking": 6002,
+        "redeem": 3171
+      },
+      "isolatedAcceptedNote": "Isolated one-input program: kernel reads packed AIR / pair blobs from sibling inputs in the real successor, so accepted=false here is expected. Costs still count the ops that ran before the fail, and the **budgets** (max op-cost, max hash-iter, density length) are exact for this unlocking."
+    },
+    {
+      "kind": "fold",
+      "index": 18,
+      "standard": {
+        "operationCost": 37426,
+        "maximumOperationCost": 4834400,
+        "hashDigestIterations": 51,
+        "maximumHashDigestIterations": 3021,
+        "densityControlLength": 6043,
+        "accepted": false,
+        "error": "Program attempted to read from an invalid transaction input index. Transaction input count: 1; requested index: 9.",
+        "unlocking": 6002,
+        "redeem": 3173
+      },
+      "consensus": {
+        "operationCost": 30898,
+        "maximumOperationCost": 4834400,
+        "hashDigestIterations": 51,
+        "maximumHashDigestIterations": 21150,
+        "densityControlLength": 6043,
+        "accepted": false,
+        "error": "Program attempted to read from an invalid transaction input index. Transaction input count: 1; requested index: 9.",
+        "unlocking": 6002,
+        "redeem": 3173
+      },
+      "isolatedAcceptedNote": "Isolated one-input program: kernel reads packed AIR / pair blobs from sibling inputs in the real successor, so accepted=false here is expected. Costs still count the ops that ran before the fail, and the **budgets** (max op-cost, max hash-iter, density length) are exact for this unlocking."
+    },
+    {
+      "kind": "fold",
+      "index": 35,
+      "standard": {
+        "operationCost": 37426,
+        "maximumOperationCost": 4834400,
+        "hashDigestIterations": 51,
+        "maximumHashDigestIterations": 3021,
+        "densityControlLength": 6043,
+        "accepted": false,
+        "error": "Program attempted to read from an invalid transaction input index. Transaction input count: 1; requested index: 6.",
+        "unlocking": 6002,
+        "redeem": 3174
+      },
+      "consensus": {
+        "operationCost": 30898,
+        "maximumOperationCost": 4834400,
+        "hashDigestIterations": 51,
+        "maximumHashDigestIterations": 21150,
+        "densityControlLength": 6043,
+        "accepted": false,
+        "error": "Program attempted to read from an invalid transaction input index. Transaction input count: 1; requested index: 6.",
+        "unlocking": 6002,
+        "redeem": 3174
+      },
+      "isolatedAcceptedNote": "Isolated one-input program: kernel reads packed AIR / pair blobs from sibling inputs in the real successor, so accepted=false here is expected. Costs still count the ops that ran before the fail, and the **budgets** (max op-cost, max hash-iter, density length) are exact for this unlocking."
+    },
+    {
+      "kind": "slot",
+      "index": 0,
+      "standard": {
+        "operationCost": 52620,
+        "maximumOperationCost": 4061600,
+        "hashDigestIterations": 80,
+        "maximumHashDigestIterations": 2538,
+        "densityControlLength": 5077,
+        "accepted": false,
+        "error": "Program called an OP_SPLIT operation with an invalid index. stack item length: 0; requested split index: 64.",
+        "unlocking": 5036,
+        "redeem": 5030
+      },
+      "consensus": {
+        "operationCost": 42380,
+        "maximumOperationCost": 4061600,
+        "hashDigestIterations": 80,
+        "maximumHashDigestIterations": 17769,
+        "densityControlLength": 5077,
+        "accepted": false,
+        "error": "Program called an OP_SPLIT operation with an invalid index. stack item length: 0; requested split index: 64.",
+        "unlocking": 5036,
+        "redeem": 5030
+      },
+      "isolatedAcceptedNote": "Isolated one-input program: kernel reads packed AIR / pair blobs from sibling inputs in the real successor, so accepted=false here is expected. Costs still count the ops that ran before the fail, and the **budgets** (max op-cost, max hash-iter, density length) are exact for this unlocking."
+    },
+    {
+      "kind": "slot",
+      "index": 4,
+      "standard": {
+        "operationCost": 59765,
+        "maximumOperationCost": 4834400,
+        "hashDigestIterations": 82,
+        "maximumHashDigestIterations": 3021,
+        "densityControlLength": 6043,
+        "accepted": false,
+        "error": "Program called an OP_SPLIT operation with an invalid index. stack item length: 0; requested split index: 64.",
+        "unlocking": 6002,
+        "redeem": 5122
+      },
+      "consensus": {
+        "operationCost": 49269,
+        "maximumOperationCost": 4834400,
+        "hashDigestIterations": 82,
+        "maximumHashDigestIterations": 21150,
+        "densityControlLength": 6043,
+        "accepted": false,
+        "error": "Program called an OP_SPLIT operation with an invalid index. stack item length: 0; requested split index: 64.",
+        "unlocking": 6002,
+        "redeem": 5122
+      },
+      "isolatedAcceptedNote": "Isolated one-input program: kernel reads packed AIR / pair blobs from sibling inputs in the real successor, so accepted=false here is expected. Costs still count the ops that ran before the fail, and the **budgets** (max op-cost, max hash-iter, density length) are exact for this unlocking."
+    },
+    {
+      "kind": "slot",
+      "index": 18,
+      "standard": {
+        "operationCost": 59764,
+        "maximumOperationCost": 4834400,
+        "hashDigestIterations": 82,
+        "maximumHashDigestIterations": 3021,
+        "densityControlLength": 6043,
+        "accepted": false,
+        "error": "Program called an OP_SPLIT operation with an invalid index. stack item length: 0; requested split index: 64.",
+        "unlocking": 6002,
+        "redeem": 5123
+      },
+      "consensus": {
+        "operationCost": 49268,
+        "maximumOperationCost": 4834400,
+        "hashDigestIterations": 82,
+        "maximumHashDigestIterations": 21150,
+        "densityControlLength": 6043,
+        "accepted": false,
+        "error": "Program called an OP_SPLIT operation with an invalid index. stack item length: 0; requested split index: 64.",
+        "unlocking": 6002,
+        "redeem": 5123
+      },
+      "isolatedAcceptedNote": "Isolated one-input program: kernel reads packed AIR / pair blobs from sibling inputs in the real successor, so accepted=false here is expected. Costs still count the ops that ran before the fail, and the **budgets** (max op-cost, max hash-iter, density length) are exact for this unlocking."
+    },
+    {
+      "kind": "slot",
+      "index": 35,
+      "standard": {
+        "operationCost": 59764,
+        "maximumOperationCost": 4834400,
+        "hashDigestIterations": 82,
+        "maximumHashDigestIterations": 3021,
+        "densityControlLength": 6043,
+        "accepted": false,
+        "error": "Program called an OP_SPLIT operation with an invalid index. stack item length: 0; requested split index: 64.",
+        "unlocking": 6002,
+        "redeem": 5123
+      },
+      "consensus": {
+        "operationCost": 49268,
+        "maximumOperationCost": 4834400,
+        "hashDigestIterations": 82,
+        "maximumHashDigestIterations": 21150,
+        "densityControlLength": 6043,
+        "accepted": false,
+        "error": "Program called an OP_SPLIT operation with an invalid index. stack item length: 0; requested split index: 64.",
+        "unlocking": 6002,
+        "redeem": 5123
+      },
+      "isolatedAcceptedNote": "Isolated one-input program: kernel reads packed AIR / pair blobs from sibling inputs in the real successor, so accepted=false here is expected. Costs still count the ops that ran before the fail, and the **budgets** (max op-cost, max hash-iter, density length) are exact for this unlocking."
+    }
+  ],
+  "inContext": [
+    {
+      "kind": "fold",
+      "index": 0,
+      "inputIndex": 15,
+      "standard": {
+        "operationCost": 1728494,
+        "maximumOperationCost": 2500000,
+        "hashDigestIterations": 75,
+        "maximumHashDigestIterations": 1562,
+        "densityControlLength": 3125,
+        "accepted": true,
+        "error": null,
+        "unlocking": 3084,
+        "redeem": 3079
+      },
+      "consensus": {
+        "operationCost": 1718894,
+        "maximumOperationCost": 2500000,
+        "hashDigestIterations": 75,
+        "maximumHashDigestIterations": 10937,
+        "densityControlLength": 3125,
+        "accepted": true,
+        "error": null,
+        "unlocking": 3084,
+        "redeem": 3079
+      }
+    },
+    {
+      "kind": "slot",
+      "index": 0,
+      "inputIndex": 51,
+      "standard": {
+        "operationCost": 595910,
+        "maximumOperationCost": 4061600,
+        "hashDigestIterations": 179,
+        "maximumHashDigestIterations": 2538,
+        "densityControlLength": 5077,
+        "accepted": true,
+        "error": null,
+        "unlocking": 5036,
+        "redeem": 5030
+      },
+      "consensus": {
+        "operationCost": 572998,
+        "maximumOperationCost": 4061600,
+        "hashDigestIterations": 179,
+        "maximumHashDigestIterations": 17769,
+        "densityControlLength": 5077,
+        "accepted": true,
+        "error": null,
+        "unlocking": 5036,
+        "redeem": 5030
+      }
+    },
+    {
+      "kind": "fold",
+      "index": 4,
+      "inputIndex": 19,
+      "standard": {
+        "operationCost": 1884541,
+        "maximumOperationCost": 4834400,
+        "hashDigestIterations": 80,
+        "maximumHashDigestIterations": 3021,
+        "densityControlLength": 6043,
+        "accepted": true,
+        "error": null,
+        "unlocking": 6002,
+        "redeem": 3171
+      },
+      "consensus": {
+        "operationCost": 1874301,
+        "maximumOperationCost": 4834400,
+        "hashDigestIterations": 80,
+        "maximumHashDigestIterations": 21150,
+        "densityControlLength": 6043,
+        "accepted": true,
+        "error": null,
+        "unlocking": 6002,
+        "redeem": 3171
+      }
+    },
+    {
+      "kind": "slot",
+      "index": 4,
+      "inputIndex": 55,
+      "standard": {
+        "operationCost": 680064,
+        "maximumOperationCost": 4834400,
+        "hashDigestIterations": 185,
+        "maximumHashDigestIterations": 3021,
+        "densityControlLength": 6043,
+        "accepted": true,
+        "error": null,
+        "unlocking": 6002,
+        "redeem": 5122
+      },
+      "consensus": {
+        "operationCost": 656384,
+        "maximumOperationCost": 4834400,
+        "hashDigestIterations": 185,
+        "maximumHashDigestIterations": 21150,
+        "densityControlLength": 6043,
+        "accepted": true,
+        "error": null,
+        "unlocking": 6002,
+        "redeem": 5122
+      }
+    },
+    {
+      "kind": "fold",
+      "index": 18,
+      "inputIndex": 33,
+      "standard": {
+        "operationCost": 2610818,
+        "maximumOperationCost": 4834400,
+        "hashDigestIterations": 95,
+        "maximumHashDigestIterations": 3021,
+        "densityControlLength": 6043,
+        "accepted": true,
+        "error": null,
+        "unlocking": 6002,
+        "redeem": 3173
+      },
+      "consensus": {
+        "operationCost": 2598658,
+        "maximumOperationCost": 4834400,
+        "hashDigestIterations": 95,
+        "maximumHashDigestIterations": 21150,
+        "densityControlLength": 6043,
+        "accepted": true,
+        "error": null,
+        "unlocking": 6002,
+        "redeem": 3173
+      }
+    },
+    {
+      "kind": "slot",
+      "index": 18,
+      "inputIndex": 69,
+      "standard": {
+        "operationCost": 1400237,
+        "maximumOperationCost": 4834400,
+        "hashDigestIterations": 200,
+        "maximumHashDigestIterations": 3021,
+        "densityControlLength": 6043,
+        "accepted": true,
+        "error": null,
+        "unlocking": 6002,
+        "redeem": 5123
+      },
+      "consensus": {
+        "operationCost": 1374637,
+        "maximumOperationCost": 4834400,
+        "hashDigestIterations": 200,
+        "maximumHashDigestIterations": 21150,
+        "densityControlLength": 6043,
+        "accepted": true,
+        "error": null,
+        "unlocking": 6002,
+        "redeem": 5123
+      }
+    },
+    {
+      "kind": "fold",
+      "index": 35,
+      "inputIndex": 50,
+      "standard": {
+        "operationCost": 4391318,
+        "maximumOperationCost": 4834400,
+        "hashDigestIterations": 112,
+        "maximumHashDigestIterations": 3021,
+        "densityControlLength": 6043,
+        "accepted": true,
+        "error": null,
+        "unlocking": 6002,
+        "redeem": 3174
+      },
+      "consensus": {
+        "operationCost": 4376982,
+        "maximumOperationCost": 4834400,
+        "hashDigestIterations": 112,
+        "maximumHashDigestIterations": 21150,
+        "densityControlLength": 6043,
+        "accepted": true,
+        "error": null,
+        "unlocking": 6002,
+        "redeem": 3174
+      }
+    },
+    {
+      "kind": "slot",
+      "index": 35,
+      "inputIndex": 86,
+      "standard": {
+        "operationCost": 3230976,
+        "maximumOperationCost": 4834400,
+        "hashDigestIterations": 217,
+        "maximumHashDigestIterations": 3021,
+        "densityControlLength": 6043,
+        "accepted": true,
+        "error": null,
+        "unlocking": 6002,
+        "redeem": 5123
+      },
+      "consensus": {
+        "operationCost": 3203200,
+        "maximumOperationCost": 4834400,
+        "hashDigestIterations": 217,
+        "maximumHashDigestIterations": 21150,
+        "densityControlLength": 6043,
+        "accepted": true,
+        "error": null,
+        "unlocking": 6002,
+        "redeem": 5123
+      }
+    }
+  ],
+  "fullSuccessor": {
+    "vmMs": 194097.05,
+    "standardAccepted": false,
+    "standardError": "Unable to verify standard transaction: transaction exceeds maximum standard byte length. This transaction is 498398 bytes, but the maximum standard transaction size is 100000 bytes.",
+    "consensusAccepted": true,
+    "consensusError": null
+  }
+}

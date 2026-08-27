@@ -1,0 +1,192 @@
+{
+  "vm": "createVirtualMachineBch2026(true)",
+  "note": "One mul a*b % p. Unlocking = expected || a || b. Not a fold, not a successor.",
+  "wire": {
+    "m31_maxElementVmBytes": 4,
+    "m107_maxElementVmBytes": 14,
+    "m127_maxElementVmBytes": 16,
+    "four_m31_limbs_unlocking": 20,
+    "one_m107_unlocking": 15
+  },
+  "mul": [
+    {
+      "name": "m31",
+      "pBits": 31,
+      "limbVmBytes": 4,
+      "pushMaxElement": 5,
+      "formulaMulExtra": 16,
+      "bare": {
+        "accepted": true,
+        "error": null,
+        "unlocking": 15,
+        "locking": 8,
+        "operationCost": 783,
+        "maximumOperationCost": 44800,
+        "opPct": 1.75,
+        "hashDigestIterations": 0
+      },
+      "p2sh32": {
+        "accepted": true,
+        "error": null,
+        "unlocking": 24,
+        "locking": 35,
+        "operationCost": 1640,
+        "maximumOperationCost": 52000,
+        "opPct": 3.15,
+        "hashDigestIterations": 2
+      }
+    },
+    {
+      "name": "m107",
+      "pBits": 107,
+      "limbVmBytes": 14,
+      "pushMaxElement": 15,
+      "formulaMulExtra": 196,
+      "bare": {
+        "accepted": true,
+        "error": null,
+        "unlocking": 45,
+        "locking": 18,
+        "operationCost": 1413,
+        "maximumOperationCost": 68800,
+        "opPct": 2.05,
+        "hashDigestIterations": 0
+      },
+      "p2sh32": {
+        "accepted": true,
+        "error": null,
+        "unlocking": 64,
+        "locking": 35,
+        "operationCost": 2280,
+        "maximumOperationCost": 84000,
+        "opPct": 2.71,
+        "hashDigestIterations": 2
+      }
+    },
+    {
+      "name": "m127",
+      "pBits": 127,
+      "limbVmBytes": 16,
+      "pushMaxElement": 17,
+      "formulaMulExtra": 256,
+      "bare": {
+        "accepted": true,
+        "error": null,
+        "unlocking": 51,
+        "locking": 20,
+        "operationCost": 1629,
+        "maximumOperationCost": 73600,
+        "opPct": 2.21,
+        "hashDigestIterations": 0
+      },
+      "p2sh32": {
+        "accepted": true,
+        "error": null,
+        "unlocking": 72,
+        "locking": 35,
+        "operationCost": 2498,
+        "maximumOperationCost": 90400,
+        "opPct": 2.76,
+        "hashDigestIterations": 2
+      }
+    }
+  ],
+  "m31Squares": [
+    {
+      "name": "m31-square-x1",
+      "n": 1,
+      "bare": {
+        "accepted": true,
+        "error": null,
+        "unlocking": 10,
+        "locking": 9,
+        "operationCost": 783,
+        "maximumOperationCost": 40800,
+        "opPct": 1.92,
+        "hashDigestIterations": 0
+      },
+      "p2sh32": {
+        "accepted": true,
+        "error": null,
+        "unlocking": 20,
+        "locking": 35,
+        "operationCost": 1641,
+        "maximumOperationCost": 48800,
+        "opPct": 3.36,
+        "hashDigestIterations": 2
+      }
+    },
+    {
+      "name": "m31-square-x3",
+      "n": 3,
+      "bare": {
+        "accepted": true,
+        "error": null,
+        "unlocking": 10,
+        "locking": 25,
+        "operationCost": 1743,
+        "maximumOperationCost": 40800,
+        "opPct": 4.27,
+        "hashDigestIterations": 0
+      },
+      "p2sh32": {
+        "accepted": true,
+        "error": null,
+        "unlocking": 36,
+        "locking": 35,
+        "operationCost": 2617,
+        "maximumOperationCost": 61600,
+        "opPct": 4.25,
+        "hashDigestIterations": 2
+      }
+    },
+    {
+      "name": "m31-square-x9",
+      "n": 9,
+      "bare": {
+        "accepted": true,
+        "error": null,
+        "unlocking": 10,
+        "locking": 73,
+        "operationCost": 4623,
+        "maximumOperationCost": 40800,
+        "opPct": 11.33,
+        "hashDigestIterations": 0
+      },
+      "p2sh32": {
+        "accepted": true,
+        "error": null,
+        "unlocking": 84,
+        "locking": 35,
+        "operationCost": 5737,
+        "maximumOperationCost": 100000,
+        "opPct": 5.74,
+        "hashDigestIterations": 3
+      }
+    },
+    {
+      "name": "m31-square-x16",
+      "n": 16,
+      "bare": {
+        "accepted": true,
+        "error": null,
+        "unlocking": 10,
+        "locking": 129,
+        "operationCost": 7977,
+        "maximumOperationCost": 40800,
+        "opPct": 19.55,
+        "hashDigestIterations": 0
+      },
+      "p2sh32": {
+        "accepted": true,
+        "error": null,
+        "unlocking": 141,
+        "locking": 35,
+        "operationCost": 9339,
+        "maximumOperationCost": 145600,
+        "opPct": 6.41,
+        "hashDigestIterations": 4
+      }
+    }
+  ]
+}

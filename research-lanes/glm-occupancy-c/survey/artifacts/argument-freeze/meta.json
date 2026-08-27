@@ -1,0 +1,40 @@
+{
+  "mark": "argument-freeze",
+  "vkId": "circle-fri-m31-t64-b16-q36-g20-fri9",
+  "txBytes": 92357,
+  "txid": "8e5fd965d281127392ba647fae5620e65359b97a4e740f628bfa40a4b0f3edee",
+  "inputs": 24,
+  "maxUnlocking": 7905,
+  "unlockingSum": 91078,
+  "standardLimit": 100000,
+  "standardAccepted": true,
+  "standardError": null,
+  "verifyFri": {
+    "ok": true
+  },
+  "encoding": {
+    "leftoverPairsEmpty": true,
+    "pickBounded": true
+  },
+  "chipnet": {
+    "successor": "58b7df7f59c3b85a5c8357b0b4c10ab12c74dac984f7a8e95832ab6965c3b03a",
+    "txBytes": 91598,
+    "broadcastPath": "electrum",
+    "explorer": "https://chipnet.imaginary.cash/tx/58b7df7f59c3b85a5c8357b0b4c10ab12c74dac984f7a8e95832ab6965c3b03a",
+    "not": [
+      "56be9ac0… skip-N walker",
+      "86d5413f… leftover-pairs, unbounded PICK"
+    ]
+  },
+  "completeness": {
+    "friVersion": 9,
+    "uniqueOrbits": 36,
+    "grind": 20,
+    "sha256": "sha256",
+    "worksheetBits": 128,
+    "dummyPad": false,
+    "leftoverPairsEmpty": true,
+    "pickBounded": true,
+    "argumentSha256Prefix": "# Argument freeze = vk\n\n**vk:** `circle-fri-m31-t64-b16-q36-g20-fri9`  \n**Lock t"
+  }
+}

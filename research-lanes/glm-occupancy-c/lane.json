@@ -1,0 +1,55 @@
+{
+  "apiVersion": "shieldkit-labs.research-lane/v1alpha1",
+  "kind": "ResearchLane",
+  "id": "research-lane:glm-occupancy-c",
+  "title": "GLM-OCCUPANCY-C",
+  "status": "open-not-qualified",
+  "createdAt": "2026-08-27T00:00:00Z",
+  "copiedFrom": {
+    "branch": "Optimization",
+    "commit": "e0b0de3515aab37a3f86199e56cd08f116f3b4e1",
+    "tree": "research-lanes/sha-in-occupancy-c",
+    "note": "fused leftover L0 C(z) + independent 144 B leftover-z C_SHA lock state. Gates 1-6 partially green; 100 kB suspended in that lane's phase rules."
+  },
+  "startingArtifact": {
+    "parentLane": "research-lanes/sha-in-occupancy-c",
+    "parentCommit": "e0b0de3515aab37a3f86199e56cd08f116f3b4e1",
+    "pack": "survey/artifacts/qm31-fri10/",
+    "chipnetHashBitHost": "5de6827277d9d56735ef144954bb450aab505359ddcc567a1cc0e06e654f1b53",
+    "hashBitHostBytes": 99144,
+    "chipnetOccupancy": "60d186ded18897a50d0a4205ed446ab02339a53eb6d8f4a7043b4e405796edc4",
+    "occupancyBytes": 99043,
+    "extraInputShaAirBytes": 94788,
+    "friVersion": 10,
+    "fieldBits": 124,
+    "occupancyVkEvidence": "circle-fri-m31-qm31-t64-b16-q36-g20-fri10-de1f4dcf0b16d9f8cec265719673a108e2ac4703059fd9d1998d09fcd121de22"
+  },
+  "rules": "RULES.md",
+  "rulesSha256": "4962183ee111b488b0cf9d872c5a057817f5f081d4ec4cacba486b29442fa061",
+  "vk": null,
+  "objective": "Carry the SHA-in-occupancy-C geometry from the e0b0de3 lock state to B under RULES.md: leaf↔nf↔amount in occupancy composition C at the same 36 queries, evaluated in the lock, inside one standard May-2026 Electrum tx ≤ 100 kB with silent unlocking. Not 36 extra SHA-AIR inputs. Not HASH_BIT leftover merkle/prefix as the relation.",
+  "entrypoints": {
+    "rules": "RULES.md",
+    "goal": "GOAL.md",
+    "argument": "ARGUMENT.md",
+    "next": "NEXT.md",
+    "start": "START.md",
+    "freezeEvidence": "survey/artifacts/argument-freeze/",
+    "occupancyPack": "survey/artifacts/qm31-fri10/",
+    "cli": "src/cli.ts",
+    "params": "src/backends/circle/params.ts",
+    "noteAuthAir": "src/chain/note-auth-air.ts"
+  },
+  "doesNotClaim": [
+    "parent e0b0de3 lock state is not the named end",
+    "HASH_BIT host 5de68272 is not the named end",
+    "occupancy pack is not the named end",
+    "36 extra SHA-AIR inputs are not this geometry",
+    "1 MB SHA-AIR fork is not this product",
+    "not qualified",
+    "not mainnet",
+    "not a relabel of the 91 KB freeze",
+    "query-conjecture 128 is speculative"
+  ],
+  "workSurface": "This directory is the only edit surface for the GLM occupancy-C lane. Do not edit research-lanes/sha-in-occupancy-c, research-lanes/ideal-bch-shielded-pool-stark, research-lanes/nonstandard-ideal-circle-stark, research-lanes/envelope-b-standard, research-lanes/batch-exit-walkin, or workspaces/any-amount for this work."
+}

@@ -1,0 +1,15 @@
+parent: sha-in-occupancy-c
+branch: Optimization
+commit: e0b0de3515aab37a3f86199e56cd08f116f3b4e1
+copied: 2026-08-27
+starting-artifact: the e0b0de3 lock state — fused N = leftover L0 C(z) + 36 leftover-z C_SHA evals (144 B, grind-bound hashBitRoot)
+chipnet-hashbit-host: 5de6827277d9d56735ef144954bb450aab505359ddcc567a1cc0e06e654f1b53 (99144 B, Electrum; evidence)
+chipnet-occupancy: 60d186ded18897a50d0a4205ed446ab02339a53eb6d8f4a7043b4e405796edc4 (99043 B; evidence)
+extra-input-sha-air-meter: 94788 B (36 × (41 + 576×4 + 9×32)); occupancy+AIR ≈ 194 kB (wall on that geometry, not this one)
+evidence-freeze: survey/artifacts/argument-freeze/ (91 KB B, Chipnet 58b7df7f…, 91598 B)
+parent-lane-rules-sha256: acc9a44a6a20cc931be3aceca7ccc8f97c947e0d9ef0db2c5ae06b12bcf3fa3b (sha-in-occupancy-c)
+this-lane-rules-sha256: 4962183ee111b488b0cf9d872c5a057817f5f081d4ec4cacba486b29442fa061
+sibling-100kb: research-lanes/ideal-bch-shielded-pool-stark (HASH_BIT leftover walks; not this product)
+sibling-1mb: research-lanes/nonstandard-ideal-circle-stark (SHA AIR on own inputs; not this product)
+parent-lane: research-lanes/sha-in-occupancy-c (SHA residuals in occupancy C; this lane’s direct lineage, do not edit)
+note: GLM agent lane. Same geometry as the parent — SHA residuals of leaf↔nf↔amount in occupancy composition C at the same 36 queries, one standard Electrum tx. Carries the e0b0de3 fused-N lock state forward.

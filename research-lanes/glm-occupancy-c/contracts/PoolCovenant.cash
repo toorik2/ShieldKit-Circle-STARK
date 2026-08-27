@@ -1,0 +1,59 @@
+pragma cashscript ^0.11.0;
+
+/**
+ * Pool successor (source). Executed redeem is the CashAssembly in
+ * `src/chain/covenant-p2s.ts` — CashScript cannot emit the fused
+ * OP_BEGIN/OP_UNTIL Merkle walk + OP_DEFINE body we need, so this file
+ * is the readable contract and the libauth script is the lowerer.
+ *
+ * State is the 128-byte mutable NFT commitment (PAA1), not OP_RETURN.
+ *
+ * Unlocking: <layerRoot>×7 <walkLeaf> <(bit||sib)* steps> <nullifier> …
+ * FRI kernels read those roots from input 0 unlocking (this statement).
+ */
+contract PoolCovenant() {
+    function successor(bytes walkLeaf, bytes walkSteps, bytes32 nullifier) {
+        // Five-point self-replication
+        require(tx.outputs[0].lockingBytecode == tx.inputs[this.activeInputIndex].lockingBytecode);
+        require(tx.outputs[0].tokenCategory == tx.inputs[this.activeInputIndex].tokenCategory);
+        require(tx.outputs[0].tokenAmount == tx.inputs[this.activeInputIndex].tokenAmount);
+        bytes newCell = tx.outputs[0].nftCommitment;
+        require(newCell.length == 128);
+        require(newCell.split(4)[0] == 0x50414131);
+
+        // FRI kernel must be input 1 (proof shards, not a digest)
+        require(tx.inputs.length >= 2);
+
+        bytes oldCell = tx.inputs[this.activeInputIndex].nftCommitment;
+        require(oldCell.length == 128);
+
+        // instance id [32:64] unchanged
+        require(oldCell.split(32)[1].split(32)[0] == newCell.split(32)[1].split(32)[0]);
+
+        bytes oldNote = oldCell.split(64)[1].split(32)[0];
+        bytes newNote = newCell.split(64)[1].split(32)[0];
+        bytes oldNf = oldCell.split(96)[1];
+        bytes newNf = newCell.split(96)[1];
+
+        // noteRoot: equal (full withdraw) or incremental append (deposit / change)
+        if (oldNote == newNote) {
+            require(merkleWalk(walkLeaf, walkSteps) == oldNote);
+        } else {
+            require(merkleWalk(walkLeaf, walkSteps) == newNote);
+            require(merkleWalk(bytes(32), walkSteps) == oldNote);
+        }
+
+        // nfRoot: equal (deposit) or SHA-256(old || nf) (withdraw)
+        if (oldNf == newNf) {
+            require(nullifier == 0x0000000000000000000000000000000000000000000000000000000000000000);
+        } else {
+            require(sha256(oldNf + bytes(nullifier)) == newNf);
+        }
+    }
+
+    // Lowered to OP_BEGIN/OP_UNTIL in CashAssembly (NOTE_MERKLE_WALK).
+    function merkleWalk(bytes acc, bytes steps) : bytes {
+        require(true);
+        return acc;
+    }
+}
