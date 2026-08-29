@@ -1,0 +1,10 @@
+node_modules/
+.local/
+crates/**/target/
+.env
+.env.*
+*.tmp
+*.wif
+*.pem
+*.key
+.DS_Store

@@ -1,0 +1,72 @@
+{
+  "schema": "shieldkit.local-word-v15.offline-artifact/v1",
+  "qualificationDate": "2026-08-29",
+  "status": "offline-qualified-candidate",
+  "namedEnd": false,
+  "construction": {
+    "proofVersion": 15,
+    "constructionId": "8d583c84312f7c79519b65bf374dc2ffb6597544a504d88a587c578f9bed2133",
+    "rulesSha256": "49542e5f5fc9a13a16a3e205fe1408b1cfca49311c1f4e2613527d530fed9db5",
+    "constructionDigest": "8bc34a26a77f72421c77ce2352363ac2f8e1b02aec4389a4ca7635e078ad26b5",
+    "preprocessedRoot": "20223ded84b9482bb6cd5ca4ad25b2d036f8c40823d149eb38c6fbe0d73736d2",
+    "profile": 2,
+    "bankDigests": [
+      "853180105a178a0136d67603377cc159dbc4a02ba0eb453b3bb78682a7a6d66c",
+      "5dac6f1f0c86b4418c3482ee134cd2a6f04173f51a8bbc4362f198ab3dcc3f4e",
+      "6b7eed42ab052682f80b4f59af42203dbe333809782514165fb5896005623a59"
+    ]
+  },
+  "proof": {
+    "source": "fresh --fresh-proof run",
+    "bytes": 327674,
+    "maximumBytes": 340490,
+    "sha256": "a786071c0839e5dbcaf235d477c2441268abbc2f5538bb793971110874668d90",
+    "quotientDegreeBound": 786433,
+    "rawPath": ".local/local-word-product-v15.proof"
+  },
+  "transaction": {
+    "bytes": 967476,
+    "maximumBytes": 1000000,
+    "remainingBytes": 32524,
+    "sha256": "8b7200b5a76ecc0e9ae038a5698d2d33ec884ea54548ccb347dd0d62390aef53",
+    "inputs": 168,
+    "outputs": 170,
+    "rawPath": ".local/local-word-product-v15.tx"
+  },
+  "limitsEvidence": {
+    "bchnSourceCommit": "864c53ee34924cca6c6b6d96607ff2cedcdccf02",
+    "cashc": "0.14.0-next.4",
+    "cashScriptEvidenceIds": [
+      "LIM-001",
+      "LIM-003",
+      "LIM-006",
+      "INT-001"
+    ]
+  },
+  "verification": {
+    "passed": [
+      "product import audit: 50 reachable files, zero forbidden v15 paths",
+      "Rust/TypeScript worst-profile preflight",
+      "fresh proof, independent reference verification, exact artifact mutations, and 168/168 VM inputs",
+      "focused v15 TypeScript tests: 81/81",
+      "cargo +nightly-2026-01-15 check --release"
+    ],
+    "inheritedFailure": {
+      "command": "npm run typecheck",
+      "errors": 10,
+      "files": 7,
+      "changedProductOrEvidenceFiles": 0
+    },
+    "deliberatelySkipped": [
+      "complete historical npm test suite",
+      "complete Cargo test suite",
+      "broad rustfmt rewrite of inherited worker source",
+      "all RPC, mempool, funding, broadcast, and chain-mutation checks"
+    ]
+  },
+  "chipnet": {
+    "mined": false,
+    "reason": "chain mutation requires a separate explicit authorization"
+  },
+  "rawReportPath": ".local/local-word-product-v15-report.json"
+}

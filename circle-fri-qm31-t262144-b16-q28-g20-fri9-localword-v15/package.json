@@ -1,0 +1,30 @@
+{
+  "name": "nonstandard-ideal-circle-stark-lane",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Research lane: nonstandard ideal Circle STARK (RULES.md). Consensus 1 MB, no policy 100 KB. vk changes if any ruleset line changes.",
+  "scripts": {
+    "test": "tsx --test test/*.test.ts",
+    "cli": "tsx src/cli.ts",
+    "typecheck": "tsc --noEmit",
+    "rust:test": "cargo +nightly-2026-01-15 test --manifest-path crates/circle-fri-worker/Cargo.toml",
+    "rust:prove": "cargo +nightly-2026-01-15 run --quiet --manifest-path crates/circle-fri-worker/Cargo.toml",
+    "rust:xcheck": "tsx scripts/rust-xcheck.ts",
+    "local-sha:rust-xcheck": "tsx scripts/local-sha-rust-xcheck.ts",
+    "local-sha:rust-xcheck:full": "tsx scripts/local-sha-rust-xcheck.ts --full"
+  },
+  "engines": {
+    "node": ">=20.10"
+  },
+  "dependencies": {
+    "@bitauth/libauth": "3.1.0-next.8",
+    "cashc": "0.14.0-next.4",
+    "nostr-tools": "2.15.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.16.5",
+    "tsx": "4.20.3",
+    "typescript": "5.8.3"
+  }
+}

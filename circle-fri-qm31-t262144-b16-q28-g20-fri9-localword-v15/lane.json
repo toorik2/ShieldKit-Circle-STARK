@@ -1,0 +1,68 @@
+{
+  "apiVersion": "shieldkit-labs.research-lane/v1alpha1",
+  "kind": "ResearchLane",
+  "id": "research-lane:nonstandard-ideal-circle-stark",
+  "title": "NONSTANDARD IDEAL CIRCLE STARK",
+  "status": "offline-qualified-candidate",
+  "createdAt": "2026-08-25T12:00:00Z",
+  "copiedFrom": {
+    "branch": "Optimization",
+    "commit": "008dd6b477bae5081a1bae4781e7bd294ff1759e",
+    "tree": "research-lanes/ideal-bch-shielded-pool-stark",
+    "note": "occupancy FRI10 / 124-bit freeze. SHA-LDE leftover from a598b1f is not wired."
+  },
+  "startingArtifact": {
+    "pack": "survey/artifacts/qm31-fri10/",
+    "chipnet": "60d186ded18897a50d0a4205ed446ab02339a53eb6d8f4a7043b4e405796edc4",
+    "txBytes": 99043,
+    "friVersion": 10,
+    "fieldBits": 124,
+    "occupancyVk": "circle-fri-m31-qm31-t64-b16-q36-g20-fri10-de1f4dcf0b16d9f8cec265719673a108e2ac4703059fd9d1998d09fcd121de22"
+  },
+  "rules": "RULES.md",
+  "rulesSha256": "49542e5f5fc9a13a16a3e205fe1408b1cfca49311c1f4e2613527d530fed9db5",
+  "vk": null,
+  "constructionId": "8d583c84312f7c79519b65bf374dc2ffb6597544a504d88a587c578f9bed2133",
+  "offlineQualification": {
+    "artifact": "survey/artifacts/local-word-v15-offline/",
+    "proofBytes": 327674,
+    "proofSha256": "a786071c0839e5dbcaf235d477c2441268abbc2f5538bb793971110874668d90",
+    "transactionBytes": 967476,
+    "transactionSha256": "8b7200b5a76ecc0e9ae038a5698d2d33ec884ea54548ccb347dd0d62390aef53",
+    "vmInputsAccepted": 168,
+    "chipnetMined": false
+  },
+  "occupancyVkEvidence": "circle-fri-m31-qm31-t64-b16-q36-g20-fri10-de1f4dcf0b16d9f8cec265719673a108e2ac4703059fd9d1998d09fcd121de22",
+  "objective": "From occupancy FRI10 / QM31 124-bit, find the most elegant BCH-native organisation of the verifier so leaf↔nf↔amount is miner-run and unlocking is silent, without a second unmanageable machine. One consensus May-2026 tx that is B under RULES.md. Prompt: PROMPT.md.",
+  "entrypoints": {
+    "rules": "RULES.md",
+    "goal": "GOAL.md",
+    "argument": "ARGUMENT.md",
+    "next": "NEXT.md",
+    "freezeEvidence": "survey/artifacts/argument-freeze/",
+    "start": "START.md",
+    "prompt": "PROMPT.md",
+    "privacyAudit": "PRIVACY-AUDIT.md",
+    "observerLedger": "OBSERVER-LEDGER.md",
+    "zkMembrane": "ZK-MEMBRANE.md",
+    "successorConstruction": "SUCCESSOR-CONSTRUCTION.md",
+    "offlineQualification": "survey/artifacts/local-word-v15-offline/",
+    "occupancyPack": "survey/artifacts/qm31-fri10/",
+    "cli": "src/cli.ts",
+    "params": "src/backends/circle/params.ts",
+    "noteAuthAir": "src/chain/note-auth-air.ts"
+  },
+  "doesNotClaim": [
+    "occupancy pack is not the named end",
+    "leftover SHA-LDE is not the named end",
+    "sibling 100 KB box is not this product",
+    "not walk-in N-note batch",
+    "not Chipnet-mined or human-declared complete",
+    "not mainnet",
+    "not Electrum-relayable",
+    "not a rename of envelope A or C",
+    "not a relabel of the 91 KB freeze",
+    "query-conjecture 128 is speculative"
+  ],
+  "workSurface": "This directory is the only edit surface for the nonstandard-ideal hypothesis. Do not edit research-lanes/ideal-bch-shielded-pool-stark, research-lanes/envelope-b-standard, research-lanes/batch-exit-walkin, or workspaces/any-amount for this work."
+}

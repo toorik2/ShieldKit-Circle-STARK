@@ -1,0 +1,588 @@
+{
+  "schema": "shieldkit.local-word-v15.export/v1",
+  "folder": "circle-fri-qm31-t262144-b16-q28-g20-fri9-localword-v15",
+  "constructionId": "8d583c84312f7c79519b65bf374dc2ffb6597544a504d88a587c578f9bed2133",
+  "purpose": "minimal self-contained source, focused tests, and offline evidence",
+  "exclusions": [
+    "historical FRI11 implementation",
+    "historical batch-exit and landing implementations",
+    "wallet, RPC, funding, broadcast, and Electrum helpers",
+    "old proof and transaction artifacts",
+    ".local qualification binaries",
+    "node_modules and Cargo target output"
+  ],
+  "fileCount": 115,
+  "sourceBytes": 1467754,
+  "files": [
+    {
+      "path": ".gitignore",
+      "bytes": 86,
+      "sha256": "4b057c09e79b2444b84761e6fed54f0675e15a7ecb8b56d1c5a0418d0b14a02c"
+    },
+    {
+      "path": "AGENTS.md",
+      "bytes": 2013,
+      "sha256": "1c2b089247d105b3a0f0c91c63b372975b42cfc37727bd9428b27de3ffb50620"
+    },
+    {
+      "path": "ARGUMENT.md",
+      "bytes": 8292,
+      "sha256": "8f11508b18f8b79179f8f89ec80f317df087773d35543e37d3eb367bb967bd6c"
+    },
+    {
+      "path": "COMPLETENESS.md",
+      "bytes": 8758,
+      "sha256": "2a80a0f11e6aeb2e7d769b316d104f509ac84f48312a3b29d45e11bbcacb2f65"
+    },
+    {
+      "path": "GOAL.md",
+      "bytes": 2181,
+      "sha256": "7231940066e1cd5a5b72365e7444f1c1ae47319d595493207ab13c312c726562"
+    },
+    {
+      "path": "NEXT.md",
+      "bytes": 1727,
+      "sha256": "140f7406a9f3959aa492dd0c0c971b057cc356ff1c50162739ddccab492ba984"
+    },
+    {
+      "path": "OBSERVER-LEDGER.md",
+      "bytes": 6334,
+      "sha256": "3eedb0a3775c1fd627e0182975a463f97d5d1b9a977aa9c1c999fa582182f2c4"
+    },
+    {
+      "path": "PRIVACY-AUDIT.md",
+      "bytes": 6133,
+      "sha256": "004761371f85fbdcea06402a56e1d6eab09bea25c7bf389c634f7e6826b15a6c"
+    },
+    {
+      "path": "PROMPT.md",
+      "bytes": 5568,
+      "sha256": "27e6dd31cc071647ba65e7c1da597d7bfca150debf8c96aa0de22038be00978e"
+    },
+    {
+      "path": "README.md",
+      "bytes": 3168,
+      "sha256": "c56544192de4410231fa776ed8e19fe9ca3ec9a4a34989493fa04a15d6175d3b"
+    },
+    {
+      "path": "RULES.md",
+      "bytes": 6287,
+      "sha256": "49542e5f5fc9a13a16a3e205fe1408b1cfca49311c1f4e2613527d530fed9db5"
+    },
+    {
+      "path": "STATUS.md",
+      "bytes": 4078,
+      "sha256": "aea4068e85178b1b6c660f381cd09a0490739bf9df3a95eeeff394585f2dd0a3"
+    },
+    {
+      "path": "SUCCESSOR-CONSTRUCTION.md",
+      "bytes": 10060,
+      "sha256": "58c7df639c83248051dbb06963e3d7dcbe3f93022ef1e202b9c412389ec83c5c"
+    },
+    {
+      "path": "UPSTREAM.md",
+      "bytes": 3778,
+      "sha256": "46c1d067ca77aaf123d54defa9496b4c88da9043d49f1e5f4cdc5049e50719c7"
+    },
+    {
+      "path": "ZK-MEMBRANE.md",
+      "bytes": 9648,
+      "sha256": "b2d8d9fa5bc2cfb3dff0bb3fc405a0c8169ef1de7a81a95fce6fa752cd551afc"
+    },
+    {
+      "path": "crates/circle-fri-worker/Cargo.lock",
+      "bytes": 29721,
+      "sha256": "0a0f2df2e7f94d1bb68c406f7734922c8a7b10fe013e2b88fa1321381b3d2430"
+    },
+    {
+      "path": "crates/circle-fri-worker/Cargo.toml",
+      "bytes": 520,
+      "sha256": "e32d67658d4bd6679bf465230e48ffbff664827c83a5be883ced56eff6c82f10"
+    },
+    {
+      "path": "crates/circle-fri-worker/rust-toolchain.toml",
+      "bytes": 63,
+      "sha256": "c36b1ef796f5957939939956bfcfc16c72886ad062aabb3d3c40587d65f25ca7"
+    },
+    {
+      "path": "crates/circle-fri-worker/src/lib.rs",
+      "bytes": 403921,
+      "sha256": "1aa7d2fa4ea6dc3532ba10f232571c503fc14333807f29ea2f4477eb41e87583"
+    },
+    {
+      "path": "crates/circle-fri-worker/src/local_word_disk_oracle.rs",
+      "bytes": 20529,
+      "sha256": "218f4500b8ccdb1ccdf57cfab3c8a6b573232907302da63000684b488d1ab0bf"
+    },
+    {
+      "path": "crates/circle-fri-worker/src/main.rs",
+      "bytes": 63636,
+      "sha256": "2f71cb674d4f136927212e874d3d275507a50963b8bf69e5d5e7e953e89f4206"
+    },
+    {
+      "path": "lane.json",
+      "bytes": 3240,
+      "sha256": "6fb4c599f5330d94592eac92cb1e350d183855cc82ca5f313b7edbc972457d09"
+    },
+    {
+      "path": "package-lock.json",
+      "bytes": 24901,
+      "sha256": "ace56c41de11985a8b033b45d41f17833680e3782e753ef9cb7c3d88b7067937"
+    },
+    {
+      "path": "package.json",
+      "bytes": 1070,
+      "sha256": "f8986c88269ef688354c9e1a7113dbca0cab559bd2bd710f82df578158222e70"
+    },
+    {
+      "path": "scripts/audit-local-word-product-imports.ts",
+      "bytes": 2974,
+      "sha256": "38f4ec769dc28436e5a39adf2f15a03d0219cfb835d45ef0a5021d43b31d345a"
+    },
+    {
+      "path": "scripts/derive-local-word-verifier-bank-digests.ts",
+      "bytes": 2553,
+      "sha256": "151aa29d90c9e3cc17b3437f6662050ff0606bde3ec5866436127ef851f19799"
+    },
+    {
+      "path": "scripts/derive-local-word-verifier-keys.ts",
+      "bytes": 3753,
+      "sha256": "8dd0098186c4c3559ba10ee3548ebcc486f97238e01302e89056d4b0db2a898c"
+    },
+    {
+      "path": "scripts/export-local-word-v15.ts",
+      "bytes": 8108,
+      "sha256": "2bdd30f36e7ffd7c3f6a9e4a332983509c6d700c5d7aab1823a1b7fe69f7082a"
+    },
+    {
+      "path": "scripts/prove-local-word-product.ts",
+      "bytes": 29499,
+      "sha256": "7b1d4899b65a09e4aaf4eb77392ffcf0e64250f6183c61718c64af6acb953b6b"
+    },
+    {
+      "path": "scripts/save-local-word-v15-offline-artifact.ts",
+      "bytes": 10555,
+      "sha256": "5a6402801d92110d9f76393a3dd23f6fe569453ad7073848ed131c1312e4715d"
+    },
+    {
+      "path": "src/amounts/hash-commit.ts",
+      "bytes": 2346,
+      "sha256": "b71bb740a09cda47b7b4e4eb22691006c1b435c5a1755b0137a12846e0aeac2a"
+    },
+    {
+      "path": "src/backends/circle/canonical-merkle-program.ts",
+      "bytes": 3722,
+      "sha256": "64d54f83b63ec864bbc88800ca681397ac8fb1fb4f9f1fa0dcb1ce7f789a09e6"
+    },
+    {
+      "path": "src/backends/circle/canonical-merkle.ts",
+      "bytes": 12544,
+      "sha256": "169860a4a6524d9e5b2bb606327191cb48296ef400f7f5df241cb501ea8b90b4"
+    },
+    {
+      "path": "src/backends/circle/circle-domain.ts",
+      "bytes": 2498,
+      "sha256": "c7be31391883f4fdecd06687e8fa61ef93a52548fb53cb4c8f5bf93444706403"
+    },
+    {
+      "path": "src/backends/circle/group.ts",
+      "bytes": 1636,
+      "sha256": "f5e817dfe943efe5cc9a0512e56fea5078202c2706ead3963b315bbfaaeae86b"
+    },
+    {
+      "path": "src/backends/circle/internal-hash.ts",
+      "bytes": 2508,
+      "sha256": "6428606257cd72e0b9ddc7439d322cb5398ef7effde34c35e206a04225c579ed"
+    },
+    {
+      "path": "src/backends/circle/interpolate.ts",
+      "bytes": 2212,
+      "sha256": "b63a83c5719b28d2a93975fc9fe29bbd3be6f1cf4a5b0edb7829546d3ed7d2c7"
+    },
+    {
+      "path": "src/backends/circle/local-word-air-v14.ts",
+      "bytes": 8382,
+      "sha256": "9c90ceb21789b668fcbc69cfb5e9cee4e01e3ea6b663e31b168feb3ad11b9c9c"
+    },
+    {
+      "path": "src/backends/circle/local-word-air.ts",
+      "bytes": 1875,
+      "sha256": "ce41b99c05a18f0746f77f4dcbe95b5d3fc260ce63b73f1f8da62c4865b19092"
+    },
+    {
+      "path": "src/backends/circle/local-word-construction-v15.ts",
+      "bytes": 4707,
+      "sha256": "0b77754553f23fb57bb643e32f36a935d4be99af66dbb43fadf65a188d321504"
+    },
+    {
+      "path": "src/backends/circle/local-word-observer-view.ts",
+      "bytes": 7859,
+      "sha256": "bc7d5c75a08a628932b2753532b7912579e3e6dcc82b736453df312ede825988"
+    },
+    {
+      "path": "src/backends/circle/local-word-oracle-layout.ts",
+      "bytes": 747,
+      "sha256": "a877b4898664f22ca1ca4bee6253a6a602dd9523fba3593ce25bdd631179776b"
+    },
+    {
+      "path": "src/backends/circle/local-word-prover-bundle.ts",
+      "bytes": 3610,
+      "sha256": "8970425846321687a3501b73e0354baf513d5dda5acc692bc0c7af1c2aff601b"
+    },
+    {
+      "path": "src/backends/circle/local-word-public-statement.ts",
+      "bytes": 3453,
+      "sha256": "6e37119818a6bd20e670c7795a1fafaebcc4bda5c05ee60e240b96d2e4a9fa29"
+    },
+    {
+      "path": "src/backends/circle/local-word-sealed-proof.ts",
+      "bytes": 46519,
+      "sha256": "6e8f75e279673311bfacdc378895ff3edca15e3b344c3a082654ea7bdc3ec6f8"
+    },
+    {
+      "path": "src/backends/circle/local-word-successor-params.ts",
+      "bytes": 3999,
+      "sha256": "9b50e94cf682162b89cc80c6789b3e5f0dc1488fdd877ff9b3940b4c5f8fea9f"
+    },
+    {
+      "path": "src/backends/circle/local-word-transcript-v14.ts",
+      "bytes": 828,
+      "sha256": "fc6d0873bf480288de773dc101995e58cef6bcffe6f00c98ba9c7c83afe417ca"
+    },
+    {
+      "path": "src/backends/circle/local-word-transcript.ts",
+      "bytes": 6172,
+      "sha256": "4c26bbbf40fb22dcde16afef4c6adcc884500bd77fc235eeb8fc10c26c5387b6"
+    },
+    {
+      "path": "src/backends/circle/local-word-verifier-keys-v15.ts",
+      "bytes": 1759,
+      "sha256": "57b80ef0c4aec0ced962b8bdf02e1ba789905fa95a8824d8f0875e3da0b2fe19"
+    },
+    {
+      "path": "src/backends/circle/local-word-verifier.ts",
+      "bytes": 15434,
+      "sha256": "614d5f7dca5faf8a51c93662fa62e22fa97d8ba8f656ef3d740955717fecb3a1"
+    },
+    {
+      "path": "src/backends/circle/m31.ts",
+      "bytes": 2728,
+      "sha256": "707b9a5cf3b029d486d8503f91e657155dbb0d3b542d644e82cd16df9b3dcd9c"
+    },
+    {
+      "path": "src/backends/circle/poseidon2-m31.ts",
+      "bytes": 9777,
+      "sha256": "b2699f5fc1d45c27f77676ab2f877511c0ba4afa277acbeb6f40a68017276420"
+    },
+    {
+      "path": "src/backends/circle/qm31.ts",
+      "bytes": 4787,
+      "sha256": "e83a00ec211c318ae23077b870560ed2d1f9c104cda74a509510f176c2b71a0a"
+    },
+    {
+      "path": "src/backends/circle/sealed-oracle.ts",
+      "bytes": 6058,
+      "sha256": "c5f6329b994a5d5d1d6c424fb59206c1130af48c0fa398abf3da6c7ff97b677e"
+    },
+    {
+      "path": "src/backends/circle/successor-domain.ts",
+      "bytes": 3141,
+      "sha256": "6d7386a63abd8dab4a80720014c7e5b37d8d41b36d5fed1149db159dc2be2546"
+    },
+    {
+      "path": "src/backends/circle/successor-fri.ts",
+      "bytes": 11203,
+      "sha256": "37f94b9ccde095dae783ea5fa95db6448f2700f274cbfe1073a186ec0b110823"
+    },
+    {
+      "path": "src/backends/circle/successor-transcript.ts",
+      "bytes": 6032,
+      "sha256": "d656b36417f1fc3ce5a862544fefc616f23cb205d454dd16aa84d90329348e87"
+    },
+    {
+      "path": "src/chain/envelope.ts",
+      "bytes": 4703,
+      "sha256": "4fb0030dba1aa746efbe897715922831ed1ad40639efb3ebdf11dd39671c995c"
+    },
+    {
+      "path": "src/chain/local-word-algebra-vm.ts",
+      "bytes": 31089,
+      "sha256": "ea436032771069f091cd8b85c81d6ff0455689d8781430245643ec84beefd2c0"
+    },
+    {
+      "path": "src/chain/local-word-balanced-vm.ts",
+      "bytes": 51067,
+      "sha256": "5cce3e72e727bfdb50a6f0d96437bfe0591f2eec88fa6c0f2b8ac377425eb3db"
+    },
+    {
+      "path": "src/chain/local-word-carrier-allocation.ts",
+      "bytes": 6027,
+      "sha256": "22d10d5fc33ae56f309ec5bdbc1bb18238d28be7f628ad0fa9083bcea17a58c4"
+    },
+    {
+      "path": "src/chain/local-word-envelope.ts",
+      "bytes": 11517,
+      "sha256": "7bda4412a50c6c82ac4fdb2e3898eea8253ca7743f94251b7b0baea2ff4ad13c"
+    },
+    {
+      "path": "src/chain/local-word-merkle-vm.ts",
+      "bytes": 23125,
+      "sha256": "19fd1c7868d8bea5b150aed60d0c184787f508102b39e427284c93cd0db4f826"
+    },
+    {
+      "path": "src/chain/local-word-proof-carriers.ts",
+      "bytes": 16101,
+      "sha256": "59223110f49a241818ea905ed103ddc1fc0c12bdad6d5bb5323cd9a40683556d"
+    },
+    {
+      "path": "src/chain/local-word-role-budget.ts",
+      "bytes": 1083,
+      "sha256": "26e45005f094ba0fe2d7705d96f5de817542ccd31406fa9357dbc143c271b8be"
+    },
+    {
+      "path": "src/chain/local-word-role-manifest.ts",
+      "bytes": 10412,
+      "sha256": "d80cfc8cbdcd42b510296ff9c69f86245c0bf8e96e7af6b8fd9d66eb6ae74cfc"
+    },
+    {
+      "path": "src/chain/local-word-verifier-bank-digests-v15.ts",
+      "bytes": 1640,
+      "sha256": "710a188f080f6912aa58910b58384b58d7773bc8a9b846fdc29892030ee76ab7"
+    },
+    {
+      "path": "src/chain/m31-asm.ts",
+      "bytes": 1884,
+      "sha256": "43c89f0f0fc9cfeeb3ae2ecbbb912297b2b9e58a24f2eccdc5e4e2e8a14e1916"
+    },
+    {
+      "path": "src/chain/payout.ts",
+      "bytes": 1959,
+      "sha256": "949a199a1078b89f7af1c8a28e8e81fb67282dd55cc9abf9e75c6ef50c815355"
+    },
+    {
+      "path": "src/chain/pool-relation-local-word-boundary.ts",
+      "bytes": 9558,
+      "sha256": "75841839bc33fa6d49bc3c5a5df64bda73b7b9f3d423ed032a69aeb93f2fb2bb"
+    },
+    {
+      "path": "src/chain/pool-relation-local-word-machine.ts",
+      "bytes": 17741,
+      "sha256": "fca58829aa6a46c45825de55742e2f97fd89a06a0f03103a52e439e3594971cc"
+    },
+    {
+      "path": "src/chain/qm31-asm.ts",
+      "bytes": 8838,
+      "sha256": "221acb8f746a8b0141da0ef7cf87277310d666b2361672888c5002f2623a62ea"
+    },
+    {
+      "path": "src/chain/sha256-local-word-codec.ts",
+      "bytes": 9588,
+      "sha256": "24aacfcc1d15e3fa7ca45a1978afc1d7a5c103b96aa4076d371ef35882f12c2d"
+    },
+    {
+      "path": "src/chain/sha256-local-word-interaction-v14.ts",
+      "bytes": 4515,
+      "sha256": "03a2c167d29bdda4987a885f3c88e0987b7d107776428d3c70af1ef416d8391f"
+    },
+    {
+      "path": "src/chain/sha256-local-word-machine.ts",
+      "bytes": 56383,
+      "sha256": "4c634e319185c1cfe3e31d47db455c08987ebc50af77ee2d3434cd812357e252"
+    },
+    {
+      "path": "src/chain/sha256-local-word-permutation.ts",
+      "bytes": 23951,
+      "sha256": "27208fec4b0a3e4db94ce2ff2bffc21026a1c2d4668a854b5c6f62755a927092"
+    },
+    {
+      "path": "src/chain/sha256-local-word-vm.ts",
+      "bytes": 19746,
+      "sha256": "1302ce5f96dbcac8d22abf65ff3ab7521d9d94058bd01360626dad8fedc56c17"
+    },
+    {
+      "path": "src/chain/sha256-primitives.ts",
+      "bytes": 1766,
+      "sha256": "f482b534af9a6ba746934d6aff0eefdd29dd89a9dca925551ff22bc0573fc870"
+    },
+    {
+      "path": "src/chain/transcript-vm-primitives.ts",
+      "bytes": 394,
+      "sha256": "b0a7b5059d8749c77fabfc6a99bf73b79d023c19a336df7f1ddc6ec55d19cfe1"
+    },
+    {
+      "path": "src/pool/bytes.ts",
+      "bytes": 4987,
+      "sha256": "c443338237ef906925adafbfa9aa5baba30b9b1b54dade058323dfa45a4612af"
+    },
+    {
+      "path": "src/pool/notes.ts",
+      "bytes": 4307,
+      "sha256": "a87808a7367d132d2ede3b82b2877cb00b860f1600a98a10138cfa6befb692dd"
+    },
+    {
+      "path": "src/pool/payout-buckets.ts",
+      "bytes": 1316,
+      "sha256": "e4593ef3cdd41e831618a5a8303b9d10c1176d7b09c51da49c09d761c138dbb8"
+    },
+    {
+      "path": "src/pool/relation-witness.ts",
+      "bytes": 1093,
+      "sha256": "fc2acbd5128804c1538b30b6a4f8f043a7e88dc5b4a5f3138f34b90f53aef6d3"
+    },
+    {
+      "path": "src/pool/sparse-nullifiers.ts",
+      "bytes": 5022,
+      "sha256": "bece21bbdb2a0d862a9d0b57267093ea764eb931f7e453ec52c99ca87dd2ab3e"
+    },
+    {
+      "path": "src/pool/state.ts",
+      "bytes": 4276,
+      "sha256": "f0dddeb7210976f22ea8b961b1af2220e04f68b9a68c5eb24ab33a8625195333"
+    },
+    {
+      "path": "src/pool/statement.ts",
+      "bytes": 1960,
+      "sha256": "dfd57c30bc0ea19361cbef141b04f5034ee22ee0484d90ca96fb57fc9f50fcbc"
+    },
+    {
+      "path": "src/pool/transition.ts",
+      "bytes": 12008,
+      "sha256": "4ecf74c8bb64ed84a6d165e5b3fd6583cc8116adf3da14ed49f43726047531ae"
+    },
+    {
+      "path": "survey/artifacts/local-word-v15-offline/README.md",
+      "bytes": 3369,
+      "sha256": "755b4165f7a2e2a8171c4f2edee4f3ac1db220cf732481ea8b74ca68e0fed748"
+    },
+    {
+      "path": "survey/artifacts/local-word-v15-offline/meta.json",
+      "bytes": 2569,
+      "sha256": "39159b34047cab887264e9f3e31e504165f43117a8ec977a42872ff9fd02c2ea"
+    },
+    {
+      "path": "survey/artifacts/local-word-v15-offline/meters.json",
+      "bytes": 52754,
+      "sha256": "f9261de17b12a6ffc72ec93d6aa2c59811d57e1897ca1e4c287ff97cc749ff03"
+    },
+    {
+      "path": "test/canonical-merkle-program.test.ts",
+      "bytes": 1500,
+      "sha256": "77db2bd6a6eaa144150c615c7fc2dff8b88f17bf1a4fc2965d8f5ecdd23b840e"
+    },
+    {
+      "path": "test/canonical-merkle.test.ts",
+      "bytes": 5445,
+      "sha256": "342a66140afab6346d748bfea4d602f7986882a659c8774e15a2e828679b0421"
+    },
+    {
+      "path": "test/local-word-air-v14.test.ts",
+      "bytes": 7009,
+      "sha256": "18102c438bdef707cdd1d7cafb74effecf7bc3bb4836ceaba4a68ef851e8aaad"
+    },
+    {
+      "path": "test/local-word-air.test.ts",
+      "bytes": 1803,
+      "sha256": "380452f8f5b09461fbddf4b66c3212d4b828338911857d9a9bdf95886262d404"
+    },
+    {
+      "path": "test/local-word-algebra-vm.test.ts",
+      "bytes": 18069,
+      "sha256": "6a0d7cf3afbf17911d7a57867bec01efe21be3b26d31aa7f5535eeef9dc65986"
+    },
+    {
+      "path": "test/local-word-balanced-vm.test.ts",
+      "bytes": 8712,
+      "sha256": "6500f9d220715788723570ddb27b6a6102926862588c56f4a3609c2dad40ce33"
+    },
+    {
+      "path": "test/local-word-construction-v15.test.ts",
+      "bytes": 2590,
+      "sha256": "0dc3aa03abcfec9f7cdc8af81a8415f10d48b08477fdf34a6a6304370363c73e"
+    },
+    {
+      "path": "test/local-word-envelope.test.ts",
+      "bytes": 6179,
+      "sha256": "7824e9f04ad98e81af14b39adb132dfe943785f516f73c374d108555b153dad4"
+    },
+    {
+      "path": "test/local-word-merkle-vm.test.ts",
+      "bytes": 32415,
+      "sha256": "a013dc22ffa9f735bff07f3dd2e14f36a06dc3e4264f1621238e41482cf10b9c"
+    },
+    {
+      "path": "test/local-word-proof-carriers.test.ts",
+      "bytes": 2774,
+      "sha256": "68e93db47a93e6dde836a44511b314728304d525150ded2158d3b5c963c4bfca"
+    },
+    {
+      "path": "test/local-word-prover-bundle-v15.test.ts",
+      "bytes": 3895,
+      "sha256": "ab1c541ce2f2ba03623a0c048d02d40d747bb3d407eb85edbd77bf7e3515c009"
+    },
+    {
+      "path": "test/local-word-public-statement.test.ts",
+      "bytes": 2230,
+      "sha256": "1df04128957bbf82d2171ccbf91ebf0dcd70a814745cd9d3d7ecf97fb7ff01ea"
+    },
+    {
+      "path": "test/local-word-reference-verifier.test.ts",
+      "bytes": 5089,
+      "sha256": "073dd6ada23d29e8906c6a040dcff4e235e4b84336507df0e4037fd9c86db325"
+    },
+    {
+      "path": "test/local-word-sealed-proof.test.ts",
+      "bytes": 10976,
+      "sha256": "f7c46797f530aed0d93b3e6c21471afa5cb8f10e77a025cbbde1d04073eaaac6"
+    },
+    {
+      "path": "test/local-word-settlement-vm.test.ts",
+      "bytes": 40029,
+      "sha256": "79c65051fe2f8758d8e68a6f1ff55da1ee25877f0736450749bdf73fd9441f38"
+    },
+    {
+      "path": "test/local-word-verifier-bank-digests-v15.test.ts",
+      "bytes": 1053,
+      "sha256": "ead6a83f9e36aa371c733fba91e93e9c34044ab733c63563bf8dfabcbdec297e"
+    },
+    {
+      "path": "test/pool-relation-local-word-boundary.test.ts",
+      "bytes": 4314,
+      "sha256": "81886eb87fb0c1d8f98b037dd0b1e04527273914f2106edf4fc91a10f8a8887a"
+    },
+    {
+      "path": "test/pool-relation-local-word-machine.test.ts",
+      "bytes": 7319,
+      "sha256": "8c558303ab8210a934d450160c26453a1c0abe03d20893617022b316f223c0cb"
+    },
+    {
+      "path": "test/sealed-oracle.test.ts",
+      "bytes": 5923,
+      "sha256": "939a35aed323d31fd2e64eb6bfa1b8cd6328036d14979021f4423adff49fd49e"
+    },
+    {
+      "path": "test/sha256-local-word-codec.test.ts",
+      "bytes": 3109,
+      "sha256": "6229a5e04a0817126ea8870441d32b0ec850aa93db8e9e3750b90c039ff5cc98"
+    },
+    {
+      "path": "test/sha256-local-word-machine.test.ts",
+      "bytes": 11358,
+      "sha256": "d181eca17e958a3bf5424ceda5078d23c2703797e8c230d18f56dfc331b0d158"
+    },
+    {
+      "path": "test/sha256-local-word-permutation.test.ts",
+      "bytes": 8518,
+      "sha256": "1c5ba794c47d8c2f8e499bc2e3912aa05e3c52862cc787e8d55bd4e0bf516be3"
+    },
+    {
+      "path": "test/sha256-local-word-vm.test.ts",
+      "bytes": 10688,
+      "sha256": "c624bab45e2d7c317631f114bf7fe8ff42a20174c9b46440151daed6a9558866"
+    },
+    {
+      "path": "tsconfig.json",
+      "bytes": 319,
+      "sha256": "0c5068db702e81a1f5b6758f41f5532f94a51d57761e4604d744ecf4d1d2290a"
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 # Circle FRI on Bitcoin Cash — Made by ABLalgorithm and toorik.
 
-A Circle-domain FRI verifier in May-2026 CashVM. One family, one standard transaction: ≤ 100 000 B, unlocking and redeem ≤ 10 000 B, `createVirtualMachineBch2026(true)`, Electrum. The miner runs the numbered checks; `verifyFri` is a lab oracle.
+This branch contains two separate, versioned research families. Their rules,
+security boundaries, and artifacts are not interchangeable.
 
 ```
 vk = circle-fri-m31-qm31-t64-b16-q36-g20-fri10-de1f4dcf0b16d9f8cec265719673a108e2ac4703059fd9d1998d09fcd121de22
@@ -17,3 +18,10 @@ Chipnet Electrum [`60d186de…`](https://chipnet.imaginary.cash/tx/60d186ded1889
 Field floor is QM31 (~124). Query worksheet \(36\times 3 + 20 = 128\) at rate \(2/B\) is ethSTARK-style speculative, not Stwo-128. Shielded unlocking and walk-in batch are not this object. Chipnet only.
 
 Tree: [`BCH-Circle-Stark-qm31-fri10/`](BCH-Circle-Stark-qm31-fri10/).
+
+## Sealed local-word v15
+
+The self-contained [`circle-fri-qm31-t262144-b16-q28-g20-fri9-localword-v15/`](circle-fri-qm31-t262144-b16-q28-g20-fri9-localword-v15/)
+folder is an offline-qualified 168-input candidate. It includes only the active
+source closure, focused tests, pinned Rust prover, governing documents, and
+small hash/meter evidence pack. It is not Chipnet-mined.
