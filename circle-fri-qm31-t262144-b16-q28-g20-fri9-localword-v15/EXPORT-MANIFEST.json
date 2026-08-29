@@ -11,8 +11,8 @@
     ".local qualification binaries",
     "node_modules and Cargo target output"
   ],
-  "fileCount": 115,
-  "sourceBytes": 1467754,
+  "fileCount": 116,
+  "sourceBytes": 1490754,
   "files": [
     {
       "path": ".gitignore",
@@ -151,8 +151,8 @@
     },
     {
       "path": "scripts/export-local-word-v15.ts",
-      "bytes": 8108,
-      "sha256": "2bdd30f36e7ffd7c3f6a9e4a332983509c6d700c5d7aab1823a1b7fe69f7082a"
+      "bytes": 8126,
+      "sha256": "ddfc5268f1ce4c2f252935d8ec503eac72016b82a163d3f600c8e06d8b3e1f62"
     },
     {
       "path": "scripts/prove-local-word-product.ts",
@@ -463,6 +463,11 @@
       "path": "survey/artifacts/local-word-v15-offline/meters.json",
       "bytes": 52754,
       "sha256": "f9261de17b12a6ffc72ec93d6aa2c59811d57e1897ca1e4c287ff97cc749ff03"
+    },
+    {
+      "path": "technical.md",
+      "bytes": 22982,
+      "sha256": "c5faaf79332a3d9c177abb0bf43156aaf09233c3c8ce5ad675cc76c5ffe0424b"
     },
     {
       "path": "test/canonical-merkle-program.test.ts",

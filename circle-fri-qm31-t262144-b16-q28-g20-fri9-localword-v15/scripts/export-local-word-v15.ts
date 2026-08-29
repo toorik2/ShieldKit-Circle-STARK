@@ -41,6 +41,7 @@ const documents = [
   "RULES.md",
   "STATUS.md",
   "SUCCESSOR-CONSTRUCTION.md",
+  "technical.md",
   "UPSTREAM.md",
   "ZK-MEMBRANE.md",
   "lane.json",
