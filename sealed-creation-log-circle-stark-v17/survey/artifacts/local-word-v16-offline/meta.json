@@ -1,0 +1,12 @@
+{
+  "version": 16,
+  "constructionId": "f29ef06d0e2868a4e6207f060b6246fd49a51fabd0bd14e7d41b48324a1e70e5",
+  "proofBytes": 335350,
+  "proofSha256": "a8cfe60c0c3588a83a93dd64310a185e8fe6c220a92f35819c463c46e0e8f0a5",
+  "transactionBytes": 988881,
+  "transactionSha256": "9dc7c129303540a47607bc536d287f447cfc21c1196c684a399113c46d66eafe",
+  "freshProofGenerated": true,
+  "independentReplayVerified": true,
+  "rawArtifacts": ".local only; intentionally not committed",
+  "qualificationBoundary": "offline; no RPC or chain mutation"
+}

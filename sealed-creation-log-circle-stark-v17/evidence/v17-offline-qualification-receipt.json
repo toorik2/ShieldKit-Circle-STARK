@@ -1,0 +1,366 @@
+{
+  "schema": "ShieldKit/V17OfflineQualificationReceipt/v1",
+  "status": "offline-theorem-qualified-candidate",
+  "claimClass": {
+    "measurements": "fresh-exact-offline-artifacts",
+    "productCorrespondence": "identity-bound-runtime-theorem-certificate",
+    "privacy": "opening-view-non-uniqueness-only-no-complete-zk-claim",
+    "bchnExecution": "every-input-VerifyScript-only",
+    "networkQualification": "not-claimed",
+    "humanDeclaredCompletion": false
+  },
+  "versionBoundary": {
+    "proofVersion": 17,
+    "productGraphVersion": 17,
+    "frozenRelationConstructionDescriptorVersion": 16,
+    "profiles": [
+      {
+        "profile": 0,
+        "action": "deposit"
+      },
+      {
+        "profile": 1,
+        "action": "full-withdrawal"
+      },
+      {
+        "profile": 2,
+        "action": "withdrawal-with-change"
+      }
+    ]
+  },
+  "identity": {
+    "protocolIdHex": "9195e2b02944a9355c50a76e5ddc33e2e03ba48375e95932bb0713933e7ebc96",
+    "constructionIdHex": "c434ed36bf04d8265ec6d0e447f69cd7a437baf91bcc6eab6eb0ff5f9cbe62e1",
+    "linkerCertificateIdHex": "cdb0ad11453a9c84c203a77c50a2858c97fb0b8d53728f5b2cf50a377d181d78",
+    "finalInfrastructureIdentitySha256Hex": "e8165cbca0d7d8fc83382169133fc1c9d07f94f8514936f92cd8669440173ba8",
+    "romPreviewIdHex": "0e382f33e51eb89d83b04148aaa1b683d61deeb173e8cf25af21a1fe7077c5e0"
+  },
+  "normativeSpecification": {
+    "bytePolicy": "utf-8-no-bom-lf-only-one-terminal-lf-sha256-exact-bytes",
+    "documents": [
+      {
+        "id": "constitution",
+        "path": "RULES.md",
+        "bytes": 7024,
+        "sha256Hex": "0decee2d6ef156b14c85eeb8b2d4fee3d0074dac6fcebc2184101fbebf45668a"
+      },
+      {
+        "id": "privacy-membrane",
+        "path": "ZK-MEMBRANE.md",
+        "bytes": 7014,
+        "sha256Hex": "2e11b97f43114a7ab871176c3dc5069819146a5b5a6c85aacca04048c6d8fcad"
+      },
+      {
+        "id": "completeness-map",
+        "path": "COMPLETENESS.md",
+        "bytes": 8118,
+        "sha256Hex": "064f5d940a62787a3e39a782c41c07583dbbfdc72dd386d18e9ae44f68f20a66"
+      }
+    ]
+  },
+  "proofs": [
+    {
+      "profile": 0,
+      "bytes": 448482,
+      "sha256Hex": "526d1e50248f48b313e56ddb84d3b09363e5ab6c1773138a6fa02f2074b3319e",
+      "quotientDegreeBound": 786433,
+      "canonicalEnvelopeHeadroomBytes": 9032
+    },
+    {
+      "profile": 1,
+      "bytes": 448094,
+      "sha256Hex": "bb3c4638a40e3daa1685596a67359e3943da431d6a4ecde7e5843f0dba98a4cb",
+      "quotientDegreeBound": 786433,
+      "canonicalEnvelopeHeadroomBytes": 9420
+    },
+    {
+      "profile": 2,
+      "bytes": 448502,
+      "sha256Hex": "f36ba840b6d1a54a03aaa0e39ce0915c8ea814f8793c834865e45bc9bb9db3af",
+      "quotientDegreeBound": 786433,
+      "canonicalEnvelopeHeadroomBytes": 9012
+    }
+  ],
+  "allocationAndDensityClosure": {
+    "strategy": "base-plus-elastic-prefix",
+    "closureLaw": "profile-opcost-max-required-max-capacity-min",
+    "proofCarrierRoleCount": 210,
+    "minimumProofBytes": 437256,
+    "maximumCanonicalProofBytes": 457514,
+    "elasticScaleUnits": 4095,
+    "linkerAssignmentDigestHex": "cde31fcbb2948b082c5a607f4bb4261866e3911c4d75be9bb8d5c605af55da1b",
+    "canonicalAllocationStateSha256Hex": "12672dd8b43438253b196ae2ef70fe712bfb5a91f4c554fb5b0c8efdeed9c647",
+    "readerPlanSha256Hex": "4f4b44268f4694c501c9fa5b714ee3a98340d982c68dc7c5d9b07048e4301432",
+    "readerBytecodeSha256Hex": "9d235b7fddf072d77b872dbb1bbf7dd5e993c92629dc75ce03a85b9cc67c2f1d",
+    "closure": {
+      "status": "monotone-conservative-envelope",
+      "sha256Hex": "cd0aaae1474305019f3e5cf093a7476c6f05f5495cd7668852c3b2153dfda46a",
+      "roleCount": 210,
+      "sumRequiredProofBytes": 437256,
+      "sumCapacityProofBytes": 1632577,
+      "minimumRoleSlackBytes": 331,
+      "maximumRoleRequiredProofBytes": 8719,
+      "maximumRoleCapacityProofBytes": 9681,
+      "maximumRoleOperationCost": 7767138
+    },
+    "trace": {
+      "genesisSha256Hex": "83f95dabd561ea7393f7ff78eadc6b126531340d49a711de1be9da89c66382a8",
+      "entryCount": 9,
+      "localSizingEntries": 7,
+      "postLinkBchnEntries": 1,
+      "finalBchnEntries": 1,
+      "linkerTerminalTraceRootSha256Hex": "be2f0f747ee90b283c2c952a565f078a9c4180e1d04e09b04c2f73959b84ad5a",
+      "finalTraceRootSha256Hex": "478e662a123c1b31391005680a89f373b1464b9a47b71d49638dc637555238ec",
+      "linkerTerminalMeasurementRowsSha256Hex": "51a91adb122b8ae2fdaf6936bcaafbd5d0501f2a273057c3f5344a8f7e4cb86e",
+      "finalBchnDensityRowsSha256Hex": "9a78a68c933644a7699de7f416dbe27e4b2c2f274fb9ffcf8ef6a6cec69ebada",
+      "finalEntryMeasuredRowsSha256Hex": "042961cda94f82ec2c89a85fe0d9855dbe09e67da37bf1140b96eb2bbbfa09f6",
+      "finalMeasurementEvidenceSha256Hex": "390284f3cd750d62ca80200c01364d1e959fa23d3a1b767868477f86211cebbf",
+      "terminalNoChange": true,
+      "terminalChangedRoleCount": 0
+    }
+  },
+  "authenticatedCodeRom": {
+    "pageCount": 1,
+    "roleIndex": 210,
+    "functionIdentifierPolicy": "minimal-positive-unsigned-be-earliest-static-occurrence-anchor",
+    "packingPolicy": "minimum-pages-then-semantic-anchor",
+    "staticDefinitionOccurrences": 7398,
+    "exactBodyClasses": 104,
+    "page": {
+      "inputIndex": 210,
+      "outputIndex": 210,
+      "valueSatoshis": "1000",
+      "sequenceNumber": 4294967294,
+      "payloadBytes": 7194,
+      "payloadSha256Hex": "0fe53c379310743788329dcbd42901f9b65cee40a1d2da94a69b954736f562a2",
+      "redeemBytes": 115,
+      "redeemSha256Hex": "89b67cce411163fab9675bd6f7bf2827278366ca6bcea3051aa2c8f27e2aac0f",
+      "unlockingBytes": 7314,
+      "functionIds": [
+        "01",
+        "03",
+        "0a",
+        "26",
+        "040d",
+        "040e",
+        "0443",
+        "0495",
+        "0861",
+        "0862",
+        "0863",
+        "0864",
+        "08ef"
+      ],
+      "bodySha256Hexes": [
+        "4c103917736b2c041b5d793b6bcd1f8342a6cdf3128fe955a42d205e1d4327f0",
+        "cb1aee618a17a8577f4ab02d604b7d0d201b1fec7cfbba8dffc02df9d919543e",
+        "9d235b7fddf072d77b872dbb1bbf7dd5e993c92629dc75ce03a85b9cc67c2f1d",
+        "c228a71f57ea6b0a914360fa006108d7ca5315c49d87dc595efab6cb3badc779",
+        "63587d544b3ccc7d3a228f44e0b8e94bf96ead22034610fd8f535681654e439b",
+        "14e999dd26552f1fe749c406a07894fd28ac8a78db38dd796f5e63cc2ce10923",
+        "15dca24257f390ebd02c25b4464eac7ada0ee47a80df79395713c28b27a59293",
+        "cd8be4cd8b030f2501ca853bedb8eca0968bbb56cfdec04c3df7735958ddda06",
+        "3c0a1a0f805f56e6d0cd55df6b8a38b154797c26a85a8f870c2852cc95032142",
+        "be8089b1a41b6a12daeac65acd4654c8f86c352de4a00a45455eced97ccf9e72",
+        "9aea4d7ee20b1b0a62860525d7d37a92b3091bc6f8b9b195b7df6cb167b5e125",
+        "f87401bfde3b001f5a7bb363406363bdcd683b890b78e45ae94bc85a4c8caef5",
+        "c5cdc2ed380195157dbb9cab7baac3007db8bf5fc96cd238c0f0ee8887e3707f"
+      ]
+    }
+  },
+  "transactions": [
+    {
+      "profile": 0,
+      "bytes": 942780,
+      "sha256Hex": "6d19548f624f74b8fbe8aa8ef4906a2f51ff776c27a7a3c7958822892ad3a457",
+      "consensusEnvelopeHeadroomBytes": 57220,
+      "inputs": 212,
+      "outputs": 212,
+      "sourceOutputsBytes": 9458,
+      "sourceOutputsSha256Hex": "51517d2e4b2494884e24fa17edaede9a02c9fef340c3d0cadaade8698fb703fd",
+      "bankDigestHex": "f88c217c3227206efb35de7e1fa638a8613cb71532fb20eff9c0006a81937023",
+      "infrastructureInventorySha256Hex": "815017c15743f2e36ac76d578ba00c43ca962e33add54dcb2cecf8379d59e55f"
+    },
+    {
+      "profile": 1,
+      "bytes": 949604,
+      "sha256Hex": "e4679449f2d4d99c7e3e776ccbbc42b1f2cffd5011b89f2f93eb20605d7ba7ca",
+      "consensusEnvelopeHeadroomBytes": 50396,
+      "inputs": 211,
+      "outputs": 213,
+      "sourceOutputsBytes": 9448,
+      "sourceOutputsSha256Hex": "c33cf7c44d5768b1a1114092d165a6e06fffcc9754962aabbbee6e0070f0d475",
+      "bankDigestHex": "43f978b77f2bffd8f884fbb117303d14fbd20a99a92c7557b95f4370a2f35b66",
+      "infrastructureInventorySha256Hex": "ccbe917318b4c6f1b32544c32dbc667caa21de4d87b598dfe910ea58b0700e6f"
+    },
+    {
+      "profile": 2,
+      "bytes": 951099,
+      "sha256Hex": "991399be753b50baff24947ee194d8715fdfb87c694e95b743aa30ddd6de99d3",
+      "consensusEnvelopeHeadroomBytes": 48901,
+      "inputs": 211,
+      "outputs": 214,
+      "sourceOutputsBytes": 9448,
+      "sourceOutputsSha256Hex": "a91c147b2c081c0b94196c1690a382f9f831b783b168a825915293f714d2adf5",
+      "bankDigestHex": "c6f5b57e0061eb31e0d7d0ea00871f61b98c1befe68274db61219fa054aea3f4",
+      "infrastructureInventorySha256Hex": "6fb96b0d7b8398cfa39bf6ec9e4d8184529b893645c87758c909af108afe44e2"
+    }
+  ],
+  "bchnAssay": {
+    "schema": "ShieldKit/V17BchnProductQualification/v4",
+    "status": "passed",
+    "scope": "every-input-VerifyScript-only",
+    "engine": {
+      "name": "bchn",
+      "version": "29.0.0",
+      "sourceTagCommit": "89a591f7c5b1fd110c0819377ad8f2647d656800",
+      "mode": "consensus",
+      "flags": 1604405103,
+      "executableBytes": 1248088,
+      "executableSha256Hex": "ce382830e2201f170cd30d605eb181a683007abf11e7f2a617542056fe686f97"
+    },
+    "recordedLimits": {
+      "transactionBytes": 1000000,
+      "scriptBytes": 10000,
+      "sigChecksPerTransaction": 3000,
+      "tokenCommitmentBytes": 128,
+      "bchConstantsSourceCommit": "864c53ee34924cca6c6b6d96607ff2cedcdccf02"
+    },
+    "checkedInputs": 634,
+    "acceptedInputs": 634,
+    "maximumProfileSigChecks": 0,
+    "maximumCompositeOperationCost": 7733035,
+    "maximumHashDigestIterations": 552,
+    "evidenceSha256Hex": "0c6f021f320de3d11cfc18e09791d72ee1efcfc98bf1c5760b5321158ad23c63"
+  },
+  "assurance": {
+    "proofSource": "fresh-generated-no-cache",
+    "strictReferenceReplayProfiles": 3,
+    "byteExactInfrastructureProfiles": 3,
+    "adversarial": {
+      "referenceCases": 12,
+      "referenceRejections": 12,
+      "carrierSwapCases": 3,
+      "carrierSwapRejections": 3,
+      "evidenceSha256Hex": "49571a44aa58fb7035a263af282e726069b5cc89901807dbe24f7a495d32d28d"
+    },
+    "privacyObserver": {
+      "profileCount": 3,
+      "exactCarrierUnionProfiles": 3,
+      "exactOwnershipReplayProfiles": 3,
+      "protectedTraceRecoveryFalseProfiles": 3,
+      "equationsPerOriginalColumn": 48,
+      "certifiedRankPerOriginalColumn": 48,
+      "conditionedMaskNullityPerOriginalColumn": 262096,
+      "jointTraceAndMaskNullityPerOriginalColumn": 524240,
+      "claimBoundary": "opening-view non-uniqueness only; complete honest-verifier simulation, AIR-valid semantic alternatives, statistical ZK, computational ZK, and QROM ZK are not claimed",
+      "evidenceSha256Hex": "e241cbdae94f7de72741948ecb5faa9b101e6c2f2f14610f6be8af288f24b755"
+    },
+    "runtimeTheorem": {
+      "schema": "ShieldKit/V17RuntimeProductTheorem/v1",
+      "status": "offline-theorem-qualified-candidate",
+      "proofSetSha256Hex": "db249abc908aa55d383748d48e4b294da6893c3187c37c33e735e3a6bb8b8d84",
+      "assuranceRows": 16,
+      "randomizedRounds": 14,
+      "promotedProductRows": 5,
+      "allTEndpointsPassed": true,
+      "classicalFloor": "epsilon(T)/T <= 2^-100 for every integer 1 <= T < 2^128",
+      "classicalFiatShamir": "classical-programmable-ROM-transcript-and-soundness-model-no-complete-ZK-claim",
+      "qromZeroKnowledge": "unresolved-nonclaim",
+      "quantumClaim": "no known polynomial-time quantum break under the stated assumptions",
+      "evidenceSha256Hex": "92ee21cabdf9cc1cfd5dc5c32df3df422b19c78a2c3ef0bb051a119d0979a482"
+    }
+  },
+  "evidenceBindings": {
+    "sourceArtifactFiles": {
+      "qualification-report.json": {
+        "bytes": 2471115,
+        "sha256Hex": "eac2307c0608470b8deecf855ad514e2478d93a4751b4374484fa1b8b7665ed0"
+      },
+      "linker-certificate.json": {
+        "bytes": 305059,
+        "sha256Hex": "80866b4557a40e32540760ae5f3f834e581183d0d3b73205df34f5995e17e4fc"
+      },
+      "final-infrastructure-identity.json": {
+        "bytes": 1810,
+        "sha256Hex": "e6e7cc3021d09767241a4629f79fdb1b266bcdbaff365e9f202449beb7532f01"
+      },
+      "density-closure-trace.json": {
+        "bytes": 2467961,
+        "sha256Hex": "0b003916c8a70044e71a4ec86d8cc2184d16c7ef885061f73d5e5d56fef636b1"
+      },
+      "local-sizing-certificate.json": {
+        "bytes": 2249716,
+        "sha256Hex": "df0f32558f29afdde75cd4c0bfff448bf5f5e28e8fde7af96a90b1a12ff25228"
+      },
+      "post-link-bchn-evidence.json": {
+        "bytes": 475915,
+        "sha256Hex": "73e4f60a0330a61cc49515204d4c24e7631147bde2200496a87329a4b3c235ba"
+      },
+      "bchn-product-evidence.json": {
+        "bytes": 222602,
+        "sha256Hex": "e5723dec73cc4a77b5c9beecbfc6fcefca758e959605a15e38e33482d88373a8"
+      },
+      "runtime-theorem-certificate.json": {
+        "bytes": 5081,
+        "sha256Hex": "c5b4480806f95661305e3d7513ac8276f7bacca6b9ae0a9b01f0dcffa894ad97"
+      }
+    }
+  },
+  "sourcePurity": {
+    "v17ProductImportAudit": {
+      "reachableFiles": 87,
+      "forbiddenFilesReached": 0,
+      "forbiddenSymbolsReached": 0
+    },
+    "frozenV16Fingerprint": {
+      "constructionIdHex": "f29ef06d0e2868a4e6207f060b6246fd49a51fabd0bd14e7d41b48324a1e70e5",
+      "manifestComponents": 61,
+      "embeddedManifestConstructionIdRecomputed": true,
+      "laneLocalHistoricalEvidenceMatched": true,
+      "v17EmbeddedManifestBoundaryTestPassed": true
+    },
+    "unignoredAudit": {
+      "rawProofTransactionOrSourceOutputFiles": 0,
+      "credentialPatternFiles": 0,
+      "absoluteMachinePathFiles": 0,
+      "symbolicLinks": 0,
+      "filesAboveOneMiB": 0
+    },
+    "retainedReproducibleDiagnostics": [
+      "scripts/diagnose-v17-input-read-heat.ts",
+      "scripts/diagnose-v17-retained-sizing.ts"
+    ],
+    "removedExploratoryDiagnostics": [
+      "scripts/diagnose-v17-frontier.tmp.ts",
+      "scripts/diagnose-v17-parent-read.tmp.ts",
+      "scripts/diagnose-v17-semantic-cut.tmp.ts",
+      "scripts/diagnose-v17-algebra-opcost.ts",
+      "scripts/diagnose-v17-fused-fold-pair.ts",
+      "scripts/diagnose-v17-packed-beta-dot.ts"
+    ],
+    "removedObsoleteLegacyTests": [
+      "test/local-word-sealed-proof.test.ts"
+    ]
+  },
+  "explicitExclusions": [
+    "BCHN transaction-level CheckTransaction and CheckTxInputs",
+    "UTXO existence maturity and relative-locktime context",
+    "standardness mempool block acceptance mining and broadcast",
+    "complete honest-verifier simulation",
+    "statistical zero knowledge",
+    "computational zero knowledge",
+    "QROM zero knowledge",
+    "human declaration of named completion"
+  ],
+  "sanitization": {
+    "rawProofBytesIncluded": false,
+    "rawTransactionBytesIncluded": false,
+    "rawSourceOutputBytesIncluded": false,
+    "assayExecutableBytesIncluded": false,
+    "absoluteMachinePathsIncluded": false,
+    "walletOrCredentialMaterialIncluded": false,
+    "excludedArtifactsAreBoundByLengthAndSha256": true,
+    "rawEvidenceStorageClass": "ignored-local-cache-only"
+  }
+}

@@ -1,0 +1,1168 @@
+{
+  "$id": "ShieldKit/V17VerifierPlan/v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "allocation": {
+      "additionalProperties": false,
+      "properties": {
+        "assignments": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "basePrefixEnd": {
+                "maximum": 457514,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "basePrefixStart": {
+                "maximum": 457513,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "capacityProofBytes": {
+                "maximum": 10000,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "elasticPrefixEnd": {
+                "maximum": 4095,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "elasticPrefixStart": {
+                "maximum": 4095,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "maximumOperationCost": {
+                "minimum": 1,
+                "type": "integer"
+              },
+              "requiredProofBytes": {
+                "minimum": 1,
+                "type": "integer"
+              },
+              "roleId": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "roleId",
+              "basePrefixStart",
+              "basePrefixEnd",
+              "elasticPrefixStart",
+              "elasticPrefixEnd",
+              "requiredProofBytes",
+              "capacityProofBytes",
+              "maximumOperationCost"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "baseEndpoint": {
+          "const": "sum-max-profile-residual-proof-bytes"
+        },
+        "capacityDerivation": {
+          "const": "canonical-proof-push-plus-linked-redeem-push"
+        },
+        "capacityLimitBytes": {
+          "const": 10000
+        },
+        "closure": {
+          "const": "coordinatewise-monotone-profile-envelope"
+        },
+        "closureGenesis": {
+          "const": "canonical-bootstrap-affine-allocation"
+        },
+        "closureJoin": {
+          "const": "profile-opcost-max-required-max-capacity-min"
+        },
+        "closureTerminal": {
+          "const": "explicit-no-change-replay"
+        },
+        "closureTrace": {
+          "const": "domain-separated-sha256-chain"
+        },
+        "densityCredit": {
+          "const": "max-profile-residual-proof-bytes"
+        },
+        "elasticNormalization": {
+          "const": "cumulative-floor-prefix-union"
+        },
+        "elasticScaleUnits": {
+          "const": 4095
+        },
+        "maximumProofBytes": {
+          "const": 457514
+        },
+        "metadataEncoding": {
+          "const": "base19-elastic12-disabled-sequence"
+        },
+        "minimumProofBytes": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "maximum": 457513,
+              "minimum": 1,
+              "type": "integer"
+            }
+          ]
+        },
+        "minimumProofBytesPerRole": {
+          "const": 256
+        },
+        "proofRoleCount": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "slackDistribution": {
+          "const": "capacity-proportional-hamilton-role-order"
+        },
+        "status": {
+          "enum": [
+            "unmeasured",
+            "measured"
+          ]
+        },
+        "strategy": {
+          "const": "base-plus-elastic-prefix"
+        }
+      },
+      "required": [
+        "status",
+        "strategy",
+        "densityCredit",
+        "baseEndpoint",
+        "closure",
+        "closureGenesis",
+        "closureJoin",
+        "closureTerminal",
+        "closureTrace",
+        "elasticNormalization",
+        "elasticScaleUnits",
+        "minimumProofBytes",
+        "maximumProofBytes",
+        "minimumProofBytesPerRole",
+        "capacityLimitBytes",
+        "capacityDerivation",
+        "slackDistribution",
+        "metadataEncoding",
+        "proofRoleCount",
+        "assignments"
+      ],
+      "type": "object"
+    },
+    "protocolIdHex": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "roleFamilies": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "defineBodyIdentity": {
+            "enum": [
+              "construction-independent",
+              "construction-bound"
+            ]
+          },
+          "description": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "settlement",
+              "ood-air",
+              "batch-link-query",
+              "fri-fold-query",
+              "public-boundary",
+              "proof-header",
+              "edge-append",
+              "sparse-nullifier",
+              "transcript",
+              "query-schedule",
+              "opening-schedule",
+              "matrix-merkle",
+              "fri-merkle"
+            ]
+          },
+          "ordinalSource": {
+            "enum": [
+              "singleton",
+              "input-index",
+              "generated-static"
+            ]
+          },
+          "profiles": {
+            "const": [
+              0,
+              1,
+              2
+            ]
+          },
+          "proofCarrier": {
+            "type": "boolean"
+          },
+          "semanticInstances": {
+            "items": {
+              "oneOf": [
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "settlement"
+                    }
+                  },
+                  "required": [
+                    "kind"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "ood-air"
+                    }
+                  },
+                  "required": [
+                    "kind"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "batch-link-query"
+                    },
+                    "query": {
+                      "minimum": 0,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "query"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "public-boundary-inverses"
+                    }
+                  },
+                  "required": [
+                    "kind"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "proof-header"
+                    }
+                  },
+                  "required": [
+                    "kind"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "edge-append"
+                    }
+                  },
+                  "required": [
+                    "kind"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "sparse-nullifier"
+                    },
+                    "root": {
+                      "enum": [
+                        "absence",
+                        "used"
+                      ]
+                    },
+                    "segment": {
+                      "enum": [
+                        0,
+                        1
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "root",
+                    "segment"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "public-boundary-sum"
+                    }
+                  },
+                  "required": [
+                    "kind"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "transcript"
+                    },
+                    "part": {
+                      "enum": [
+                        "interaction",
+                        "composition",
+                        "batch",
+                        "fri-first",
+                        "fri-second",
+                        "final"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "part"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "query-schedule"
+                    }
+                  },
+                  "required": [
+                    "kind"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "opening-current"
+                    }
+                  },
+                  "required": [
+                    "kind"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "opening-global"
+                    },
+                    "stage": {
+                      "enum": [
+                        "current",
+                        "previous",
+                        "shape"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "stage"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "opening-fri"
+                    },
+                    "layer": {
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "mappingShard": {
+                      "enum": [
+                        0,
+                        1
+                      ]
+                    },
+                    "stage": {
+                      "const": "current"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "layer",
+                    "stage",
+                    "mappingShard"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "opening-fri"
+                    },
+                    "layer": {
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "stage": {
+                      "const": "shape"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "layer",
+                    "stage"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "fri-fold-query"
+                    },
+                    "query": {
+                      "minimum": 0,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "query"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "matrix-merkle-leaf"
+                    },
+                    "matrix": {
+                      "enum": [
+                        "preprocessed",
+                        "original",
+                        "interaction",
+                        "interactionGlobal",
+                        "quotientAndFriMask"
+                      ]
+                    },
+                    "shard": {
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "shards": {
+                      "enum": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "matrix",
+                    "shard",
+                    "shards"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "matrix-merkle-parent"
+                    },
+                    "matrix": {
+                      "enum": [
+                        "preprocessed",
+                        "original",
+                        "interaction",
+                        "interactionGlobal",
+                        "quotientAndFriMask"
+                      ]
+                    },
+                    "stage": {
+                      "minimum": 0,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "matrix",
+                    "stage"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "fri-merkle-leaf"
+                    },
+                    "layer": {
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "shard": {
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "shards": {
+                      "enum": [
+                        1,
+                        2
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "layer",
+                    "shard",
+                    "shards"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "fri-merkle-parent"
+                    },
+                    "layer": {
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "stage": {
+                      "minimum": 0,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "layer",
+                    "stage"
+                  ],
+                  "type": "object"
+                }
+              ]
+            },
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "semanticInstances",
+          "ordinalSource",
+          "proofCarrier",
+          "defineBodyIdentity",
+          "profiles",
+          "description"
+        ],
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "roles": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "defineBodyIdentity": {
+            "enum": [
+              "construction-independent",
+              "construction-bound"
+            ]
+          },
+          "familyId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "kind": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "logicalInputIndex": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "obligations": {
+            "items": {
+              "pattern": "^C(?:[1-9]|[12][0-9]|3[0-3])$",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "ordinal": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "ordinalSource": {
+            "enum": [
+              "singleton",
+              "input-index",
+              "generated-static"
+            ]
+          },
+          "profiles": {
+            "const": [
+              0,
+              1,
+              2
+            ]
+          },
+          "proofCarrier": {
+            "type": "boolean"
+          },
+          "semantic": {
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "settlement"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "ood-air"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "batch-link-query"
+                  },
+                  "query": {
+                    "minimum": 0,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "query"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "public-boundary-inverses"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "proof-header"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "edge-append"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "sparse-nullifier"
+                  },
+                  "root": {
+                    "enum": [
+                      "absence",
+                      "used"
+                    ]
+                  },
+                  "segment": {
+                    "enum": [
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "root",
+                  "segment"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "public-boundary-sum"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "transcript"
+                  },
+                  "part": {
+                    "enum": [
+                      "interaction",
+                      "composition",
+                      "batch",
+                      "fri-first",
+                      "fri-second",
+                      "final"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "part"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "query-schedule"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "opening-current"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "opening-global"
+                  },
+                  "stage": {
+                    "enum": [
+                      "current",
+                      "previous",
+                      "shape"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "stage"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "opening-fri"
+                  },
+                  "layer": {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "mappingShard": {
+                    "enum": [
+                      0,
+                      1
+                    ]
+                  },
+                  "stage": {
+                    "const": "current"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "layer",
+                  "stage",
+                  "mappingShard"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "opening-fri"
+                  },
+                  "layer": {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "stage": {
+                    "const": "shape"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "layer",
+                  "stage"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "fri-fold-query"
+                  },
+                  "query": {
+                    "minimum": 0,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "query"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "matrix-merkle-leaf"
+                  },
+                  "matrix": {
+                    "enum": [
+                      "preprocessed",
+                      "original",
+                      "interaction",
+                      "interactionGlobal",
+                      "quotientAndFriMask"
+                    ]
+                  },
+                  "shard": {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "shards": {
+                    "enum": [
+                      1,
+                      2
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "matrix",
+                  "shard",
+                  "shards"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "matrix-merkle-parent"
+                  },
+                  "matrix": {
+                    "enum": [
+                      "preprocessed",
+                      "original",
+                      "interaction",
+                      "interactionGlobal",
+                      "quotientAndFriMask"
+                    ]
+                  },
+                  "stage": {
+                    "minimum": 0,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "matrix",
+                  "stage"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "fri-merkle-leaf"
+                  },
+                  "layer": {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "shard": {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "shards": {
+                    "enum": [
+                      1,
+                      2
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "layer",
+                  "shard",
+                  "shards"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "fri-merkle-parent"
+                  },
+                  "layer": {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "stage": {
+                    "minimum": 0,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "layer",
+                  "stage"
+                ],
+                "type": "object"
+              }
+            ]
+          }
+        },
+        "required": [
+          "logicalInputIndex",
+          "id",
+          "familyId",
+          "kind",
+          "ordinal",
+          "ordinalSource",
+          "proofCarrier",
+          "defineBodyIdentity",
+          "profiles",
+          "obligations",
+          "semantic"
+        ],
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "rom": {
+      "additionalProperties": false,
+      "properties": {
+        "bankIdentity": {
+          "const": "profile-seeded-bch-native-sha256-fold-verifier-workers-and-rom-pages-excluding-settlement-v1"
+        },
+        "bodyAccess": {
+          "const": "sibling-input-bytecode-canonical-slice"
+        },
+        "deduplication": {
+          "const": "exact-byte-equality"
+        },
+        "eligibility": {
+          "const": "construction-independent-op-define-bodies"
+        },
+        "functionIdentifiers": {
+          "const": "minimal-positive-unsigned-be-earliest-static-occurrence-anchor"
+        },
+        "limits": {
+          "const": {
+            "consensusTransactionBytes": 1000000,
+            "controlDepth": 100,
+            "elementBytes": 10000,
+            "functionIdentifierBytes": 7,
+            "opcostPerInputByte": 800,
+            "scriptBytes": 10000,
+            "stackItems": 1000
+          }
+        },
+        "packing": {
+          "const": "minimum-pages-then-semantic-anchor"
+        },
+        "pageFormat": {
+          "const": "p2sh32-authenticated-function-page-v1"
+        },
+        "pages": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "bytes": {
+                "maximum": 10000,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "functionIds": {
+                "items": {
+                  "pattern": "^(?:0[1-9a-f]|[1-9a-f][0-9a-f])(?:[0-9a-f]{2}){0,6}$",
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "index": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "inputIndex": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "outputIndex": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "sha256Hex": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "index",
+              "inputIndex",
+              "outputIndex",
+              "sha256Hex",
+              "bytes",
+              "functionIds"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "payloadFormat": {
+          "const": "skr1-directory-and-exact-bodies-v1"
+        },
+        "placement": {
+          "const": "after-proof-workers"
+        },
+        "promotion": {
+          "const": "strict-positive-saving-in-every-profile"
+        },
+        "qualificationMeasurement": {
+          "const": "post-link-all-profile-independent-bchn"
+        },
+        "status": {
+          "enum": [
+            "unmeasured",
+            "measured"
+          ]
+        }
+      },
+      "required": [
+        "status",
+        "pageFormat",
+        "payloadFormat",
+        "bodyAccess",
+        "eligibility",
+        "bankIdentity",
+        "deduplication",
+        "promotion",
+        "qualificationMeasurement",
+        "functionIdentifiers",
+        "packing",
+        "placement",
+        "limits",
+        "pages"
+      ],
+      "type": "object"
+    },
+    "schema": {
+      "const": "ShieldKit/V17VerifierPlan/v1"
+    }
+  },
+  "required": [
+    "schema",
+    "protocolIdHex",
+    "roleFamilies",
+    "roles",
+    "allocation",
+    "rom"
+  ],
+  "type": "object"
+}

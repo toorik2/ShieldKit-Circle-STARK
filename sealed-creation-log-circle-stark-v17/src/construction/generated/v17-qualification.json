@@ -1,0 +1,59 @@
+{
+  "constructionIdHex": null,
+  "gates": {
+    "all-schedule-envelope": {
+      "reason": "No identity-bound v17 evidence has been recorded.",
+      "status": "pending"
+    },
+    "generated-artifacts": {
+      "reason": "No identity-bound v17 evidence has been recorded.",
+      "status": "pending"
+    },
+    "graph-validation": {
+      "reason": "No identity-bound v17 evidence has been recorded.",
+      "status": "pending"
+    },
+    "independent-replay": {
+      "reason": "No identity-bound v17 evidence has been recorded.",
+      "status": "pending"
+    },
+    "privacy-observer": {
+      "reason": "No identity-bound v17 evidence has been recorded.",
+      "status": "pending"
+    },
+    "profile-0-end-to-end": {
+      "reason": "No identity-bound v17 evidence has been recorded.",
+      "status": "pending"
+    },
+    "profile-1-end-to-end": {
+      "reason": "No identity-bound v17 evidence has been recorded.",
+      "status": "pending"
+    },
+    "profile-2-end-to-end": {
+      "reason": "No identity-bound v17 evidence has been recorded.",
+      "status": "pending"
+    },
+    "protocol-correspondence": {
+      "reason": "No identity-bound v17 evidence has been recorded.",
+      "status": "pending"
+    },
+    "rom-authentication": {
+      "reason": "No identity-bound v17 evidence has been recorded.",
+      "status": "pending"
+    },
+    "soundness-reduction": {
+      "reason": "The exact reduction is fail-closed until OOD, batch-link, grouped-FRI, and mixed-Merkle product correspondences pass.",
+      "status": "pending"
+    },
+    "source-purity": {
+      "reason": "No identity-bound v17 evidence has been recorded.",
+      "status": "pending"
+    }
+  },
+  "overall": "incomplete",
+  "protocolIdHex": "9195e2b02944a9355c50a76e5ddc33e2e03ba48375e95932bb0713933e7ebc96",
+  "schema": "ShieldKit/V17QualificationStatus/v1",
+  "unresolved": [
+    "No final identity-bound qualification receipt is embedded in generated source; run the fresh all-profile qualifier for current evidence."
+  ]
+}

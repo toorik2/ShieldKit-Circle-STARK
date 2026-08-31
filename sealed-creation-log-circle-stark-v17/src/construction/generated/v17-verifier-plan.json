@@ -1,0 +1,5912 @@
+{
+  "allocation": {
+    "assignments": [],
+    "baseEndpoint": "sum-max-profile-residual-proof-bytes",
+    "capacityDerivation": "canonical-proof-push-plus-linked-redeem-push",
+    "capacityLimitBytes": 10000,
+    "closure": "coordinatewise-monotone-profile-envelope",
+    "closureGenesis": "canonical-bootstrap-affine-allocation",
+    "closureJoin": "profile-opcost-max-required-max-capacity-min",
+    "closureTerminal": "explicit-no-change-replay",
+    "closureTrace": "domain-separated-sha256-chain",
+    "densityCredit": "max-profile-residual-proof-bytes",
+    "elasticNormalization": "cumulative-floor-prefix-union",
+    "elasticScaleUnits": 4095,
+    "maximumProofBytes": 457514,
+    "metadataEncoding": "base19-elastic12-disabled-sequence",
+    "minimumProofBytes": null,
+    "minimumProofBytesPerRole": 256,
+    "proofRoleCount": 210,
+    "slackDistribution": "capacity-proportional-hamilton-role-order",
+    "status": "unmeasured",
+    "strategy": "base-plus-elastic-prefix"
+  },
+  "protocolIdHex": "9195e2b02944a9355c50a76e5ddc33e2e03ba48375e95932bb0713933e7ebc96",
+  "roleFamilies": [
+    {
+      "defineBodyIdentity": "construction-bound",
+      "description": "State, value, token, carrier, and selected-bank covenant.",
+      "id": "settlement",
+      "kind": "settlement",
+      "ordinalSource": "singleton",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semanticInstances": [
+        {
+          "kind": "settlement"
+        }
+      ]
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "description": "All 25 AIR residuals and the one whole quotient identity at the OOD point; no serialized partials.",
+      "id": "ood-air",
+      "kind": "ood-air",
+      "ordinalSource": "singleton",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semanticInstances": [
+        {
+          "kind": "ood-air"
+        }
+      ]
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "description": "Protocol-4 width-197 degree-corrected batch link to FRI0 for one query.",
+      "id": "batch-link-query",
+      "kind": "batch-link-query",
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semanticInstances": [
+        {
+          "kind": "batch-link-query",
+          "query": 0
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 1
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 2
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 3
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 4
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 5
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 6
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 7
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 8
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 9
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 10
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 11
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 12
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 13
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 14
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 15
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 16
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 17
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 18
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 19
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 20
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 21
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 22
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 23
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 24
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 25
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 26
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 27
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 28
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 29
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 30
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 31
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 32
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 33
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 34
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 35
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 36
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 37
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 38
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 39
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 40
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 41
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 42
+        },
+        {
+          "kind": "batch-link-query",
+          "query": 43
+        }
+      ]
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "description": "Canonical public-boundary inverse checks.",
+      "id": "public-boundary-inverses",
+      "kind": "public-boundary",
+      "ordinalSource": "singleton",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semanticInstances": [
+        {
+          "kind": "public-boundary-inverses"
+        }
+      ]
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "description": "Proof version, profile, protocol, and VK header.",
+      "id": "proof-header",
+      "kind": "proof-header",
+      "ordinalSource": "singleton",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semanticInstances": [
+        {
+          "kind": "proof-header"
+        }
+      ]
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "description": "Public edge-history append.",
+      "id": "edge-append",
+      "kind": "edge-append",
+      "ordinalSource": "singleton",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semanticInstances": [
+        {
+          "kind": "edge-append"
+        }
+      ]
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "description": "Absence/used sparse-nullifier path halves.",
+      "id": "sparse-nullifier",
+      "kind": "sparse-nullifier",
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semanticInstances": [
+        {
+          "kind": "sparse-nullifier",
+          "root": "absence",
+          "segment": 0
+        },
+        {
+          "kind": "sparse-nullifier",
+          "root": "absence",
+          "segment": 1
+        },
+        {
+          "kind": "sparse-nullifier",
+          "root": "used",
+          "segment": 0
+        },
+        {
+          "kind": "sparse-nullifier",
+          "root": "used",
+          "segment": 1
+        }
+      ]
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "description": "Public-boundary claimed-sum closure.",
+      "id": "public-boundary-sum",
+      "kind": "public-boundary",
+      "ordinalSource": "singleton",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semanticInstances": [
+        {
+          "kind": "public-boundary-sum"
+        }
+      ]
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "description": "One ordered Fiat-Shamir transcript.",
+      "id": "transcript",
+      "kind": "transcript",
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semanticInstances": [
+        {
+          "kind": "transcript",
+          "part": "interaction"
+        },
+        {
+          "kind": "transcript",
+          "part": "composition"
+        },
+        {
+          "kind": "transcript",
+          "part": "batch"
+        },
+        {
+          "kind": "transcript",
+          "part": "fri-first"
+        },
+        {
+          "kind": "transcript",
+          "part": "fri-second"
+        },
+        {
+          "kind": "transcript",
+          "part": "final"
+        }
+      ]
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "description": "Collision-free transcript-derived query schedule.",
+      "id": "query-schedule",
+      "kind": "query-schedule",
+      "ordinalSource": "singleton",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semanticInstances": [
+        {
+          "kind": "query-schedule"
+        }
+      ]
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "description": "Current, global, and nine FRI opening directories.",
+      "id": "opening-schedule",
+      "kind": "opening-schedule",
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semanticInstances": [
+        {
+          "kind": "opening-current"
+        },
+        {
+          "kind": "opening-global",
+          "stage": "current"
+        },
+        {
+          "kind": "opening-global",
+          "stage": "previous"
+        },
+        {
+          "kind": "opening-global",
+          "stage": "shape"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 0,
+          "mappingShard": 0,
+          "stage": "current"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 0,
+          "mappingShard": 1,
+          "stage": "current"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 0,
+          "stage": "shape"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 1,
+          "mappingShard": 0,
+          "stage": "current"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 1,
+          "mappingShard": 1,
+          "stage": "current"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 1,
+          "stage": "shape"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 2,
+          "mappingShard": 0,
+          "stage": "current"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 2,
+          "mappingShard": 1,
+          "stage": "current"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 2,
+          "stage": "shape"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 3,
+          "mappingShard": 0,
+          "stage": "current"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 3,
+          "mappingShard": 1,
+          "stage": "current"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 3,
+          "stage": "shape"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 4,
+          "mappingShard": 0,
+          "stage": "current"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 4,
+          "mappingShard": 1,
+          "stage": "current"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 4,
+          "stage": "shape"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 5,
+          "mappingShard": 0,
+          "stage": "current"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 5,
+          "mappingShard": 1,
+          "stage": "current"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 5,
+          "stage": "shape"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 6,
+          "mappingShard": 0,
+          "stage": "current"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 6,
+          "mappingShard": 1,
+          "stage": "current"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 6,
+          "stage": "shape"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 7,
+          "mappingShard": 0,
+          "stage": "current"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 7,
+          "mappingShard": 1,
+          "stage": "current"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 7,
+          "stage": "shape"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 8,
+          "mappingShard": 0,
+          "stage": "current"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 8,
+          "mappingShard": 1,
+          "stage": "current"
+        },
+        {
+          "kind": "opening-fri",
+          "layer": 8,
+          "stage": "shape"
+        }
+      ]
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "description": "All FRI folds and final polynomial for one query.",
+      "id": "fri-fold-query",
+      "kind": "fri-fold-query",
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semanticInstances": [
+        {
+          "kind": "fri-fold-query",
+          "query": 0
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 1
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 2
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 3
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 4
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 5
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 6
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 7
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 8
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 9
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 10
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 11
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 12
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 13
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 14
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 15
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 16
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 17
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 18
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 19
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 20
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 21
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 22
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 23
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 24
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 25
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 26
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 27
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 28
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 29
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 30
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 31
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 32
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 33
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 34
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 35
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 36
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 37
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 38
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 39
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 40
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 41
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 42
+        },
+        {
+          "kind": "fri-fold-query",
+          "query": 43
+        }
+      ]
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "description": "Generated mixed-geometry matrix authentication cuts.",
+      "id": "matrix-merkle",
+      "kind": "matrix-merkle",
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semanticInstances": [
+        {
+          "kind": "matrix-merkle-leaf",
+          "matrix": "preprocessed",
+          "shard": 0,
+          "shards": 1
+        },
+        {
+          "kind": "matrix-merkle-parent",
+          "matrix": "preprocessed",
+          "stage": 0
+        },
+        {
+          "kind": "matrix-merkle-parent",
+          "matrix": "preprocessed",
+          "stage": 1
+        },
+        {
+          "kind": "matrix-merkle-parent",
+          "matrix": "preprocessed",
+          "stage": 2
+        },
+        {
+          "kind": "matrix-merkle-parent",
+          "matrix": "preprocessed",
+          "stage": 3
+        },
+        {
+          "kind": "matrix-merkle-leaf",
+          "matrix": "original",
+          "shard": 0,
+          "shards": 1
+        },
+        {
+          "kind": "matrix-merkle-parent",
+          "matrix": "original",
+          "stage": 0
+        },
+        {
+          "kind": "matrix-merkle-parent",
+          "matrix": "original",
+          "stage": 1
+        },
+        {
+          "kind": "matrix-merkle-parent",
+          "matrix": "original",
+          "stage": 2
+        },
+        {
+          "kind": "matrix-merkle-parent",
+          "matrix": "original",
+          "stage": 3
+        },
+        {
+          "kind": "matrix-merkle-leaf",
+          "matrix": "interaction",
+          "shard": 0,
+          "shards": 1
+        },
+        {
+          "kind": "matrix-merkle-parent",
+          "matrix": "interaction",
+          "stage": 0
+        },
+        {
+          "kind": "matrix-merkle-parent",
+          "matrix": "interaction",
+          "stage": 1
+        },
+        {
+          "kind": "matrix-merkle-parent",
+          "matrix": "interaction",
+          "stage": 2
+        },
+        {
+          "kind": "matrix-merkle-parent",
+          "matrix": "interaction",
+          "stage": 3
+        },
+        {
+          "kind": "matrix-merkle-leaf",
+          "matrix": "interactionGlobal",
+          "shard": 0,
+          "shards": 1
+        },
+        {
+          "kind": "matrix-merkle-parent",
+          "matrix": "interactionGlobal",
+          "stage": 0
+        },
+        {
+          "kind": "matrix-merkle-parent",
+          "matrix": "interactionGlobal",
+          "stage": 1
+        },
+        {
+          "kind": "matrix-merkle-parent",
+          "matrix": "interactionGlobal",
+          "stage": 2
+        },
+        {
+          "kind": "matrix-merkle-parent",
+          "matrix": "interactionGlobal",
+          "stage": 3
+        },
+        {
+          "kind": "matrix-merkle-parent",
+          "matrix": "interactionGlobal",
+          "stage": 4
+        },
+        {
+          "kind": "matrix-merkle-parent",
+          "matrix": "interactionGlobal",
+          "stage": 5
+        },
+        {
+          "kind": "matrix-merkle-parent",
+          "matrix": "interactionGlobal",
+          "stage": 6
+        },
+        {
+          "kind": "matrix-merkle-parent",
+          "matrix": "interactionGlobal",
+          "stage": 7
+        },
+        {
+          "kind": "matrix-merkle-parent",
+          "matrix": "interactionGlobal",
+          "stage": 8
+        },
+        {
+          "kind": "matrix-merkle-parent",
+          "matrix": "interactionGlobal",
+          "stage": 9
+        },
+        {
+          "kind": "matrix-merkle-leaf",
+          "matrix": "quotientAndFriMask",
+          "shard": 0,
+          "shards": 1
+        },
+        {
+          "kind": "matrix-merkle-parent",
+          "matrix": "quotientAndFriMask",
+          "stage": 0
+        },
+        {
+          "kind": "matrix-merkle-parent",
+          "matrix": "quotientAndFriMask",
+          "stage": 1
+        },
+        {
+          "kind": "matrix-merkle-parent",
+          "matrix": "quotientAndFriMask",
+          "stage": 2
+        },
+        {
+          "kind": "matrix-merkle-parent",
+          "matrix": "quotientAndFriMask",
+          "stage": 3
+        }
+      ]
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "description": "Generated mixed-geometry FRI authentication cuts.",
+      "id": "fri-merkle",
+      "kind": "fri-merkle",
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semanticInstances": [
+        {
+          "kind": "fri-merkle-leaf",
+          "layer": 0,
+          "shard": 0,
+          "shards": 2
+        },
+        {
+          "kind": "fri-merkle-leaf",
+          "layer": 0,
+          "shard": 1,
+          "shards": 2
+        },
+        {
+          "kind": "fri-merkle-parent",
+          "layer": 0,
+          "stage": 0
+        },
+        {
+          "kind": "fri-merkle-parent",
+          "layer": 0,
+          "stage": 1
+        },
+        {
+          "kind": "fri-merkle-parent",
+          "layer": 0,
+          "stage": 2
+        },
+        {
+          "kind": "fri-merkle-parent",
+          "layer": 0,
+          "stage": 3
+        },
+        {
+          "kind": "fri-merkle-leaf",
+          "layer": 1,
+          "shard": 0,
+          "shards": 2
+        },
+        {
+          "kind": "fri-merkle-leaf",
+          "layer": 1,
+          "shard": 1,
+          "shards": 2
+        },
+        {
+          "kind": "fri-merkle-parent",
+          "layer": 1,
+          "stage": 0
+        },
+        {
+          "kind": "fri-merkle-parent",
+          "layer": 1,
+          "stage": 1
+        },
+        {
+          "kind": "fri-merkle-parent",
+          "layer": 1,
+          "stage": 2
+        },
+        {
+          "kind": "fri-merkle-parent",
+          "layer": 1,
+          "stage": 3
+        },
+        {
+          "kind": "fri-merkle-leaf",
+          "layer": 2,
+          "shard": 0,
+          "shards": 2
+        },
+        {
+          "kind": "fri-merkle-leaf",
+          "layer": 2,
+          "shard": 1,
+          "shards": 2
+        },
+        {
+          "kind": "fri-merkle-parent",
+          "layer": 2,
+          "stage": 0
+        },
+        {
+          "kind": "fri-merkle-parent",
+          "layer": 2,
+          "stage": 1
+        },
+        {
+          "kind": "fri-merkle-parent",
+          "layer": 2,
+          "stage": 2
+        },
+        {
+          "kind": "fri-merkle-parent",
+          "layer": 2,
+          "stage": 3
+        },
+        {
+          "kind": "fri-merkle-leaf",
+          "layer": 3,
+          "shard": 0,
+          "shards": 2
+        },
+        {
+          "kind": "fri-merkle-leaf",
+          "layer": 3,
+          "shard": 1,
+          "shards": 2
+        },
+        {
+          "kind": "fri-merkle-parent",
+          "layer": 3,
+          "stage": 0
+        },
+        {
+          "kind": "fri-merkle-parent",
+          "layer": 3,
+          "stage": 1
+        },
+        {
+          "kind": "fri-merkle-parent",
+          "layer": 3,
+          "stage": 2
+        },
+        {
+          "kind": "fri-merkle-leaf",
+          "layer": 4,
+          "shard": 0,
+          "shards": 2
+        },
+        {
+          "kind": "fri-merkle-leaf",
+          "layer": 4,
+          "shard": 1,
+          "shards": 2
+        },
+        {
+          "kind": "fri-merkle-parent",
+          "layer": 4,
+          "stage": 0
+        },
+        {
+          "kind": "fri-merkle-parent",
+          "layer": 4,
+          "stage": 1
+        },
+        {
+          "kind": "fri-merkle-parent",
+          "layer": 4,
+          "stage": 2
+        },
+        {
+          "kind": "fri-merkle-leaf",
+          "layer": 5,
+          "shard": 0,
+          "shards": 2
+        },
+        {
+          "kind": "fri-merkle-leaf",
+          "layer": 5,
+          "shard": 1,
+          "shards": 2
+        },
+        {
+          "kind": "fri-merkle-parent",
+          "layer": 5,
+          "stage": 0
+        },
+        {
+          "kind": "fri-merkle-parent",
+          "layer": 5,
+          "stage": 1
+        },
+        {
+          "kind": "fri-merkle-parent",
+          "layer": 5,
+          "stage": 2
+        },
+        {
+          "kind": "fri-merkle-leaf",
+          "layer": 6,
+          "shard": 0,
+          "shards": 2
+        },
+        {
+          "kind": "fri-merkle-leaf",
+          "layer": 6,
+          "shard": 1,
+          "shards": 2
+        },
+        {
+          "kind": "fri-merkle-parent",
+          "layer": 6,
+          "stage": 0
+        },
+        {
+          "kind": "fri-merkle-parent",
+          "layer": 6,
+          "stage": 1
+        },
+        {
+          "kind": "fri-merkle-leaf",
+          "layer": 7,
+          "shard": 0,
+          "shards": 2
+        },
+        {
+          "kind": "fri-merkle-leaf",
+          "layer": 7,
+          "shard": 1,
+          "shards": 2
+        },
+        {
+          "kind": "fri-merkle-parent",
+          "layer": 7,
+          "stage": 0
+        },
+        {
+          "kind": "fri-merkle-parent",
+          "layer": 7,
+          "stage": 1
+        },
+        {
+          "kind": "fri-merkle-leaf",
+          "layer": 8,
+          "shard": 0,
+          "shards": 1
+        },
+        {
+          "kind": "fri-merkle-parent",
+          "layer": 8,
+          "stage": 0
+        }
+      ]
+    }
+  ],
+  "roles": [
+    {
+      "defineBodyIdentity": "construction-bound",
+      "familyId": "settlement",
+      "id": "settlement",
+      "kind": "settlement",
+      "logicalInputIndex": 0,
+      "obligations": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C7",
+        "C8",
+        "C10",
+        "C11",
+        "C33"
+      ],
+      "ordinal": 0,
+      "ordinalSource": "singleton",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "settlement"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "ood-air",
+      "id": "ood-air",
+      "kind": "ood-air",
+      "logicalInputIndex": 1,
+      "obligations": [
+        "C12",
+        "C13",
+        "C14",
+        "C15",
+        "C16",
+        "C17",
+        "C18",
+        "C19",
+        "C20",
+        "C21",
+        "C22",
+        "C28",
+        "C29"
+      ],
+      "ordinal": 0,
+      "ordinalSource": "singleton",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "ood-air"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:0",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 2,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 0,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 0
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:1",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 3,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 1,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 1
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:2",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 4,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 2,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:3",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 5,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 3,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 3
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:4",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 6,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 4,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 4
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:5",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 7,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 5,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 5
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:6",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 8,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 6,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 6
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:7",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 9,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 7,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 7
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:8",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 10,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 8,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 8
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:9",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 11,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 9,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 9
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:10",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 12,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 10,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 10
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:11",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 13,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 11,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 11
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:12",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 14,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 12,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 12
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:13",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 15,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 13,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 13
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:14",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 16,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 14,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 14
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:15",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 17,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 15,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 15
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:16",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 18,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 16,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 16
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:17",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 19,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 17,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 17
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:18",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 20,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 18,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 18
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:19",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 21,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 19,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 19
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:20",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 22,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 20,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 20
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:21",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 23,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 21,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 21
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:22",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 24,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 22,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 22
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:23",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 25,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 23,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 23
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:24",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 26,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 24,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 24
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:25",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 27,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 25,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 25
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:26",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 28,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 26,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 26
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:27",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 29,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 27,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 27
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:28",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 30,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 28,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 28
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:29",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 31,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 29,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 29
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:30",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 32,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 30,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 30
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:31",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 33,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 31,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 31
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:32",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 34,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 32,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 32
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:33",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 35,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 33,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 33
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:34",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 36,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 34,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 34
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:35",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 37,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 35,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 35
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:36",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 38,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 36,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 36
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:37",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 39,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 37,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 37
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:38",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 40,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 38,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 38
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:39",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 41,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 39,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 39
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:40",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 42,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 40,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 40
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:41",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 43,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 41,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 41
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:42",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 44,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 42,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 42
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "batch-link-query",
+      "id": "batch-link-query:43",
+      "kind": "batch-link-query",
+      "logicalInputIndex": 45,
+      "obligations": [
+        "C24",
+        "C30"
+      ],
+      "ordinal": 43,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "batch-link-query",
+        "query": 43
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "public-boundary-inverses",
+      "id": "public-boundary-inverses",
+      "kind": "public-boundary",
+      "logicalInputIndex": 46,
+      "obligations": [],
+      "ordinal": 0,
+      "ordinalSource": "singleton",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "public-boundary-inverses"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "proof-header",
+      "id": "proof-header",
+      "kind": "proof-header",
+      "logicalInputIndex": 47,
+      "obligations": [
+        "C23",
+        "C32"
+      ],
+      "ordinal": 0,
+      "ordinalSource": "singleton",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "proof-header"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "edge-append",
+      "id": "edge-append",
+      "kind": "edge-append",
+      "logicalInputIndex": 48,
+      "obligations": [
+        "C5",
+        "C6"
+      ],
+      "ordinal": 0,
+      "ordinalSource": "singleton",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "edge-append"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "sparse-nullifier",
+      "id": "sparse-nullifier:0",
+      "kind": "sparse-nullifier",
+      "logicalInputIndex": 49,
+      "obligations": [
+        "C9"
+      ],
+      "ordinal": 0,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "sparse-nullifier",
+        "root": "absence",
+        "segment": 0
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "sparse-nullifier",
+      "id": "sparse-nullifier:1",
+      "kind": "sparse-nullifier",
+      "logicalInputIndex": 50,
+      "obligations": [
+        "C9"
+      ],
+      "ordinal": 1,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "sparse-nullifier",
+        "root": "absence",
+        "segment": 1
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "sparse-nullifier",
+      "id": "sparse-nullifier:2",
+      "kind": "sparse-nullifier",
+      "logicalInputIndex": 51,
+      "obligations": [
+        "C9"
+      ],
+      "ordinal": 2,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "sparse-nullifier",
+        "root": "used",
+        "segment": 0
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "sparse-nullifier",
+      "id": "sparse-nullifier:3",
+      "kind": "sparse-nullifier",
+      "logicalInputIndex": 52,
+      "obligations": [
+        "C9"
+      ],
+      "ordinal": 3,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "sparse-nullifier",
+        "root": "used",
+        "segment": 1
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "public-boundary-sum",
+      "id": "public-boundary-sum",
+      "kind": "public-boundary",
+      "logicalInputIndex": 53,
+      "obligations": [],
+      "ordinal": 0,
+      "ordinalSource": "singleton",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "public-boundary-sum"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "transcript",
+      "id": "transcript:0",
+      "kind": "transcript",
+      "logicalInputIndex": 54,
+      "obligations": [
+        "C25"
+      ],
+      "ordinal": 0,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "transcript",
+        "part": "interaction"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "transcript",
+      "id": "transcript:1",
+      "kind": "transcript",
+      "logicalInputIndex": 55,
+      "obligations": [
+        "C25"
+      ],
+      "ordinal": 1,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "transcript",
+        "part": "composition"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "transcript",
+      "id": "transcript:2",
+      "kind": "transcript",
+      "logicalInputIndex": 56,
+      "obligations": [
+        "C25"
+      ],
+      "ordinal": 2,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "transcript",
+        "part": "batch"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "transcript",
+      "id": "transcript:3",
+      "kind": "transcript",
+      "logicalInputIndex": 57,
+      "obligations": [
+        "C25"
+      ],
+      "ordinal": 3,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "transcript",
+        "part": "fri-first"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "transcript",
+      "id": "transcript:4",
+      "kind": "transcript",
+      "logicalInputIndex": 58,
+      "obligations": [
+        "C25"
+      ],
+      "ordinal": 4,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "transcript",
+        "part": "fri-second"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "transcript",
+      "id": "transcript:5",
+      "kind": "transcript",
+      "logicalInputIndex": 59,
+      "obligations": [
+        "C25"
+      ],
+      "ordinal": 5,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "transcript",
+        "part": "final"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "query-schedule",
+      "id": "query-schedule",
+      "kind": "query-schedule",
+      "logicalInputIndex": 60,
+      "obligations": [
+        "C26"
+      ],
+      "ordinal": 0,
+      "ordinalSource": "singleton",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "query-schedule"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:0",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 61,
+      "obligations": [],
+      "ordinal": 0,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-current"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:1",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 62,
+      "obligations": [],
+      "ordinal": 1,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-global",
+        "stage": "current"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:2",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 63,
+      "obligations": [],
+      "ordinal": 2,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-global",
+        "stage": "previous"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:3",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 64,
+      "obligations": [],
+      "ordinal": 3,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-global",
+        "stage": "shape"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:4",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 65,
+      "obligations": [],
+      "ordinal": 4,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 0,
+        "mappingShard": 0,
+        "stage": "current"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:5",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 66,
+      "obligations": [],
+      "ordinal": 5,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 0,
+        "mappingShard": 1,
+        "stage": "current"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:6",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 67,
+      "obligations": [],
+      "ordinal": 6,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 0,
+        "stage": "shape"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:7",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 68,
+      "obligations": [],
+      "ordinal": 7,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 1,
+        "mappingShard": 0,
+        "stage": "current"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:8",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 69,
+      "obligations": [],
+      "ordinal": 8,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 1,
+        "mappingShard": 1,
+        "stage": "current"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:9",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 70,
+      "obligations": [],
+      "ordinal": 9,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 1,
+        "stage": "shape"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:10",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 71,
+      "obligations": [],
+      "ordinal": 10,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 2,
+        "mappingShard": 0,
+        "stage": "current"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:11",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 72,
+      "obligations": [],
+      "ordinal": 11,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 2,
+        "mappingShard": 1,
+        "stage": "current"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:12",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 73,
+      "obligations": [],
+      "ordinal": 12,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 2,
+        "stage": "shape"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:13",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 74,
+      "obligations": [],
+      "ordinal": 13,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 3,
+        "mappingShard": 0,
+        "stage": "current"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:14",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 75,
+      "obligations": [],
+      "ordinal": 14,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 3,
+        "mappingShard": 1,
+        "stage": "current"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:15",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 76,
+      "obligations": [],
+      "ordinal": 15,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 3,
+        "stage": "shape"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:16",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 77,
+      "obligations": [],
+      "ordinal": 16,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 4,
+        "mappingShard": 0,
+        "stage": "current"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:17",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 78,
+      "obligations": [],
+      "ordinal": 17,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 4,
+        "mappingShard": 1,
+        "stage": "current"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:18",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 79,
+      "obligations": [],
+      "ordinal": 18,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 4,
+        "stage": "shape"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:19",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 80,
+      "obligations": [],
+      "ordinal": 19,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 5,
+        "mappingShard": 0,
+        "stage": "current"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:20",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 81,
+      "obligations": [],
+      "ordinal": 20,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 5,
+        "mappingShard": 1,
+        "stage": "current"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:21",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 82,
+      "obligations": [],
+      "ordinal": 21,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 5,
+        "stage": "shape"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:22",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 83,
+      "obligations": [],
+      "ordinal": 22,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 6,
+        "mappingShard": 0,
+        "stage": "current"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:23",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 84,
+      "obligations": [],
+      "ordinal": 23,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 6,
+        "mappingShard": 1,
+        "stage": "current"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:24",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 85,
+      "obligations": [],
+      "ordinal": 24,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 6,
+        "stage": "shape"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:25",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 86,
+      "obligations": [],
+      "ordinal": 25,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 7,
+        "mappingShard": 0,
+        "stage": "current"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:26",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 87,
+      "obligations": [],
+      "ordinal": 26,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 7,
+        "mappingShard": 1,
+        "stage": "current"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:27",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 88,
+      "obligations": [],
+      "ordinal": 27,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 7,
+        "stage": "shape"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:28",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 89,
+      "obligations": [],
+      "ordinal": 28,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 8,
+        "mappingShard": 0,
+        "stage": "current"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:29",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 90,
+      "obligations": [],
+      "ordinal": 29,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 8,
+        "mappingShard": 1,
+        "stage": "current"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "opening-schedule",
+      "id": "opening-schedule:30",
+      "kind": "opening-schedule",
+      "logicalInputIndex": 91,
+      "obligations": [],
+      "ordinal": 30,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "opening-fri",
+        "layer": 8,
+        "stage": "shape"
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:0",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 92,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 0,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 0
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:1",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 93,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 1,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 1
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:2",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 94,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 2,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:3",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 95,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 3,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 3
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:4",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 96,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 4,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 4
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:5",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 97,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 5,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 5
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:6",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 98,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 6,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 6
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:7",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 99,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 7,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 7
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:8",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 100,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 8,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 8
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:9",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 101,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 9,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 9
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:10",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 102,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 10,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 10
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:11",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 103,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 11,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 11
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:12",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 104,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 12,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 12
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:13",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 105,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 13,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 13
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:14",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 106,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 14,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 14
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:15",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 107,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 15,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 15
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:16",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 108,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 16,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 16
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:17",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 109,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 17,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 17
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:18",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 110,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 18,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 18
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:19",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 111,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 19,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 19
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:20",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 112,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 20,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 20
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:21",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 113,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 21,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 21
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:22",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 114,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 22,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 22
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:23",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 115,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 23,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 23
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:24",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 116,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 24,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 24
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:25",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 117,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 25,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 25
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:26",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 118,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 26,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 26
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:27",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 119,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 27,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 27
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:28",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 120,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 28,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 28
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:29",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 121,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 29,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 29
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:30",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 122,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 30,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 30
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:31",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 123,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 31,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 31
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:32",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 124,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 32,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 32
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:33",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 125,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 33,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 33
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:34",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 126,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 34,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 34
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:35",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 127,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 35,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 35
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:36",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 128,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 36,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 36
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:37",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 129,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 37,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 37
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:38",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 130,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 38,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 38
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:39",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 131,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 39,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 39
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:40",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 132,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 40,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 40
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:41",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 133,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 41,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 41
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:42",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 134,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 42,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 42
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-fold-query",
+      "id": "fri-fold-query:43",
+      "kind": "fri-fold-query",
+      "logicalInputIndex": 135,
+      "obligations": [
+        "C31"
+      ],
+      "ordinal": 43,
+      "ordinalSource": "input-index",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-fold-query",
+        "query": 43
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:0",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 136,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 0,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-leaf",
+        "matrix": "preprocessed",
+        "shard": 0,
+        "shards": 1
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:1",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 137,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 1,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-parent",
+        "matrix": "preprocessed",
+        "stage": 0
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:2",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 138,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 2,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-parent",
+        "matrix": "preprocessed",
+        "stage": 1
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:3",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 139,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 3,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-parent",
+        "matrix": "preprocessed",
+        "stage": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:4",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 140,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 4,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-parent",
+        "matrix": "preprocessed",
+        "stage": 3
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:5",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 141,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 5,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-leaf",
+        "matrix": "original",
+        "shard": 0,
+        "shards": 1
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:6",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 142,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 6,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-parent",
+        "matrix": "original",
+        "stage": 0
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:7",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 143,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 7,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-parent",
+        "matrix": "original",
+        "stage": 1
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:8",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 144,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 8,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-parent",
+        "matrix": "original",
+        "stage": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:9",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 145,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 9,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-parent",
+        "matrix": "original",
+        "stage": 3
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:10",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 146,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 10,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-leaf",
+        "matrix": "interaction",
+        "shard": 0,
+        "shards": 1
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:11",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 147,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 11,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-parent",
+        "matrix": "interaction",
+        "stage": 0
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:12",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 148,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 12,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-parent",
+        "matrix": "interaction",
+        "stage": 1
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:13",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 149,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 13,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-parent",
+        "matrix": "interaction",
+        "stage": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:14",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 150,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 14,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-parent",
+        "matrix": "interaction",
+        "stage": 3
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:15",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 151,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 15,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-leaf",
+        "matrix": "interactionGlobal",
+        "shard": 0,
+        "shards": 1
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:16",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 152,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 16,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-parent",
+        "matrix": "interactionGlobal",
+        "stage": 0
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:17",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 153,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 17,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-parent",
+        "matrix": "interactionGlobal",
+        "stage": 1
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:18",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 154,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 18,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-parent",
+        "matrix": "interactionGlobal",
+        "stage": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:19",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 155,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 19,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-parent",
+        "matrix": "interactionGlobal",
+        "stage": 3
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:20",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 156,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 20,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-parent",
+        "matrix": "interactionGlobal",
+        "stage": 4
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:21",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 157,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 21,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-parent",
+        "matrix": "interactionGlobal",
+        "stage": 5
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:22",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 158,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 22,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-parent",
+        "matrix": "interactionGlobal",
+        "stage": 6
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:23",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 159,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 23,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-parent",
+        "matrix": "interactionGlobal",
+        "stage": 7
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:24",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 160,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 24,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-parent",
+        "matrix": "interactionGlobal",
+        "stage": 8
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:25",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 161,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 25,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-parent",
+        "matrix": "interactionGlobal",
+        "stage": 9
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:26",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 162,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 26,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-leaf",
+        "matrix": "quotientAndFriMask",
+        "shard": 0,
+        "shards": 1
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:27",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 163,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 27,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-parent",
+        "matrix": "quotientAndFriMask",
+        "stage": 0
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:28",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 164,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 28,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-parent",
+        "matrix": "quotientAndFriMask",
+        "stage": 1
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:29",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 165,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 29,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-parent",
+        "matrix": "quotientAndFriMask",
+        "stage": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "matrix-merkle",
+      "id": "matrix-merkle:30",
+      "kind": "matrix-merkle",
+      "logicalInputIndex": 166,
+      "obligations": [
+        "C27"
+      ],
+      "ordinal": 30,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "matrix-merkle-parent",
+        "matrix": "quotientAndFriMask",
+        "stage": 3
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:0",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 167,
+      "obligations": [],
+      "ordinal": 0,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-leaf",
+        "layer": 0,
+        "shard": 0,
+        "shards": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:1",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 168,
+      "obligations": [],
+      "ordinal": 1,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-leaf",
+        "layer": 0,
+        "shard": 1,
+        "shards": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:2",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 169,
+      "obligations": [],
+      "ordinal": 2,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-parent",
+        "layer": 0,
+        "stage": 0
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:3",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 170,
+      "obligations": [],
+      "ordinal": 3,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-parent",
+        "layer": 0,
+        "stage": 1
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:4",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 171,
+      "obligations": [],
+      "ordinal": 4,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-parent",
+        "layer": 0,
+        "stage": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:5",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 172,
+      "obligations": [],
+      "ordinal": 5,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-parent",
+        "layer": 0,
+        "stage": 3
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:6",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 173,
+      "obligations": [],
+      "ordinal": 6,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-leaf",
+        "layer": 1,
+        "shard": 0,
+        "shards": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:7",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 174,
+      "obligations": [],
+      "ordinal": 7,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-leaf",
+        "layer": 1,
+        "shard": 1,
+        "shards": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:8",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 175,
+      "obligations": [],
+      "ordinal": 8,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-parent",
+        "layer": 1,
+        "stage": 0
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:9",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 176,
+      "obligations": [],
+      "ordinal": 9,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-parent",
+        "layer": 1,
+        "stage": 1
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:10",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 177,
+      "obligations": [],
+      "ordinal": 10,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-parent",
+        "layer": 1,
+        "stage": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:11",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 178,
+      "obligations": [],
+      "ordinal": 11,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-parent",
+        "layer": 1,
+        "stage": 3
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:12",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 179,
+      "obligations": [],
+      "ordinal": 12,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-leaf",
+        "layer": 2,
+        "shard": 0,
+        "shards": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:13",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 180,
+      "obligations": [],
+      "ordinal": 13,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-leaf",
+        "layer": 2,
+        "shard": 1,
+        "shards": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:14",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 181,
+      "obligations": [],
+      "ordinal": 14,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-parent",
+        "layer": 2,
+        "stage": 0
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:15",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 182,
+      "obligations": [],
+      "ordinal": 15,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-parent",
+        "layer": 2,
+        "stage": 1
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:16",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 183,
+      "obligations": [],
+      "ordinal": 16,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-parent",
+        "layer": 2,
+        "stage": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:17",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 184,
+      "obligations": [],
+      "ordinal": 17,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-parent",
+        "layer": 2,
+        "stage": 3
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:18",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 185,
+      "obligations": [],
+      "ordinal": 18,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-leaf",
+        "layer": 3,
+        "shard": 0,
+        "shards": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:19",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 186,
+      "obligations": [],
+      "ordinal": 19,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-leaf",
+        "layer": 3,
+        "shard": 1,
+        "shards": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:20",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 187,
+      "obligations": [],
+      "ordinal": 20,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-parent",
+        "layer": 3,
+        "stage": 0
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:21",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 188,
+      "obligations": [],
+      "ordinal": 21,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-parent",
+        "layer": 3,
+        "stage": 1
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:22",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 189,
+      "obligations": [],
+      "ordinal": 22,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-parent",
+        "layer": 3,
+        "stage": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:23",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 190,
+      "obligations": [],
+      "ordinal": 23,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-leaf",
+        "layer": 4,
+        "shard": 0,
+        "shards": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:24",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 191,
+      "obligations": [],
+      "ordinal": 24,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-leaf",
+        "layer": 4,
+        "shard": 1,
+        "shards": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:25",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 192,
+      "obligations": [],
+      "ordinal": 25,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-parent",
+        "layer": 4,
+        "stage": 0
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:26",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 193,
+      "obligations": [],
+      "ordinal": 26,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-parent",
+        "layer": 4,
+        "stage": 1
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:27",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 194,
+      "obligations": [],
+      "ordinal": 27,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-parent",
+        "layer": 4,
+        "stage": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:28",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 195,
+      "obligations": [],
+      "ordinal": 28,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-leaf",
+        "layer": 5,
+        "shard": 0,
+        "shards": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:29",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 196,
+      "obligations": [],
+      "ordinal": 29,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-leaf",
+        "layer": 5,
+        "shard": 1,
+        "shards": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:30",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 197,
+      "obligations": [],
+      "ordinal": 30,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-parent",
+        "layer": 5,
+        "stage": 0
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:31",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 198,
+      "obligations": [],
+      "ordinal": 31,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-parent",
+        "layer": 5,
+        "stage": 1
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:32",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 199,
+      "obligations": [],
+      "ordinal": 32,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-parent",
+        "layer": 5,
+        "stage": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:33",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 200,
+      "obligations": [],
+      "ordinal": 33,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-leaf",
+        "layer": 6,
+        "shard": 0,
+        "shards": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:34",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 201,
+      "obligations": [],
+      "ordinal": 34,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-leaf",
+        "layer": 6,
+        "shard": 1,
+        "shards": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:35",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 202,
+      "obligations": [],
+      "ordinal": 35,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-parent",
+        "layer": 6,
+        "stage": 0
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:36",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 203,
+      "obligations": [],
+      "ordinal": 36,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-parent",
+        "layer": 6,
+        "stage": 1
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:37",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 204,
+      "obligations": [],
+      "ordinal": 37,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-leaf",
+        "layer": 7,
+        "shard": 0,
+        "shards": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:38",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 205,
+      "obligations": [],
+      "ordinal": 38,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-leaf",
+        "layer": 7,
+        "shard": 1,
+        "shards": 2
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:39",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 206,
+      "obligations": [],
+      "ordinal": 39,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-parent",
+        "layer": 7,
+        "stage": 0
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:40",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 207,
+      "obligations": [],
+      "ordinal": 40,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-parent",
+        "layer": 7,
+        "stage": 1
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:41",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 208,
+      "obligations": [],
+      "ordinal": 41,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-leaf",
+        "layer": 8,
+        "shard": 0,
+        "shards": 1
+      }
+    },
+    {
+      "defineBodyIdentity": "construction-independent",
+      "familyId": "fri-merkle",
+      "id": "fri-merkle:42",
+      "kind": "fri-merkle",
+      "logicalInputIndex": 209,
+      "obligations": [],
+      "ordinal": 42,
+      "ordinalSource": "generated-static",
+      "profiles": [
+        0,
+        1,
+        2
+      ],
+      "proofCarrier": true,
+      "semantic": {
+        "kind": "fri-merkle-parent",
+        "layer": 8,
+        "stage": 0
+      }
+    }
+  ],
+  "rom": {
+    "bankIdentity": "profile-seeded-bch-native-sha256-fold-verifier-workers-and-rom-pages-excluding-settlement-v1",
+    "bodyAccess": "sibling-input-bytecode-canonical-slice",
+    "deduplication": "exact-byte-equality",
+    "eligibility": "construction-independent-op-define-bodies",
+    "functionIdentifiers": "minimal-positive-unsigned-be-earliest-static-occurrence-anchor",
+    "limits": {
+      "consensusTransactionBytes": 1000000,
+      "controlDepth": 100,
+      "elementBytes": 10000,
+      "functionIdentifierBytes": 7,
+      "opcostPerInputByte": 800,
+      "scriptBytes": 10000,
+      "stackItems": 1000
+    },
+    "packing": "minimum-pages-then-semantic-anchor",
+    "pageFormat": "p2sh32-authenticated-function-page-v1",
+    "pages": [],
+    "payloadFormat": "skr1-directory-and-exact-bodies-v1",
+    "placement": "after-proof-workers",
+    "promotion": "strict-positive-saving-in-every-profile",
+    "qualificationMeasurement": "post-link-all-profile-independent-bchn",
+    "status": "unmeasured"
+  },
+  "schema": "ShieldKit/V17VerifierPlan/v1"
+}

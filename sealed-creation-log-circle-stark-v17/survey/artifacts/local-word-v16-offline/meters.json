@@ -1,0 +1,1870 @@
+{
+  "profile": 2,
+  "proofBytes": 335350,
+  "proofSha256": "a8cfe60c0c3588a83a93dd64310a185e8fe6c220a92f35819c463c46e0e8f0a5",
+  "constructionId": "f29ef06d0e2868a4e6207f060b6246fd49a51fabd0bd14e7d41b48324a1e70e5",
+  "constructionDigest": "2efd8a291ed1ddc7189360cf3fb873a58e0fc0eac07b6861eadce9ba1f0aab05",
+  "expectedPreprocessedRoot": "1b374fd887304082212b0edeb6073031e0846c153ae96729512953b2801a6bfe",
+  "quotientDegreeBound": 786433,
+  "soundnessWorksheet": {
+    "fieldBits": 123.99999999731277,
+    "permutationPolynomialDegree": 653206,
+    "permutationBits": 104.68282148009257,
+    "permutationDenominatorTerms": 786432,
+    "permutationDenominatorBits": 104.41503749659161,
+    "lookupTerms": 1747161,
+    "lookupBits": 103.26341886999191,
+    "publicBoundaryTerms": 8,
+    "publicBoundaryBits": 120.99999999731277,
+    "constraintMixingTerms": 24,
+    "constraintMixingBits": 119.41503749659161,
+    "oracleBatchingTerms": 26,
+    "oracleBatchingBits": 119.29956027917167,
+    "friQueryConjectureBits": 112,
+    "classicalHashCollisionBits": 128,
+    "conservativeUnionBits": 101.76446892994939,
+    "meetsFloor": true,
+    "claimBoundary": "fri-query-term-conjectural-classical-rom"
+  },
+  "proofSource": "generated",
+  "roles": 170,
+  "transactionBytes": 988881,
+  "transactionSha256": "9dc7c129303540a47607bc536d287f447cfc21c1196c684a399113c46d66eafe",
+  "remainingConsensusBytes": 11119,
+  "bankDigests": [
+    "94dbffc724204c1e2c40dfb4aeb5e4b836f081b8ab31c3511e5016d194b258e6",
+    "f660d2cd6be164f711b34c9e127383721793a5711c1cbba1bc4e62fc2a6150b8",
+    "99cb45afaaeac4c7b95ae74b24ab72a31bbeaf1419a299977b6c129a1329b876"
+  ],
+  "maxVerifierBytes": 9383,
+  "maxRedeemBytes": 9435,
+  "maxUnlockingBytes": 9700,
+  "observer": {
+    "proofVersion": 16,
+    "transactionBytes": 988881,
+    "proofBytes": 335350,
+    "carrierInputs": 170,
+    "carrierUnionExact": true,
+    "transactionShape": {
+      "inputs": 170,
+      "outputs": 173,
+      "publicNullifierPathNodes": 256,
+      "publicEdgePathNodes": 32,
+      "publicCreationHandles": 1
+    },
+    "roots": {
+      "relationAndAuxiliary": 5,
+      "fri": 9
+    },
+    "directOpenings": {
+      "currentPoints": 29,
+      "globalPoints": 58,
+      "originalM31Values": 986,
+      "interactionM31Values": 1624,
+      "interactionGlobalM31Values": 696,
+      "quotientQm31Values": 29,
+      "friMaskQm31Values": 29
+    },
+    "fri": {
+      "layerQm31Values": 986,
+      "finalQm31Coefficients": 8,
+      "authenticationNodes": 3262
+    },
+    "authenticationNodes": 7917,
+    "maskBudget": {
+      "original": {
+        "dimensionsPerColumn": 262144,
+        "openedRankPerColumn": 29
+      },
+      "interaction": {
+        "dimensionsPerColumn": 262144,
+        "openedRankPerColumn": 29
+      },
+      "interactionGlobal": {
+        "dimensionsPerColumn": 262144,
+        "openedRankPerColumn": 58
+      },
+      "friIsolator": {
+        "dimensions": 1048576,
+        "conditionedDirectRank": 29
+      }
+    },
+    "quotient": {
+      "decomposition": "none",
+      "extraWitnessFormsAtQueries": 0,
+      "reason": "determined by sealed AIR openings"
+    },
+    "protectedTraceRecovery": {
+      "recovered": false,
+      "observedPointsPerOriginalColumn": 29,
+      "privateTraceRows": 262144
+    },
+    "claimBoundary": {
+      "algebraicIop": "perfect honest-verifier simulation conditioned on nonzero denominators",
+      "badDenominatorDistanceBits": "unresolved for v16 relation",
+      "merkleAndFiatShamir": "computational classical programmable ROM",
+      "qrom": "unresolved"
+    }
+  },
+  "artifactAudit": {
+    "proofMutations": [
+      {
+        "label": "root",
+        "reference": "local-word interaction challenge manifest",
+        "vmRole": {
+          "index": 121,
+          "name": "merkle:original:2"
+        }
+      },
+      {
+        "label": "opening",
+        "reference": "local-word matrix frontier",
+        "vmRole": {
+          "index": 119,
+          "name": "merkle:original:0"
+        }
+      },
+      {
+        "label": "mask",
+        "reference": "local-word matrix frontier",
+        "vmRole": {
+          "index": 82,
+          "name": "query:12:algebra"
+        }
+      },
+      {
+        "label": "fold",
+        "reference": "local-word FRI frontier",
+        "vmRole": {
+          "index": 83,
+          "name": "query:12:fri"
+        }
+      }
+    ],
+    "falseStatement": {
+      "label": "false-statement",
+      "reference": "local-word interaction challenge manifest",
+      "vmRole": {
+        "index": 30,
+        "name": "boundary:part:0"
+      }
+    },
+    "carrierPlacement": {
+      "reference": "Error: local-word carrier placement",
+      "vmRole": {
+        "index": 1,
+        "name": "query:0:air"
+      }
+    }
+  },
+  "vm": {
+    "checkedInputs": 170,
+    "maximumOperationCost": 7612819,
+    "maximumOperationCostRole": {
+      "index": 116,
+      "name": "merkle:preprocessed:0"
+    }
+  },
+  "vmRoles": [
+    {
+      "index": 0,
+      "name": "settlement",
+      "operationCost": 1597467,
+      "maximumOperationCost": 4508000,
+      "hashDigestIterations": 366,
+      "maximumHashDigestIterations": 19722,
+      "redeemBytes": 1719,
+      "unlockingBytes": 5594
+    },
+    {
+      "index": 1,
+      "name": "query:0:air",
+      "operationCost": 4725653,
+      "maximumOperationCost": 7792000,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34090,
+      "redeemBytes": 9434,
+      "unlockingBytes": 9699
+    },
+    {
+      "index": 2,
+      "name": "query:1:air",
+      "operationCost": 4688926,
+      "maximumOperationCost": 7792000,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34090,
+      "redeemBytes": 9434,
+      "unlockingBytes": 9699
+    },
+    {
+      "index": 3,
+      "name": "query:2:air",
+      "operationCost": 4690665,
+      "maximumOperationCost": 7792000,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34090,
+      "redeemBytes": 9434,
+      "unlockingBytes": 9699
+    },
+    {
+      "index": 4,
+      "name": "query:3:air",
+      "operationCost": 4691692,
+      "maximumOperationCost": 7792000,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34090,
+      "redeemBytes": 9434,
+      "unlockingBytes": 9699
+    },
+    {
+      "index": 5,
+      "name": "query:4:air",
+      "operationCost": 4711567,
+      "maximumOperationCost": 7792000,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34090,
+      "redeemBytes": 9434,
+      "unlockingBytes": 9699
+    },
+    {
+      "index": 6,
+      "name": "query:5:air",
+      "operationCost": 4724310,
+      "maximumOperationCost": 7792000,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34090,
+      "redeemBytes": 9434,
+      "unlockingBytes": 9699
+    },
+    {
+      "index": 7,
+      "name": "query:6:air",
+      "operationCost": 4677634,
+      "maximumOperationCost": 7792000,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34090,
+      "redeemBytes": 9434,
+      "unlockingBytes": 9699
+    },
+    {
+      "index": 8,
+      "name": "query:7:air",
+      "operationCost": 4664786,
+      "maximumOperationCost": 7792000,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34090,
+      "redeemBytes": 9434,
+      "unlockingBytes": 9699
+    },
+    {
+      "index": 9,
+      "name": "query:8:air",
+      "operationCost": 4653426,
+      "maximumOperationCost": 7792000,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34090,
+      "redeemBytes": 9434,
+      "unlockingBytes": 9699
+    },
+    {
+      "index": 10,
+      "name": "query:9:air",
+      "operationCost": 4731312,
+      "maximumOperationCost": 7792000,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34090,
+      "redeemBytes": 9434,
+      "unlockingBytes": 9699
+    },
+    {
+      "index": 11,
+      "name": "query:10:air",
+      "operationCost": 4737102,
+      "maximumOperationCost": 7792000,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34090,
+      "redeemBytes": 9434,
+      "unlockingBytes": 9699
+    },
+    {
+      "index": 12,
+      "name": "query:11:air",
+      "operationCost": 4682867,
+      "maximumOperationCost": 7792000,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34090,
+      "redeemBytes": 9434,
+      "unlockingBytes": 9699
+    },
+    {
+      "index": 13,
+      "name": "query:12:air",
+      "operationCost": 4669237,
+      "maximumOperationCost": 7792000,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34090,
+      "redeemBytes": 9434,
+      "unlockingBytes": 9699
+    },
+    {
+      "index": 14,
+      "name": "query:13:air",
+      "operationCost": 4725737,
+      "maximumOperationCost": 7792000,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34090,
+      "redeemBytes": 9434,
+      "unlockingBytes": 9699
+    },
+    {
+      "index": 15,
+      "name": "query:14:air",
+      "operationCost": 4706209,
+      "maximumOperationCost": 7792000,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34090,
+      "redeemBytes": 9434,
+      "unlockingBytes": 9699
+    },
+    {
+      "index": 16,
+      "name": "query:15:air",
+      "operationCost": 4702274,
+      "maximumOperationCost": 7792000,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34090,
+      "redeemBytes": 9434,
+      "unlockingBytes": 9699
+    },
+    {
+      "index": 17,
+      "name": "query:16:air",
+      "operationCost": 4699539,
+      "maximumOperationCost": 7792800,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34093,
+      "redeemBytes": 9435,
+      "unlockingBytes": 9700
+    },
+    {
+      "index": 18,
+      "name": "query:17:air",
+      "operationCost": 4738808,
+      "maximumOperationCost": 7792800,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34093,
+      "redeemBytes": 9435,
+      "unlockingBytes": 9700
+    },
+    {
+      "index": 19,
+      "name": "query:18:air",
+      "operationCost": 4685000,
+      "maximumOperationCost": 7792800,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34093,
+      "redeemBytes": 9435,
+      "unlockingBytes": 9700
+    },
+    {
+      "index": 20,
+      "name": "query:19:air",
+      "operationCost": 4716830,
+      "maximumOperationCost": 7792800,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34093,
+      "redeemBytes": 9435,
+      "unlockingBytes": 9700
+    },
+    {
+      "index": 21,
+      "name": "query:20:air",
+      "operationCost": 4741666,
+      "maximumOperationCost": 7792800,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34093,
+      "redeemBytes": 9435,
+      "unlockingBytes": 9700
+    },
+    {
+      "index": 22,
+      "name": "query:21:air",
+      "operationCost": 4736451,
+      "maximumOperationCost": 7792800,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34093,
+      "redeemBytes": 9435,
+      "unlockingBytes": 9700
+    },
+    {
+      "index": 23,
+      "name": "query:22:air",
+      "operationCost": 4684643,
+      "maximumOperationCost": 7792800,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34093,
+      "redeemBytes": 9435,
+      "unlockingBytes": 9700
+    },
+    {
+      "index": 24,
+      "name": "query:23:air",
+      "operationCost": 4714008,
+      "maximumOperationCost": 7792800,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34093,
+      "redeemBytes": 9435,
+      "unlockingBytes": 9700
+    },
+    {
+      "index": 25,
+      "name": "query:24:air",
+      "operationCost": 4677089,
+      "maximumOperationCost": 7792800,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34093,
+      "redeemBytes": 9435,
+      "unlockingBytes": 9700
+    },
+    {
+      "index": 26,
+      "name": "query:25:air",
+      "operationCost": 4691029,
+      "maximumOperationCost": 7792800,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34093,
+      "redeemBytes": 9435,
+      "unlockingBytes": 9700
+    },
+    {
+      "index": 27,
+      "name": "query:26:air",
+      "operationCost": 4752189,
+      "maximumOperationCost": 7792800,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34093,
+      "redeemBytes": 9435,
+      "unlockingBytes": 9700
+    },
+    {
+      "index": 28,
+      "name": "query:27:air",
+      "operationCost": 4714417,
+      "maximumOperationCost": 7792800,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34093,
+      "redeemBytes": 9435,
+      "unlockingBytes": 9700
+    },
+    {
+      "index": 29,
+      "name": "query:28:air",
+      "operationCost": 4693087,
+      "maximumOperationCost": 7792800,
+      "hashDigestIterations": 149,
+      "maximumHashDigestIterations": 34093,
+      "redeemBytes": 9435,
+      "unlockingBytes": 9700
+    },
+    {
+      "index": 30,
+      "name": "boundary:part:0",
+      "operationCost": 2891934,
+      "maximumOperationCost": 3221600,
+      "hashDigestIterations": 65,
+      "maximumHashDigestIterations": 14094,
+      "redeemBytes": 3462,
+      "unlockingBytes": 3986
+    },
+    {
+      "index": 31,
+      "name": "header",
+      "operationCost": 355757,
+      "maximumOperationCost": 1504800,
+      "hashDigestIterations": 26,
+      "maximumHashDigestIterations": 6583,
+      "redeemBytes": 1575,
+      "unlockingBytes": 1840
+    },
+    {
+      "index": 32,
+      "name": "edge:append",
+      "operationCost": 565527,
+      "maximumOperationCost": 3751200,
+      "hashDigestIterations": 198,
+      "maximumHashDigestIterations": 16411,
+      "redeemBytes": 4383,
+      "unlockingBytes": 4648
+    },
+    {
+      "index": 33,
+      "name": "nullifier:absence:0",
+      "operationCost": 1837332,
+      "maximumOperationCost": 1935200,
+      "hashDigestIterations": 267,
+      "maximumHashDigestIterations": 8466,
+      "redeemBytes": 575,
+      "unlockingBytes": 2378
+    },
+    {
+      "index": 34,
+      "name": "nullifier:absence:1",
+      "operationCost": 1837294,
+      "maximumOperationCost": 1937600,
+      "hashDigestIterations": 266,
+      "maximumHashDigestIterations": 8477,
+      "redeemBytes": 554,
+      "unlockingBytes": 2381
+    },
+    {
+      "index": 35,
+      "name": "nullifier:used:0",
+      "operationCost": 1837960,
+      "maximumOperationCost": 1938400,
+      "hashDigestIterations": 269,
+      "maximumHashDigestIterations": 8480,
+      "redeemBytes": 579,
+      "unlockingBytes": 2382
+    },
+    {
+      "index": 36,
+      "name": "nullifier:used:1",
+      "operationCost": 1837262,
+      "maximumOperationCost": 1937600,
+      "hashDigestIterations": 266,
+      "maximumHashDigestIterations": 8477,
+      "redeemBytes": 554,
+      "unlockingBytes": 2381
+    },
+    {
+      "index": 37,
+      "name": "boundary:sum",
+      "operationCost": 158655,
+      "maximumOperationCost": 688800,
+      "hashDigestIterations": 10,
+      "maximumHashDigestIterations": 3013,
+      "redeemBytes": 555,
+      "unlockingBytes": 820
+    },
+    {
+      "index": 38,
+      "name": "transcript:interaction",
+      "operationCost": 3133761,
+      "maximumOperationCost": 3307200,
+      "hashDigestIterations": 348,
+      "maximumHashDigestIterations": 14469,
+      "redeemBytes": 3569,
+      "unlockingBytes": 4093
+    },
+    {
+      "index": 39,
+      "name": "transcript:composition",
+      "operationCost": 328508,
+      "maximumOperationCost": 1591200,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 6961,
+      "redeemBytes": 1683,
+      "unlockingBytes": 1948
+    },
+    {
+      "index": 40,
+      "name": "transcript:batch",
+      "operationCost": 323181,
+      "maximumOperationCost": 1549600,
+      "hashDigestIterations": 39,
+      "maximumHashDigestIterations": 6779,
+      "redeemBytes": 1631,
+      "unlockingBytes": 1896
+    },
+    {
+      "index": 41,
+      "name": "transcript:fri-first",
+      "operationCost": 905736,
+      "maximumOperationCost": 2468000,
+      "hashDigestIterations": 85,
+      "maximumHashDigestIterations": 10797,
+      "redeemBytes": 2779,
+      "unlockingBytes": 3044
+    },
+    {
+      "index": 42,
+      "name": "transcript:fri-second",
+      "operationCost": 757592,
+      "maximumOperationCost": 2231200,
+      "hashDigestIterations": 72,
+      "maximumHashDigestIterations": 9761,
+      "redeemBytes": 2483,
+      "unlockingBytes": 2748
+    },
+    {
+      "index": 43,
+      "name": "transcript:final",
+      "operationCost": 186570,
+      "maximumOperationCost": 1342400,
+      "hashDigestIterations": 28,
+      "maximumHashDigestIterations": 5873,
+      "redeemBytes": 1372,
+      "unlockingBytes": 1637
+    },
+    {
+      "index": 44,
+      "name": "query-schedule",
+      "operationCost": 2001204,
+      "maximumOperationCost": 4388000,
+      "hashDigestIterations": 115,
+      "maximumHashDigestIterations": 19197,
+      "redeemBytes": 5179,
+      "unlockingBytes": 5444
+    },
+    {
+      "index": 45,
+      "name": "opening:current",
+      "operationCost": 3336823,
+      "maximumOperationCost": 3821600,
+      "hashDigestIterations": 46,
+      "maximumHashDigestIterations": 16719,
+      "redeemBytes": 2828,
+      "unlockingBytes": 4736
+    },
+    {
+      "index": 46,
+      "name": "opening:global-current",
+      "operationCost": 305687,
+      "maximumOperationCost": 1210400,
+      "hashDigestIterations": 20,
+      "maximumHashDigestIterations": 5295,
+      "redeemBytes": 1207,
+      "unlockingBytes": 1472
+    },
+    {
+      "index": 47,
+      "name": "opening:global-previous",
+      "operationCost": 1972735,
+      "maximumOperationCost": 2093600,
+      "hashDigestIterations": 26,
+      "maximumHashDigestIterations": 9159,
+      "redeemBytes": 1590,
+      "unlockingBytes": 2576
+    },
+    {
+      "index": 48,
+      "name": "opening:global-shape",
+      "operationCost": 3489465,
+      "maximumOperationCost": 4092800,
+      "hashDigestIterations": 70,
+      "maximumHashDigestIterations": 17906,
+      "redeemBytes": 4365,
+      "unlockingBytes": 5075
+    },
+    {
+      "index": 49,
+      "name": "opening:fri:0",
+      "operationCost": 3625300,
+      "maximumOperationCost": 4139200,
+      "hashDigestIterations": 68,
+      "maximumHashDigestIterations": 18109,
+      "redeemBytes": 4269,
+      "unlockingBytes": 5133
+    },
+    {
+      "index": 50,
+      "name": "opening:fri:1",
+      "operationCost": 3616727,
+      "maximumOperationCost": 4132800,
+      "hashDigestIterations": 68,
+      "maximumHashDigestIterations": 18081,
+      "redeemBytes": 4269,
+      "unlockingBytes": 5125
+    },
+    {
+      "index": 51,
+      "name": "opening:fri:2",
+      "operationCost": 3598593,
+      "maximumOperationCost": 4171200,
+      "hashDigestIterations": 68,
+      "maximumHashDigestIterations": 18249,
+      "redeemBytes": 4269,
+      "unlockingBytes": 5173
+    },
+    {
+      "index": 52,
+      "name": "opening:fri:3",
+      "operationCost": 3603708,
+      "maximumOperationCost": 4149600,
+      "hashDigestIterations": 69,
+      "maximumHashDigestIterations": 18154,
+      "redeemBytes": 4298,
+      "unlockingBytes": 5146
+    },
+    {
+      "index": 53,
+      "name": "opening:fri:4",
+      "operationCost": 3599448,
+      "maximumOperationCost": 4179200,
+      "hashDigestIterations": 69,
+      "maximumHashDigestIterations": 18284,
+      "redeemBytes": 4327,
+      "unlockingBytes": 5183
+    },
+    {
+      "index": 54,
+      "name": "opening:fri:5",
+      "operationCost": 3589924,
+      "maximumOperationCost": 4179200,
+      "hashDigestIterations": 69,
+      "maximumHashDigestIterations": 18284,
+      "redeemBytes": 4327,
+      "unlockingBytes": 5183
+    },
+    {
+      "index": 55,
+      "name": "opening:fri:6",
+      "operationCost": 3584643,
+      "maximumOperationCost": 4166400,
+      "hashDigestIterations": 69,
+      "maximumHashDigestIterations": 18228,
+      "redeemBytes": 4327,
+      "unlockingBytes": 5167
+    },
+    {
+      "index": 56,
+      "name": "opening:fri:7",
+      "operationCost": 3575478,
+      "maximumOperationCost": 4172000,
+      "hashDigestIterations": 69,
+      "maximumHashDigestIterations": 18252,
+      "redeemBytes": 4327,
+      "unlockingBytes": 5174
+    },
+    {
+      "index": 57,
+      "name": "opening:fri:8",
+      "operationCost": 3440367,
+      "maximumOperationCost": 3756000,
+      "hashDigestIterations": 59,
+      "maximumHashDigestIterations": 16432,
+      "redeemBytes": 3660,
+      "unlockingBytes": 4654
+    },
+    {
+      "index": 58,
+      "name": "query:0:algebra",
+      "operationCost": 2697041,
+      "maximumOperationCost": 2944800,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 12883,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3640
+    },
+    {
+      "index": 59,
+      "name": "query:0:fri",
+      "operationCost": 5396607,
+      "maximumOperationCost": 5828800,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25501,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7245
+    },
+    {
+      "index": 60,
+      "name": "query:1:algebra",
+      "operationCost": 2660239,
+      "maximumOperationCost": 2912000,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 12740,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3599
+    },
+    {
+      "index": 61,
+      "name": "query:1:fri",
+      "operationCost": 5449150,
+      "maximumOperationCost": 5764000,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25217,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7164
+    },
+    {
+      "index": 62,
+      "name": "query:2:algebra",
+      "operationCost": 2690383,
+      "maximumOperationCost": 2932000,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 12827,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3624
+    },
+    {
+      "index": 63,
+      "name": "query:2:fri",
+      "operationCost": 5451206,
+      "maximumOperationCost": 5803200,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25389,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7213
+    },
+    {
+      "index": 64,
+      "name": "query:3:algebra",
+      "operationCost": 2704880,
+      "maximumOperationCost": 2951200,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 12911,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3648
+    },
+    {
+      "index": 65,
+      "name": "query:3:fri",
+      "operationCost": 5441521,
+      "maximumOperationCost": 5809600,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25417,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7221
+    },
+    {
+      "index": 66,
+      "name": "query:4:algebra",
+      "operationCost": 2674910,
+      "maximumOperationCost": 2918400,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 12768,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3607
+    },
+    {
+      "index": 67,
+      "name": "query:4:fri",
+      "operationCost": 5428710,
+      "maximumOperationCost": 5776800,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25273,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7180
+    },
+    {
+      "index": 68,
+      "name": "query:5:algebra",
+      "operationCost": 2697887,
+      "maximumOperationCost": 3003200,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 13139,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3713
+    },
+    {
+      "index": 69,
+      "name": "query:5:fri",
+      "operationCost": 5404887,
+      "maximumOperationCost": 5796800,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25361,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7205
+    },
+    {
+      "index": 70,
+      "name": "query:6:algebra",
+      "operationCost": 2687429,
+      "maximumOperationCost": 2944800,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 12883,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3640
+    },
+    {
+      "index": 71,
+      "name": "query:6:fri",
+      "operationCost": 5446868,
+      "maximumOperationCost": 5815200,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25441,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7228
+    },
+    {
+      "index": 72,
+      "name": "query:7:algebra",
+      "operationCost": 2669003,
+      "maximumOperationCost": 2919200,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 12771,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3608
+    },
+    {
+      "index": 73,
+      "name": "query:7:fri",
+      "operationCost": 5441480,
+      "maximumOperationCost": 5828800,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25501,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7245
+    },
+    {
+      "index": 74,
+      "name": "query:8:algebra",
+      "operationCost": 2678028,
+      "maximumOperationCost": 2919200,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 12771,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3608
+    },
+    {
+      "index": 75,
+      "name": "query:8:fri",
+      "operationCost": 5426156,
+      "maximumOperationCost": 5776800,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25273,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7180
+    },
+    {
+      "index": 76,
+      "name": "query:9:algebra",
+      "operationCost": 2701367,
+      "maximumOperationCost": 2912000,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 12740,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3599
+    },
+    {
+      "index": 77,
+      "name": "query:9:fri",
+      "operationCost": 5440168,
+      "maximumOperationCost": 5855200,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25616,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7278
+    },
+    {
+      "index": 78,
+      "name": "query:10:algebra",
+      "operationCost": 2703709,
+      "maximumOperationCost": 2912000,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 12740,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3599
+    },
+    {
+      "index": 79,
+      "name": "query:10:fri",
+      "operationCost": 5440883,
+      "maximumOperationCost": 5822400,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25473,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7237
+    },
+    {
+      "index": 80,
+      "name": "query:11:algebra",
+      "operationCost": 2688144,
+      "maximumOperationCost": 2957600,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 12939,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3656
+    },
+    {
+      "index": 81,
+      "name": "query:11:fri",
+      "operationCost": 5407425,
+      "maximumOperationCost": 5855200,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25616,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7278
+    },
+    {
+      "index": 82,
+      "name": "query:12:algebra",
+      "operationCost": 2681677,
+      "maximumOperationCost": 2912000,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 12740,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3599
+    },
+    {
+      "index": 83,
+      "name": "query:12:fri",
+      "operationCost": 5444349,
+      "maximumOperationCost": 5796800,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25361,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7205
+    },
+    {
+      "index": 84,
+      "name": "query:13:algebra",
+      "operationCost": 2700469,
+      "maximumOperationCost": 2918400,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 12768,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3607
+    },
+    {
+      "index": 85,
+      "name": "query:13:fri",
+      "operationCost": 5420995,
+      "maximumOperationCost": 5796800,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25361,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7205
+    },
+    {
+      "index": 86,
+      "name": "query:14:algebra",
+      "operationCost": 2688634,
+      "maximumOperationCost": 2989600,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 13079,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3696
+    },
+    {
+      "index": 87,
+      "name": "query:14:fri",
+      "operationCost": 5437261,
+      "maximumOperationCost": 5816000,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25445,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7229
+    },
+    {
+      "index": 88,
+      "name": "query:15:algebra",
+      "operationCost": 2669546,
+      "maximumOperationCost": 2919200,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 12771,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3608
+    },
+    {
+      "index": 89,
+      "name": "query:15:fri",
+      "operationCost": 5443397,
+      "maximumOperationCost": 5828800,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25501,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7245
+    },
+    {
+      "index": 90,
+      "name": "query:16:algebra",
+      "operationCost": 2661374,
+      "maximumOperationCost": 2918400,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 12768,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3607
+    },
+    {
+      "index": 91,
+      "name": "query:16:fri",
+      "operationCost": 5423075,
+      "maximumOperationCost": 5790400,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25333,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7197
+    },
+    {
+      "index": 92,
+      "name": "query:17:algebra",
+      "operationCost": 2711010,
+      "maximumOperationCost": 2938400,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 12855,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3632
+    },
+    {
+      "index": 93,
+      "name": "query:17:fri",
+      "operationCost": 5435877,
+      "maximumOperationCost": 5808800,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25413,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7220
+    },
+    {
+      "index": 94,
+      "name": "query:18:algebra",
+      "operationCost": 2699580,
+      "maximumOperationCost": 2925600,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 12799,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3616
+    },
+    {
+      "index": 95,
+      "name": "query:18:fri",
+      "operationCost": 5412822,
+      "maximumOperationCost": 5835200,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25529,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7253
+    },
+    {
+      "index": 96,
+      "name": "query:19:algebra",
+      "operationCost": 2692984,
+      "maximumOperationCost": 2919200,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 12771,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3608
+    },
+    {
+      "index": 97,
+      "name": "query:19:fri",
+      "operationCost": 5391413,
+      "maximumOperationCost": 5789600,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25329,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7196
+    },
+    {
+      "index": 98,
+      "name": "query:20:algebra",
+      "operationCost": 2698229,
+      "maximumOperationCost": 2919200,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 12771,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3608
+    },
+    {
+      "index": 99,
+      "name": "query:20:fri",
+      "operationCost": 5413564,
+      "maximumOperationCost": 5783200,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25301,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7188
+    },
+    {
+      "index": 100,
+      "name": "query:21:algebra",
+      "operationCost": 2709105,
+      "maximumOperationCost": 2932000,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 12827,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3624
+    },
+    {
+      "index": 101,
+      "name": "query:21:fri",
+      "operationCost": 5418939,
+      "maximumOperationCost": 5770400,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25245,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7172
+    },
+    {
+      "index": 102,
+      "name": "query:22:algebra",
+      "operationCost": 2669534,
+      "maximumOperationCost": 2912000,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 12740,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3599
+    },
+    {
+      "index": 103,
+      "name": "query:22:fri",
+      "operationCost": 5429114,
+      "maximumOperationCost": 5771200,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25249,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7173
+    },
+    {
+      "index": 104,
+      "name": "query:23:algebra",
+      "operationCost": 2681680,
+      "maximumOperationCost": 2918400,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 12768,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3607
+    },
+    {
+      "index": 105,
+      "name": "query:23:fri",
+      "operationCost": 5417868,
+      "maximumOperationCost": 5784000,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25305,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7189
+    },
+    {
+      "index": 106,
+      "name": "query:24:algebra",
+      "operationCost": 2687166,
+      "maximumOperationCost": 2951200,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 12911,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3648
+    },
+    {
+      "index": 107,
+      "name": "query:24:fri",
+      "operationCost": 5406294,
+      "maximumOperationCost": 5744000,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25130,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7139
+    },
+    {
+      "index": 108,
+      "name": "query:25:algebra",
+      "operationCost": 2689281,
+      "maximumOperationCost": 2912800,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 12743,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3600
+    },
+    {
+      "index": 109,
+      "name": "query:25:fri",
+      "operationCost": 5435973,
+      "maximumOperationCost": 5796000,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25357,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7204
+    },
+    {
+      "index": 110,
+      "name": "query:26:algebra",
+      "operationCost": 2711158,
+      "maximumOperationCost": 2919200,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 12771,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3608
+    },
+    {
+      "index": 111,
+      "name": "query:26:fri",
+      "operationCost": 5434299,
+      "maximumOperationCost": 5803200,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25389,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7213
+    },
+    {
+      "index": 112,
+      "name": "query:27:algebra",
+      "operationCost": 2682355,
+      "maximumOperationCost": 2931200,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 12824,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3623
+    },
+    {
+      "index": 113,
+      "name": "query:27:fri",
+      "operationCost": 5418084,
+      "maximumOperationCost": 5744800,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25133,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7140
+    },
+    {
+      "index": 114,
+      "name": "query:28:algebra",
+      "operationCost": 2657774,
+      "maximumOperationCost": 3003200,
+      "hashDigestIterations": 42,
+      "maximumHashDigestIterations": 13139,
+      "redeemBytes": 2606,
+      "unlockingBytes": 3713
+    },
+    {
+      "index": 115,
+      "name": "query:28:fri",
+      "operationCost": 5442581,
+      "maximumOperationCost": 5854400,
+      "hashDigestIterations": 80,
+      "maximumHashDigestIterations": 25613,
+      "redeemBytes": 5005,
+      "unlockingBytes": 7277
+    },
+    {
+      "index": 116,
+      "name": "merkle:preprocessed:0",
+      "operationCost": 7612819,
+      "maximumOperationCost": 7778400,
+      "hashDigestIterations": 528,
+      "maximumHashDigestIterations": 34030,
+      "redeemBytes": 4002,
+      "unlockingBytes": 9682
+    },
+    {
+      "index": 117,
+      "name": "merkle:preprocessed:1",
+      "operationCost": 7295962,
+      "maximumOperationCost": 7485600,
+      "hashDigestIterations": 361,
+      "maximumHashDigestIterations": 32749,
+      "redeemBytes": 706,
+      "unlockingBytes": 9316
+    },
+    {
+      "index": 118,
+      "name": "merkle:preprocessed:2",
+      "operationCost": 2505239,
+      "maximumOperationCost": 2980800,
+      "hashDigestIterations": 135,
+      "maximumHashDigestIterations": 13041,
+      "redeemBytes": 659,
+      "unlockingBytes": 3685
+    },
+    {
+      "index": 119,
+      "name": "merkle:original:0",
+      "operationCost": 6361046,
+      "maximumOperationCost": 6480800,
+      "hashDigestIterations": 494,
+      "maximumHashDigestIterations": 28353,
+      "redeemBytes": 3643,
+      "unlockingBytes": 8060
+    },
+    {
+      "index": 120,
+      "name": "merkle:original:1",
+      "operationCost": 7247219,
+      "maximumOperationCost": 7485600,
+      "hashDigestIterations": 361,
+      "maximumHashDigestIterations": 32749,
+      "redeemBytes": 706,
+      "unlockingBytes": 9316
+    },
+    {
+      "index": 121,
+      "name": "merkle:original:2",
+      "operationCost": 2519436,
+      "maximumOperationCost": 2967200,
+      "hashDigestIterations": 135,
+      "maximumHashDigestIterations": 12981,
+      "redeemBytes": 659,
+      "unlockingBytes": 3668
+    },
+    {
+      "index": 122,
+      "name": "merkle:interaction:leaf:0",
+      "operationCost": 2594722,
+      "maximumOperationCost": 3278400,
+      "hashDigestIterations": 106,
+      "maximumHashDigestIterations": 14343,
+      "redeemBytes": 2230,
+      "unlockingBytes": 4057
+    },
+    {
+      "index": 123,
+      "name": "merkle:interaction:leaf:1",
+      "operationCost": 2736350,
+      "maximumOperationCost": 3351200,
+      "hashDigestIterations": 113,
+      "maximumHashDigestIterations": 14661,
+      "redeemBytes": 2321,
+      "unlockingBytes": 4148
+    },
+    {
+      "index": 124,
+      "name": "merkle:interaction:1",
+      "operationCost": 7077458,
+      "maximumOperationCost": 7264800,
+      "hashDigestIterations": 448,
+      "maximumHashDigestIterations": 31783,
+      "redeemBytes": 737,
+      "unlockingBytes": 9040
+    },
+    {
+      "index": 125,
+      "name": "merkle:interaction:2",
+      "operationCost": 5992967,
+      "maximumOperationCost": 6347200,
+      "hashDigestIterations": 382,
+      "maximumHashDigestIterations": 27769,
+      "redeemBytes": 740,
+      "unlockingBytes": 7893
+    },
+    {
+      "index": 126,
+      "name": "merkle:interaction:3",
+      "operationCost": 515334,
+      "maximumOperationCost": 820800,
+      "hashDigestIterations": 28,
+      "maximumHashDigestIterations": 3591,
+      "redeemBytes": 720,
+      "unlockingBytes": 985
+    },
+    {
+      "index": 127,
+      "name": "merkle:quotientAndFriMask:0",
+      "operationCost": 6344313,
+      "maximumOperationCost": 6490400,
+      "hashDigestIterations": 455,
+      "maximumHashDigestIterations": 28395,
+      "redeemBytes": 3015,
+      "unlockingBytes": 8072
+    },
+    {
+      "index": 128,
+      "name": "merkle:quotientAndFriMask:1",
+      "operationCost": 7477845,
+      "maximumOperationCost": 7660800,
+      "hashDigestIterations": 361,
+      "maximumHashDigestIterations": 33516,
+      "redeemBytes": 707,
+      "unlockingBytes": 9535
+    },
+    {
+      "index": 129,
+      "name": "merkle:quotientAndFriMask:2",
+      "operationCost": 2615507,
+      "maximumOperationCost": 3072000,
+      "hashDigestIterations": 135,
+      "maximumHashDigestIterations": 13440,
+      "redeemBytes": 660,
+      "unlockingBytes": 3799
+    },
+    {
+      "index": 130,
+      "name": "merkle:interactionGlobal:0",
+      "operationCost": 4417782,
+      "maximumOperationCost": 4608800,
+      "hashDigestIterations": 308,
+      "maximumHashDigestIterations": 20163,
+      "redeemBytes": 1044,
+      "unlockingBytes": 5720
+    },
+    {
+      "index": 131,
+      "name": "merkle:interactionGlobal:1",
+      "operationCost": 6156470,
+      "maximumOperationCost": 6288000,
+      "hashDigestIterations": 361,
+      "maximumHashDigestIterations": 27510,
+      "redeemBytes": 738,
+      "unlockingBytes": 7819
+    },
+    {
+      "index": 132,
+      "name": "merkle:interactionGlobal:2",
+      "operationCost": 6265576,
+      "maximumOperationCost": 6328000,
+      "hashDigestIterations": 361,
+      "maximumHashDigestIterations": 27685,
+      "redeemBytes": 741,
+      "unlockingBytes": 7869
+    },
+    {
+      "index": 133,
+      "name": "merkle:interactionGlobal:3",
+      "operationCost": 6130419,
+      "maximumOperationCost": 6395200,
+      "hashDigestIterations": 355,
+      "maximumHashDigestIterations": 27979,
+      "redeemBytes": 743,
+      "unlockingBytes": 7953
+    },
+    {
+      "index": 134,
+      "name": "merkle:interactionGlobal:4",
+      "operationCost": 5183194,
+      "maximumOperationCost": 5392000,
+      "hashDigestIterations": 298,
+      "maximumHashDigestIterations": 23590,
+      "redeemBytes": 743,
+      "unlockingBytes": 6699
+    },
+    {
+      "index": 135,
+      "name": "merkle:interactionGlobal:5",
+      "operationCost": 1091409,
+      "maximumOperationCost": 1279200,
+      "hashDigestIterations": 61,
+      "maximumHashDigestIterations": 5596,
+      "redeemBytes": 743,
+      "unlockingBytes": 1558
+    },
+    {
+      "index": 136,
+      "name": "merkle:interactionGlobal:6",
+      "operationCost": 339527,
+      "maximumOperationCost": 821600,
+      "hashDigestIterations": 16,
+      "maximumHashDigestIterations": 3594,
+      "redeemBytes": 721,
+      "unlockingBytes": 986
+    },
+    {
+      "index": 137,
+      "name": "merkle:fri:0:0",
+      "operationCost": 4330286,
+      "maximumOperationCost": 4469600,
+      "hashDigestIterations": 219,
+      "maximumHashDigestIterations": 19554,
+      "redeemBytes": 943,
+      "unlockingBytes": 5546
+    },
+    {
+      "index": 138,
+      "name": "merkle:fri:0:1",
+      "operationCost": 4492148,
+      "maximumOperationCost": 4591200,
+      "hashDigestIterations": 274,
+      "maximumHashDigestIterations": 20086,
+      "redeemBytes": 738,
+      "unlockingBytes": 5698
+    },
+    {
+      "index": 139,
+      "name": "merkle:fri:0:2",
+      "operationCost": 4576287,
+      "maximumOperationCost": 4677600,
+      "hashDigestIterations": 274,
+      "maximumHashDigestIterations": 20464,
+      "redeemBytes": 741,
+      "unlockingBytes": 5806
+    },
+    {
+      "index": 140,
+      "name": "merkle:fri:0:3",
+      "operationCost": 3421638,
+      "maximumOperationCost": 3804800,
+      "hashDigestIterations": 208,
+      "maximumHashDigestIterations": 16646,
+      "redeemBytes": 743,
+      "unlockingBytes": 4715
+    },
+    {
+      "index": 141,
+      "name": "merkle:fri:0:4",
+      "operationCost": 579965,
+      "maximumOperationCost": 821600,
+      "hashDigestIterations": 28,
+      "maximumHashDigestIterations": 3594,
+      "redeemBytes": 721,
+      "unlockingBytes": 986
+    },
+    {
+      "index": 142,
+      "name": "merkle:fri:1:0",
+      "operationCost": 4249469,
+      "maximumOperationCost": 4431200,
+      "hashDigestIterations": 219,
+      "maximumHashDigestIterations": 19386,
+      "redeemBytes": 943,
+      "unlockingBytes": 5498
+    },
+    {
+      "index": 143,
+      "name": "merkle:fri:1:1",
+      "operationCost": 4432770,
+      "maximumOperationCost": 4591200,
+      "hashDigestIterations": 274,
+      "maximumHashDigestIterations": 20086,
+      "redeemBytes": 738,
+      "unlockingBytes": 5698
+    },
+    {
+      "index": 144,
+      "name": "merkle:fri:1:2",
+      "operationCost": 4361235,
+      "maximumOperationCost": 4657600,
+      "hashDigestIterations": 274,
+      "maximumHashDigestIterations": 20377,
+      "redeemBytes": 741,
+      "unlockingBytes": 5781
+    },
+    {
+      "index": 145,
+      "name": "merkle:fri:1:3",
+      "operationCost": 2125613,
+      "maximumOperationCost": 2588800,
+      "hashDigestIterations": 133,
+      "maximumHashDigestIterations": 11326,
+      "redeemBytes": 744,
+      "unlockingBytes": 3195
+    },
+    {
+      "index": 146,
+      "name": "merkle:fri:1:4",
+      "operationCost": 324403,
+      "maximumOperationCost": 823200,
+      "hashDigestIterations": 16,
+      "maximumHashDigestIterations": 3601,
+      "redeemBytes": 723,
+      "unlockingBytes": 988
+    },
+    {
+      "index": 147,
+      "name": "merkle:fri:2:0",
+      "operationCost": 4166193,
+      "maximumOperationCost": 4412800,
+      "hashDigestIterations": 219,
+      "maximumHashDigestIterations": 19306,
+      "redeemBytes": 945,
+      "unlockingBytes": 5475
+    },
+    {
+      "index": 148,
+      "name": "merkle:fri:2:1",
+      "operationCost": 4317596,
+      "maximumOperationCost": 4644800,
+      "hashDigestIterations": 274,
+      "maximumHashDigestIterations": 20321,
+      "redeemBytes": 740,
+      "unlockingBytes": 5765
+    },
+    {
+      "index": 149,
+      "name": "merkle:fri:2:2",
+      "operationCost": 4075714,
+      "maximumOperationCost": 4393600,
+      "hashDigestIterations": 259,
+      "maximumHashDigestIterations": 19222,
+      "redeemBytes": 743,
+      "unlockingBytes": 5451
+    },
+    {
+      "index": 150,
+      "name": "merkle:fri:2:3",
+      "operationCost": 952794,
+      "maximumOperationCost": 1192800,
+      "hashDigestIterations": 64,
+      "maximumHashDigestIterations": 5218,
+      "redeemBytes": 723,
+      "unlockingBytes": 1450
+    },
+    {
+      "index": 151,
+      "name": "merkle:fri:3:0",
+      "operationCost": 4212704,
+      "maximumOperationCost": 4426400,
+      "hashDigestIterations": 219,
+      "maximumHashDigestIterations": 19365,
+      "redeemBytes": 945,
+      "unlockingBytes": 5492
+    },
+    {
+      "index": 152,
+      "name": "merkle:fri:3:1",
+      "operationCost": 4386438,
+      "maximumOperationCost": 4520800,
+      "hashDigestIterations": 274,
+      "maximumHashDigestIterations": 19778,
+      "redeemBytes": 740,
+      "unlockingBytes": 5610
+    },
+    {
+      "index": 153,
+      "name": "merkle:fri:3:2",
+      "operationCost": 3290556,
+      "maximumOperationCost": 3915200,
+      "hashDigestIterations": 208,
+      "maximumHashDigestIterations": 17129,
+      "redeemBytes": 743,
+      "unlockingBytes": 4853
+    },
+    {
+      "index": 154,
+      "name": "merkle:fri:3:3",
+      "operationCost": 516320,
+      "maximumOperationCost": 823200,
+      "hashDigestIterations": 28,
+      "maximumHashDigestIterations": 3601,
+      "redeemBytes": 723,
+      "unlockingBytes": 988
+    },
+    {
+      "index": 155,
+      "name": "merkle:fri:4:0",
+      "operationCost": 4244430,
+      "maximumOperationCost": 4484800,
+      "hashDigestIterations": 219,
+      "maximumHashDigestIterations": 19621,
+      "redeemBytes": 945,
+      "unlockingBytes": 5565
+    },
+    {
+      "index": 156,
+      "name": "merkle:fri:4:1",
+      "operationCost": 4369338,
+      "maximumOperationCost": 4495200,
+      "hashDigestIterations": 274,
+      "maximumHashDigestIterations": 19666,
+      "redeemBytes": 740,
+      "unlockingBytes": 5578
+    },
+    {
+      "index": 157,
+      "name": "merkle:fri:4:2",
+      "operationCost": 2088055,
+      "maximumOperationCost": 2768800,
+      "hashDigestIterations": 133,
+      "maximumHashDigestIterations": 12113,
+      "redeemBytes": 743,
+      "unlockingBytes": 3420
+    },
+    {
+      "index": 158,
+      "name": "merkle:fri:4:3",
+      "operationCost": 328343,
+      "maximumOperationCost": 823200,
+      "hashDigestIterations": 16,
+      "maximumHashDigestIterations": 3601,
+      "redeemBytes": 723,
+      "unlockingBytes": 988
+    },
+    {
+      "index": 159,
+      "name": "merkle:fri:5:0",
+      "operationCost": 4234722,
+      "maximumOperationCost": 4464800,
+      "hashDigestIterations": 219,
+      "maximumHashDigestIterations": 19533,
+      "redeemBytes": 945,
+      "unlockingBytes": 5540
+    },
+    {
+      "index": 160,
+      "name": "merkle:fri:5:1",
+      "operationCost": 4063773,
+      "maximumOperationCost": 4379200,
+      "hashDigestIterations": 259,
+      "maximumHashDigestIterations": 19159,
+      "redeemBytes": 740,
+      "unlockingBytes": 5433
+    },
+    {
+      "index": 161,
+      "name": "merkle:fri:5:2",
+      "operationCost": 976208,
+      "maximumOperationCost": 1248800,
+      "hashDigestIterations": 64,
+      "maximumHashDigestIterations": 5463,
+      "redeemBytes": 721,
+      "unlockingBytes": 1520
+    },
+    {
+      "index": 162,
+      "name": "merkle:fri:6:0",
+      "operationCost": 4242075,
+      "maximumOperationCost": 4439200,
+      "hashDigestIterations": 219,
+      "maximumHashDigestIterations": 19421,
+      "redeemBytes": 945,
+      "unlockingBytes": 5508
+    },
+    {
+      "index": 163,
+      "name": "merkle:fri:6:1",
+      "operationCost": 3207701,
+      "maximumOperationCost": 3608800,
+      "hashDigestIterations": 208,
+      "maximumHashDigestIterations": 15788,
+      "redeemBytes": 740,
+      "unlockingBytes": 4470
+    },
+    {
+      "index": 164,
+      "name": "merkle:fri:6:2",
+      "operationCost": 494798,
+      "maximumOperationCost": 821600,
+      "hashDigestIterations": 28,
+      "maximumHashDigestIterations": 3594,
+      "redeemBytes": 721,
+      "unlockingBytes": 986
+    },
+    {
+      "index": 165,
+      "name": "merkle:fri:7:0",
+      "operationCost": 4200756,
+      "maximumOperationCost": 4445600,
+      "hashDigestIterations": 219,
+      "maximumHashDigestIterations": 19449,
+      "redeemBytes": 945,
+      "unlockingBytes": 5516
+    },
+    {
+      "index": 166,
+      "name": "merkle:fri:7:1",
+      "operationCost": 2016249,
+      "maximumOperationCost": 2377600,
+      "hashDigestIterations": 133,
+      "maximumHashDigestIterations": 10402,
+      "redeemBytes": 740,
+      "unlockingBytes": 2931
+    },
+    {
+      "index": 167,
+      "name": "merkle:fri:7:2",
+      "operationCost": 295676,
+      "maximumOperationCost": 821600,
+      "hashDigestIterations": 16,
+      "maximumHashDigestIterations": 3594,
+      "redeemBytes": 721,
+      "unlockingBytes": 986
+    },
+    {
+      "index": 168,
+      "name": "merkle:fri:8:0",
+      "operationCost": 2293836,
+      "maximumOperationCost": 2547200,
+      "hashDigestIterations": 146,
+      "maximumHashDigestIterations": 11144,
+      "redeemBytes": 943,
+      "unlockingBytes": 3143
+    },
+    {
+      "index": 169,
+      "name": "merkle:fri:8:1",
+      "operationCost": 929348,
+      "maximumOperationCost": 1221600,
+      "hashDigestIterations": 64,
+      "maximumHashDigestIterations": 5344,
+      "redeemBytes": 719,
+      "unlockingBytes": 1486
+    }
+  ]
+}

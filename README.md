@@ -1,6 +1,6 @@
 # Circle FRI on Bitcoin Cash — Made by ABLalgorithm and toorik.
 
-This branch contains two separate, versioned research families. Their rules,
+This branch contains three separate, versioned research families. Their rules,
 security boundaries, and artifacts are not interchangeable.
 
 ```
@@ -25,3 +25,14 @@ The self-contained [`circle-fri-qm31-t262144-b16-q28-g20-fri9-localword-v15/`](c
 folder is an offline-qualified 168-input candidate. It includes only the active
 source closure, focused tests, pinned Rust prover, governing documents, and
 small hash/meter evidence pack. It is not Chipnet-mined.
+
+## Sealed creation log v17
+
+The self-contained [`sealed-creation-log-circle-stark-v17/`](sealed-creation-log-circle-stark-v17/)
+folder is the BCH-native purification successor over the frozen v16 relation.
+It unifies construction ownership, FRI arithmetic, mixed-Merkle geometry,
+monotone carrier allocation, and authenticated code ROM. Its exact fresh
+three-profile evidence reached the narrow label
+`offline-theorem-qualified-candidate`; the largest serialized transaction is
+951,099 bytes. The receipt binds every-input BCHN `VerifyScript` assays, not
+transaction-level UTXO validation, standard relay, mining, or broadcast.

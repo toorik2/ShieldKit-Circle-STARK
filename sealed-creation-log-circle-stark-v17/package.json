@@ -1,0 +1,36 @@
+{
+  "name": "shieldkit-sealed-creation-log-circle-stark-v17",
+  "version": "17.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Self-contained BCH-native sealed-creation-log Circle STARK v17 research lane.",
+  "scripts": {
+    "audit:imports": "tsx scripts/audit-local-word-product-imports.ts",
+    "test": "node --import tsx --test test/*.test.ts",
+    "test:v17": "node --import tsx --test test/v17-*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "hash:v17-spec": "tsx scripts/hash-v17-normative-spec.ts",
+    "generate:v17": "tsx scripts/generate-v17-construction.ts",
+    "generate:v17:check": "tsx scripts/generate-v17-construction.ts --check",
+    "derive:keys": "tsx scripts/derive-local-word-verifier-keys.ts",
+    "derive:banks": "tsx scripts/derive-local-word-verifier-bank-digests.ts",
+    "qualify:dry": "tsx scripts/qualify-v17-product.ts --dry-run",
+    "verify:receipt": "tsx scripts/verify-v17-offline-qualification-receipt.ts",
+    "diagnose:retained": "tsx scripts/diagnose-v17-retained-sizing.ts",
+    "diagnose:read-heat": "tsx scripts/diagnose-v17-input-read-heat.ts",
+    "qualify": "tsx scripts/qualify-v17-product.ts",
+    "rust:check": "cargo +nightly-2026-01-15 check --release --manifest-path crates/circle-fri-worker/Cargo.toml"
+  },
+  "engines": {
+    "node": ">=20.10"
+  },
+  "dependencies": {
+    "@bitauth/libauth": "3.1.0-next.8"
+  },
+  "devDependencies": {
+    "@types/node": "22.16.5",
+    "ajv": "8.20.0",
+    "tsx": "4.20.3",
+    "typescript": "5.8.3"
+  }
+}
